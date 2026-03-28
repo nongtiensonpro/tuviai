@@ -32,7 +32,7 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
     const checkKey = CryptoService.hasStoredKey();
     setHasEncryptedKey(checkKey);
     setMode(checkKey ? 'unlock' : 'setup');
-    
+
     // Load model preference
     const savedModel = localStorage.getItem('gemini_model_preference');
     if (savedModel) setSelectedModel(savedModel);
@@ -133,21 +133,21 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
 
         <form onSubmit={handleUnlock} className="flex gap-2 items-start flex-wrap sm:flex-nowrap">
           <div className="flex-1 w-full sm:w-auto space-y-3">
-             <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-white/40 uppercase font-bold px-1">Chọn Model</label>
-                <select 
-                  className="input !py-1 text-sm bg-black/60 border-white/20"
-                  value={selectedModel}
-                  onChange={e => setSelectedModel(e.target.value)}
-                >
-                  {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                </select>
-             </div>
-             <div>
-                <input type="password" placeholder="Mật khẩu cục bộ (6+ ký tự)"
-                  className="input w-full" value={password} onChange={e => setPassword(e.target.value)} />
-                {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
-             </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] text-white/40 uppercase font-bold px-1">Chọn Model</label>
+              <select
+                className="input !py-1 text-sm bg-black/60 border-white/20"
+                value={selectedModel}
+                onChange={e => setSelectedModel(e.target.value)}
+              >
+                {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <input type="password" placeholder="Mật khẩu cục bộ (6+ ký tự)"
+                className="input w-full" value={password} onChange={e => setPassword(e.target.value)} />
+              {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+            </div>
           </div>
           <div className="flex flex-col gap-2 pt-5">
             <button type="submit" className="btn-primary !py-2 whitespace-nowrap">Mở Khóa</button>
@@ -199,7 +199,7 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
         </div>
         <div>
           <label className="label">Chọn Model AI</label>
-          <select 
+          <select
             className="input w-full bg-black/40"
             value={selectedModel}
             onChange={e => setSelectedModel(e.target.value)}

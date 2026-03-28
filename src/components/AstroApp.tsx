@@ -56,11 +56,10 @@ export const AstroApp: React.FC = () => {
   };
 
   return (
-    <div className="w-full flex flex-col gap-16">
+    <div className="w-full flex flex-col items-center gap-16 px-6 md:px-10">
       {!chart && (
-        <section className="text-center">
+        <section className="flex justify-center w-full px-4">
           <BirthForm onSubmit={handleGenerateChart} isLoading={isLoading} />
-          {error && <div className="text-red-400 mt-4 bg-red-900/20 p-3 rounded">{error}</div>}
         </section>
       )}
 

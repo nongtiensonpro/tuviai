@@ -76,7 +76,7 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
   };
 
   return (
-    <div id="birth-form-container" className="max-w-3xl mx-auto w-full">
+    <div id="birth-form-container" className="max-w-3xl mx-auto w-full px-4 sm:px-0">
       <div className="card p-6 md:p-8">
         {/* Title */}
         <h3 className="text-xl font-bold text-gold mb-2 font-serif-sc flex items-center gap-2">

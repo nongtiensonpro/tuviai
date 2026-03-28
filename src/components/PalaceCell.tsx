@@ -56,8 +56,8 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
   return (
     <div
       onClick={onClick}
-      className={`palace-cell relative flex flex-col p-2 overflow-visible ${isActive ? 'bg-black/60 shadow-[inset_0_0_20px_rgba(240,192,64,0.1)] border-white/30' : 'bg-black/40'}`}
-      style={{ transition: 'all 0.2s ease', position: 'relative' }}
+      className={`palace-cell relative flex flex-col p-3 overflow-visible transition-all duration-200 ${isActive ? 'bg-black/60 shadow-[inset_0_0_20px_rgba(240,192,64,0.1)] border-white/30' : 'bg-black/40'}`}
+      style={{ position: 'relative' }}
     >
       {/* 1. Hiệu ứng SVG cho Vô Chính Diệu */}
       {isVCD && (
