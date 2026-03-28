@@ -66,14 +66,15 @@ export const AstroApp: React.FC = () => {
 
       {/* Hiển thị Mệnh Bàn */}
       {chart && (
-        <section id="section-board" className="animate-fade-up flex flex-col items-center">
-          <div className="w-full flex justify-between items-center mb-6">
-            <h3 className="text-2xl font-serif-sc text-gold">Mệnh Bàn Tử Vi</h3>
+        <section id="section-board" className="animate-fade-up flex flex-col items-center w-full">
+          {/* Constrain width to match Grid for perfect alignment */}
+          <div className="max-w-[800px] w-full flex justify-between items-end mb-4 border-b border-gold/20 pb-2 px-2">
+            <h3 className="text-3xl font-serif-sc text-gold drop-shadow-[0_0_15px_rgba(240,192,64,0.5)]">Mệnh Bàn Tử Vi</h3>
             <button 
               onClick={() => setChart(null)}
-              className="btn-secondary text-sm !px-3 !py-1"
+              className="text-white/50 hover:text-white hover:bg-white/10 text-xs px-3 py-1.5 rounded transition-all border border-white/10"
             >
-              ← Tạo lại
+              ← Về trang nhập
             </button>
           </div>
           

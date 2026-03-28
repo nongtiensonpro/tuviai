@@ -116,13 +116,32 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
   return (
     <div className="w-full mt-10 max-w-5xl mx-auto animate-fade-up">
       <div className="bg-black/50 border border-gold/40 rounded-xl p-6 md:p-8 backdrop-blur shadow-2xl">
-        <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-           <h2 className="text-2xl font-serif-sc text-gold flex items-center gap-3">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-white/10 pb-4 gap-3">
+           <h2 className="text-2xl font-serif-sc text-gold flex items-center gap-2">
              <span>✨</span> Đại Sư AI (Gemini 2.5 Flash)
            </h2>
-           {targetPalaceName && (
-              <span className="bg-blue-900/50 text-blue-200 border border-blue-500/50 px-3 py-1 rounded text-xs">Điểm Ngắm: Cung {targetPalaceName}</span>
-           )}
+           <div className="flex flex-wrap items-center gap-2">
+               {targetPalaceName && (
+                  <span className="bg-blue-900/50 text-blue-200 border border-blue-500/50 px-2 py-1 rounded text-xs whitespace-nowrap">
+                    Điểm Ngắm: Cung {targetPalaceName}
+                  </span>
+               )}
+               {apiKey && (
+                  <button 
+                    onClick={() => {
+                      if (confirm('Khóa tạm thời hoặc đổi API Key khác?')) {
+                         setApiKey('');
+                         setAnalysisResult(null);
+                         setChatLog([]);
+                      }
+                    }}
+                    className="bg-red-900/40 text-red-200 border border-red-500/30 hover:bg-red-900/80 px-2 py-1 flex items-center gap-1 rounded text-xs transition-colors"
+                    title="Nút này giúp bạn khóa lại AI hoặc cài lại Key nếu bị lỗi Error 400"
+                  >
+                    <span>⚙️</span> Đổi / Khóa Key
+                  </button>
+               )}
+           </div>
         </div>
 
         {!apiKey ? (

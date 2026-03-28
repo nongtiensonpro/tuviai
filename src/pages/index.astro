@@ -106,7 +106,7 @@ import { AstroApp } from '../components/AstroApp';
             aria-label="Cài đặt API Key"
           >
             <span>🔑</span>
-            <span class="hidden sm:inline">API Key</span>
+            <span className="hidden sm:inline">Trợ lý AI</span>
           </button>
           <a
             href="https://aistudio.google.com/apikey"
@@ -181,41 +181,11 @@ import { AstroApp } from '../components/AstroApp';
       <p class="mt-1">Dữ liệu của bạn không bao giờ rời khỏi thiết bị</p>
     </footer>
 
-    <!-- API Key Modal Placeholder -->
-    <div id="modal-api-key" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="card max-w-md w-full p-6">
-        <h3 class="text-lg font-semibold text-gold mb-4">🔑 Cài Đặt Gemini API Key</h3>
-        <p class="text-sm text-white/60 mb-4">
-          API Key được mã hóa ngay trên thiết bị của bạn trước khi lưu.
-          <a href="https://aistudio.google.com/apikey" target="_blank" class="text-gold hover:underline">Lấy key miễn phí tại đây →</a>
-        </p>
-        <div class="space-y-3">
-          <div>
-            <label class="label" for="modal-input-key">API Key</label>
-            <input id="modal-input-key" type="password" placeholder="AIza..." class="input" />
-          </div>
-          <div>
-            <label class="label" for="modal-input-pin">Mã PIN bảo vệ (4-8 ký tự)</label>
-            <input id="modal-input-pin" type="password" placeholder="••••" class="input" maxlength="8" />
-          </div>
-          <div class="flex gap-3 mt-4">
-            <button id="modal-btn-cancel" class="btn-secondary flex-1">Hủy</button>
-            <button id="modal-btn-save" class="btn-primary flex-1">🔐 Lưu An Toàn</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <script>
-      // Modal logic cơ bản
+      // Cuộn nhanh xuống khu vực App khi bấm nút Trợ Lý AI
       const btnSettings = document.getElementById('btn-api-settings');
-      const modal = document.getElementById('modal-api-key');
-      const btnCancel = document.getElementById('modal-btn-cancel');
-
-      btnSettings?.addEventListener('click', () => modal?.classList.remove('hidden'));
-      btnCancel?.addEventListener('click', () => modal?.classList.add('hidden'));
-      modal?.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
+      btnSettings?.addEventListener('click', () => {
+        document.getElementById('ziwei-board-container')?.scrollIntoView({ behavior: 'smooth' });
       });
     </script>
   </body>

@@ -19,7 +19,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
   } = chart;
 
   return (
-    <div className="palace-center relative flex flex-col items-center justify-start p-4 bg-black/40 border border-gold/30 shadow-2xl overflow-hidden font-serif">
+    <div className="palace-center relative flex flex-col items-center justify-start p-6 bg-gradient-to-br from-[#111] to-black border-4 border-double border-gold/40 shadow-[inset_0_0_40px_rgba(240,192,64,0.05)] overflow-hidden font-serif">
       {/* Watermark Bát Quái / Chữ Hán mờ phía sau */}
       <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none select-none">
         <span className="text-[250px] font-serif-sc leading-none" style={{ textShadow: '0 0 50px rgba(240,192,64,0.5)' }}>紫微</span>
@@ -41,66 +41,60 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
       </div>
 
       {/* 2. Bảng Thông Tin (Grid Layout) */}
-      <div className="z-10 w-full max-w-sm flex flex-col gap-1.5 text-sm">
+      <div className="z-10 w-full max-w-[320px] flex flex-col gap-2 text-[15px] mt-2">
         
         {/* Năm / Tháng / Ngày / Giờ */}
-        <div className="grid grid-cols-[80px_1fr_1fr] gap-2 items-center text-white/90">
-          <span className="text-white/40">Năm sinh</span>
+        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center text-white/90">
+          <span className="text-white/40 tracking-wider">Năm sinh</span>
           <span className="font-semibold">{solarDate.year}</span>
           <span className="font-bold text-gold/80">{namCanChi.displayName}</span>
         </div>
         
-        <div className="grid grid-cols-[80px_1fr_1fr] gap-2 items-center text-white/90">
-          <span className="text-white/40">Tháng</span>
-          <span>{solarDate.month} <span className="text-white/40 text-xs">({lunarDate.month} âm)</span></span>
-          <span className="font-semibold text-white/70">Tháng {lunarDate.month} Âm</span>
+        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center text-white/90">
+          <span className="text-white/40 tracking-wider">Tháng</span>
+          <span>{solarDate.month} <span className="text-white/40 text-[11px]">({lunarDate.month} âm)</span></span>
+          <span className="font-semibold text-emerald-400/80">Tháng {lunarDate.month} Âm</span>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr_1fr] gap-2 items-center text-white/90">
-          <span className="text-white/40">Ngày</span>
-          <span>{solarDate.day} <span className="text-white/40 text-xs">({lunarDate.day} âm)</span></span>
-          <span className="font-semibold text-white/70">Ngày {lunarDate.day} Âm</span>
+        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center text-white/90">
+          <span className="text-white/40 tracking-wider">Ngày</span>
+          <span>{solarDate.day} <span className="text-white/40 text-[11px]">({lunarDate.day} âm)</span></span>
+          <span className="font-semibold text-emerald-400/80">Ngày {lunarDate.day} Âm</span>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr_1fr] gap-2 items-center text-white/90">
-          <span className="text-white/40">Giờ</span>
-          <span>{solarDate.hour}h <span className="text-white/40 text-xs">{solarDate.minute ? `${solarDate.minute}m` : ''}</span></span>
-          <span className="font-semibold text-white/70">Giờ {lunarDate.hourChi}</span>
+        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center text-white/90">
+          <span className="text-white/40 tracking-wider">Giờ</span>
+          <span>{solarDate.hour}h<span className="text-white/40 text-[11px]">{solarDate.minute ? `${solarDate.minute}m` : ''}</span></span>
+          <span className="font-semibold text-emerald-400/80">Giờ {lunarDate.hourChi}</span>
         </div>
 
         {/* Khung chia line */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-2"></div>
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent my-3"></div>
 
         {/* Thông tin Lý Số Âm Dương Mệnh Cục */}
-        <div className="grid grid-cols-[80px_1fr] gap-2 items-start text-white/90 mt-1">
-          <span className="text-white/40 mt-0.5">Âm Dương</span>
+        <div className="grid grid-cols-[80px_1fr] gap-3 items-start text-white/90">
+          <span className="text-white/40 tracking-wider mt-0.5">Âm dương</span>
           <div className="flex flex-col">
-            <span className="font-bold text-blue-300">{amDuongNamNu}</span>
-            <span className="text-xs text-white/60">{amDuongLy}</span>
+            <span className="font-bold text-blue-300">{amDuongNamNu} <span className="text-white/50 font-normal ml-2">({amDuongLy})</span></span>
           </div>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr] gap-2 items-start text-white/90 mt-1">
-          <span className="text-white/40 mt-0.5">Mệnh</span>
+        <div className="grid grid-cols-[80px_1fr] gap-3 items-center text-white/90 mt-1">
+          <span className="text-white/40 tracking-wider">Bản Mệnh</span>
           <span className="font-bold text-emerald-400 capitalize">{banMenh}</span>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr] gap-2 items-start text-white/90 mt-1">
-          <span className="text-white/40 mt-0.5">Cục</span>
+        <div className="grid grid-cols-[80px_1fr] gap-3 items-start text-white/90 mt-1">
+          <span className="text-white/40 tracking-wider mt-0.5">Mệnh Cục</span>
           <div className="flex flex-col">
-            <span className="font-bold text-amber-500 capitalize">{tenCuc}</span>
-            <span className="text-xs text-white/60">{menhCucSinhKhac}</span>
+            <span className="font-bold text-amber-500 capitalize">{tenCuc} <span className="text-white/50 font-normal ml-2 text-sm">({menhCucSinhKhac})</span></span>
           </div>
         </div>
 
-        <div className="grid grid-cols-[80px_1fr] gap-2 items-center text-white/90 mt-2">
-          <span className="text-white/40">Mệnh chủ</span>
-          <span className="font-semibold text-white/80">{menhChu}</span>
-        </div>
-
-        <div className="grid grid-cols-[80px_1fr] gap-2 items-center text-white/90 mt-1">
-          <span className="text-white/40">Thân chủ</span>
-          <span className="font-semibold text-white/80">{thanChu}</span>
+        <div className="grid grid-cols-[80px_1fr_1fr] gap-3 items-center text-white/90 mt-3 pt-3 border-t border-dashed border-white/10">
+          <span className="text-white/40 tracking-wider">Chủ tinh</span>
+          <span>Mệnh: <span className="font-semibold text-white/90">{menhChu}</span></span>
+          <span>Thân: <span className="font-semibold text-white/90">{thanChu}</span></span>
         </div>
 
       </div>
