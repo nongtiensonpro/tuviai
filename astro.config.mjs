@@ -7,6 +7,8 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   // Static output — no server required, GitHub Pages compatible
   output: 'static',
+  site: 'https://nongtiensonpro.github.io',
+  base: '/tuviai', // Sửa đường dẫn theo Tên Repository của bạn trên Github
 
   integrations: [react()],
 
