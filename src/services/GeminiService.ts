@@ -18,7 +18,8 @@ export class GeminiService {
     apiKey: string,
     chart: ZiweiChart,
     targetPalaceName?: string,
-    userQuestion?: string
+    userQuestion?: string,
+    modelName: string = 'gemini-3.1-pro-preview'
   ): Promise<StructuredAiResponse> {
     
     if (!apiKey) throw new Error("API Key không hợp lệ.");
@@ -29,7 +30,7 @@ export class GeminiService {
       const prompt = PromptBuilder.buildAnalysisPrompt(chart, targetPalaceName, userQuestion);
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: modelName,
         contents: prompt,
         config: {
           systemInstruction,
@@ -56,7 +57,7 @@ export class GeminiService {
   /**
    * Tính năng Chat đàm thoại. Mở 1 Chat Session.
    */
-  static createChatSession(apiKey: string, chart: ZiweiChart, targetPalaceName?: string) {
+  static createChatSession(apiKey: string, chart: ZiweiChart, targetPalaceName?: string, modelName: string = 'gemini-3.1-pro-preview') {
     if (!apiKey) throw new Error("API Key không hợp lệ.");
     const ai = new GoogleGenAI({ apiKey });
     const systemInstruction = PromptBuilder.buildSystemInstruction();
@@ -65,7 +66,7 @@ export class GeminiService {
 
     // Bắt đầu một Chat session
     const chat = ai.chats.create({
-      model: 'gemini-2.5-flash',
+      model: modelName,
       config: {
         systemInstruction,
         temperature: 0.7

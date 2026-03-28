@@ -3,7 +3,7 @@
  * Đây là entry point duy nhất cho toàn bộ quá trình tính toán mệnh bàn
  */
 
-import type { SolarDate, ZiweiChart, NguHanhCuc } from '../types/ZiweiTypes';
+import type { SolarDate, ZiweiChart, NguHanhCuc, Palace, Star } from '../types/ZiweiTypes';
 import { CUC_NAME, TWELVE_CHI } from '../types/ZiweiTypes';
 import { solarToLunar, getNamCanChi, getYearCanChi } from '../calendar/LunarConverter';
 import {
@@ -19,6 +19,7 @@ import {
   placeFixedStars,
   calcTuanTrietKhong,
 } from './AuxStarEngine';
+import { placeAllMinorStars } from './MinorStarEngine';
 import { applySihua } from './SihuaEngine';
 import {
   calcAmDuongNamNu,
@@ -110,6 +111,21 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   // Step 12: Tuần Không / Triệt Không
   palaces = calcTuanTrietKhong(palaces, yearCanChi.canIndex, yearCanChi.chiIndex);
 
+  // Step 12.5: An toàn bộ 70+ Bàng tinh Tạp diệu
+  palaces = placeAllMinorStars(
+    palaces,
+    yearCanChi.canIndex,
+    yearCanChi.chiIndex,
+    lunar.month,
+    lunar.day,
+    lunar.hourChiIndex,
+    gender === 'male' ? 'Nam' : 'Nữ',
+    nguHanhCuc
+  );
+
+  // Step 12.6: Mượn chính tinh cho các cung Vô Chính Diệu
+  palaces = applyBorrowedStars(palaces);
+
   // Step 13: Tứ Hóa
   palaces = applySihua(palaces, namCanChi.can);
 
@@ -181,4 +197,24 @@ export function chartToPromptContext(chart: ZiweiChart): string {
     })),
   };
   return JSON.stringify(context, null, 2);
+}
+
+/**
+ * Logic mượn chính tinh từ cung xung chiếu cho các cung Vô Chính Diệu (VCD)
+ */
+function applyBorrowedStars(palaces: Palace[]): Palace[] {
+  return palaces.map(p => {
+    if (p.mainStars.length === 0) {
+      // Tìm cung xung chiếu (cách 6 cung)
+      const oppositeIdx = (p.chiIndex + 6) % 12;
+      const oppositePalace = palaces[oppositeIdx]!;
+      
+      // Mượn các chính tinh
+      p.borrowedStars = oppositePalace.mainStars.map((s: Star) => ({
+        ...s,
+        palaceIndex: p.chiIndex // Cập nhật vị trí tọa lạc mới
+      }));
+    }
+    return p;
+  });
 }

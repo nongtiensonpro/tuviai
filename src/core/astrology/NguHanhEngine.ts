@@ -22,37 +22,42 @@ const MAIN_STARS_NGU_HANH: Record<string, NguHanh> = {
   'Phá Quân': 'Thủy',
 };
 
-// Từ điển Ngũ Hành của Phụ / Sát / Cát tinh
+// Từ điển Ngũ Hành của Phụ / Sát / Cát tinh / Tạp Diệu (Đầy đủ 108 sao)
 const AUX_STARS_NGU_HANH: Record<string, NguHanh> = {
-  'Văn Xương': 'Kim',
-  'Văn Khúc': 'Thủy',
-  'Tả Phù': 'Thổ',
-  'Hữu Bật': 'Thủy',
-  'Thiên Khôi': 'Hỏa',
-  'Thiên Việt': 'Hỏa',
-  'Lộc Tồn': 'Thổ',
-  'Kình Dương': 'Kim', // Kình Dương Kim
-  'Đà La': 'Kim',    // Đà La Kim
-  'Hỏa Tinh': 'Hỏa',
-  'Linh Tinh': 'Hỏa',
-  'Địa Không': 'Hỏa',
-  'Địa Kiếp': 'Hỏa',
+  // --- Lục Cát, Lục Sát ---
+  'Văn Xương': 'Kim', 'Văn Khúc': 'Thủy', 'Tả Phù': 'Thổ', 'Hữu Bật': 'Thủy',
+  'Thiên Khôi': 'Hỏa', 'Thiên Việt': 'Hỏa', 'Lộc Tồn': 'Thổ', 'Kình Dương': 'Kim',
+  'Đà La': 'Kim', 'Hỏa Tinh': 'Hỏa', 'Linh Tinh': 'Hỏa', 'Địa Không': 'Hỏa', 'Địa Kiếp': 'Hỏa',
   
-  // Các sao nhỏ khác
-  'Thiên Mã': 'Hỏa',
-  'Thiên Hình': 'Hỏa',
-  'Thiên Diêu': 'Thủy',
-  'Đào Hoa': 'Mộc',
-  'Hồng Loan': 'Thủy',
-  'Thiên Hỷ': 'Thủy',
-  'Cô Thần': 'Thổ',
-  'Quả Tú': 'Thổ',
-  'Đại Hao': 'Hỏa',
-  'Tiểu Hao': 'Hỏa',
-  'Bạch Hổ': 'Kim',
-  'Tang Môn': 'Mộc',
-  'Điếu Khách': 'Hỏa',
-  'Thái Tuế': 'Hỏa',
+  // --- Vòng Thái Tuế (12 sao) ---
+  'Thái Tuế': 'Hỏa', 'Thiếu Dương': 'Hỏa', 'Tang Môn': 'Mộc', 'Thiếu Âm': 'Thủy',
+  'Quan Phù': 'Hỏa', 'Tử Phù': 'Kim', 'Tuế Phá': 'Hỏa', 'Long Đức': 'Thủy',
+  'Bạch Hổ': 'Kim', 'Phúc Đức': 'Thổ', 'Điếu Khách': 'Hỏa', 'Trực Phù': 'Kim',
+
+  // --- Vòng Lộc Tồn / Bác Sĩ (Hiểu Lộc Tồn ở trên) ---
+  'Bác Sĩ': 'Thủy', 'Lực Sĩ': 'Hỏa', 'Thanh Long': 'Thủy', 'Tiểu Hao': 'Hỏa',
+  'Tướng Quân': 'Mộc', 'Tấu Thư': 'Kim', 'Phi Liêm': 'Hỏa', 'Hỷ Thần': 'Hỏa',
+  'Bệnh Phù': 'Thổ', 'Đại Hao': 'Hỏa', 'Phục Binh': 'Hỏa', 'Quan Phủ': 'Hỏa',
+  
+  // --- Vòng Trường Sinh ---
+  'Trường Sinh': 'Thủy', 'Mộc Dục': 'Thủy', 'Quan Đới': 'Kim', 'Lâm Quan': 'Kim',
+  'Đế Vượng': 'Kim', 'Suy': 'Thủy', 'Bệnh': 'Hỏa', 'Tử': 'Hỏa',
+  'Mộ': 'Thổ', 'Tuyệt': 'Hỏa', 'Thai': 'Thổ', 'Dưỡng': 'Mộc',
+
+  // --- Tạp Diệu (Tháng, Ngày, Giờ, Năm) ---
+  'Thiên Hình': 'Hỏa', 'Thiên Diêu': 'Thủy', 'Thiên Y': 'Thủy', 'Thiên Giải': 'Mộc',
+  'Địa Giải': 'Mộc', 'Giải Thần': 'Mộc', 'Tam Thai': 'Thủy', 'Bát Tọa': 'Mộc',
+  'Ân Quang': 'Mộc', 'Thiên Quý': 'Thổ', 'Thai Phụ': 'Kim', 'Phong Cáo': 'Thổ',
+  'Thiên Không': 'Hỏa', 'Đào Hoa': 'Mộc', 'Hồng Loan': 'Thủy', 'Thiên Hỷ': 'Thủy',
+  'Cô Thần': 'Thổ', 'Quả Tú': 'Thổ', 'Kiếp Sát': 'Hỏa', 'Hoa Cái': 'Kim',
+  'Phá Toái': 'Hỏa', 'Long Trì': 'Thủy', 'Phượng Các': 'Mộc', 'Thiên Tài': 'Mộc',
+  'Thiên Thọ': 'Thổ', 'Thiên Khốc': 'Thủy', 'Thiên Hư': 'Thủy', 'Thiên Mã': 'Hỏa',
+  'Thiên Quan': 'Hỏa', 'Thiên Phúc': 'Thổ', 'Lưu Hà': 'Thủy', 'Thiên Trù': 'Thổ',
+  'Thiên La': 'Thổ', 'Địa Võng': 'Thổ', 'Thiên Thương': 'Thủy', 'Thiên Sứ': 'Thủy',
+  'Thiên Đức': 'Hỏa', 'Nguyệt Đức': 'Hỏa', 'Quốc Ấn': 'Thổ', 'Đường Phù': 'Mộc',
+
+  // --- Tuần Triệt ---
+  'Tuần Không': 'Hỏa', 'Triệt Không': 'Kim', 'Triệt': 'Kim', 'Tuần': 'Hỏa',
 };
 
 /**

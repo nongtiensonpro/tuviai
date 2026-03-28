@@ -13,56 +13,7 @@ import {
 import { getCungMenhCan } from '../calendar/LunarConverter';
 
 // ============================================================
-// BẢNG TRA CỨU
-// ============================================================
-
-/**
- * Bảng Ngũ Hành Nạp Âm Cục theo (Can-Chi) của Cung Mệnh
- * Key: "TenCan-TenChi", Value: số cục
- * Source: SKILL.md §5
- */
-const NAP_AM_CUC: Record<string, NguHanhCuc> = {
-  'Giáp-Tý': 4, 'Ất-Sửu': 4,
-  'Bính-Dần': 6, 'Đinh-Mão': 6,
-  'Mậu-Thìn': 6, 'Kỷ-Tỵ': 6,
-  'Canh-Ngọ': 2, 'Tân-Mùi': 2,
-  'Nhâm-Thân': 2, 'Quý-Dậu': 2,
-  'Giáp-Tuất': 3, 'Ất-Hợi': 3,
-  'Bính-Tý': 3, 'Đinh-Sửu': 3,
-  'Mậu-Dần': 5, 'Kỷ-Mão': 5,
-  'Canh-Thìn': 5, 'Tân-Tỵ': 5,
-  'Nhâm-Ngọ': 6, 'Quý-Mùi': 6,
-  'Giáp-Thân': 4, 'Ất-Dậu': 4,
-  'Bính-Tuất': 3, 'Đinh-Hợi': 3,
-  'Mậu-Tý': 2, 'Kỷ-Sửu': 2,
-  'Canh-Dần': 3, 'Tân-Mão': 3,
-  'Nhâm-Thìn': 6, 'Quý-Tỵ': 6,
-  'Giáp-Ngọ': 5, 'Ất-Mùi': 5,
-  'Bính-Thân': 4, 'Đinh-Dậu': 4,
-  'Mậu-Tuất': 3, 'Kỷ-Hợi': 3,
-  'Canh-Tý': 4, 'Tân-Sửu': 4,
-  'Nhâm-Dần': 5, 'Quý-Mão': 5,
-  'Giáp-Thìn': 6, 'Ất-Tỵ': 6,
-  'Bính-Ngọ': 2, 'Đinh-Mùi': 2,
-  'Mậu-Thân': 2, 'Kỷ-Dậu': 2,
-  'Canh-Tuất': 5, 'Tân-Hợi': 5,
-  'Nhâm-Tý': 3, 'Quý-Sửu': 3,
-  'Giáp-Dần': 5, 'Ất-Mão': 5,
-  'Bính-Thìn': 4, 'Đinh-Tỵ': 4,
-  'Mậu-Ngọ': 6, 'Kỷ-Mùi': 6,
-  'Canh-Thân': 6, 'Tân-Dậu': 6,
-  'Nhâm-Tuất': 2, 'Quý-Hợi': 2,
-};
-
-/**
- * Bảng Thiên Can cho 12 cung trên mệnh bàn
- * Cứ mỗi vòng 12 cung sẽ có 12 can, lặp lại theo chu kỳ
- * Từ Dần (chiIndex=2) đếm ngược chiều kim đồng hồ (chiIndex tăng)
- * Thiên Can của các cung = Can Dần + offset (mod 10)
- */
-
-// ============================================================
-// HÀM TÍNH CUNG MỆNH
+// HÀM TÍNH CUNG MỆNH VÀ CỤC
 // ============================================================
 
 /**
@@ -116,16 +67,35 @@ export function calcThanChiIndex(lunarMonth: number): number {
 
 /**
  * Tính Ngũ Hành Nạp Âm Cục của Cung Mệnh
- * @param menhCan - Thiên Can của Cung Mệnh
- * @param menhChi - Địa Chi của Cung Mệnh
+ * Phân tích: Tính qua giá trị Can và Chi.
+ * Can: Giáp,Ất=1 | Bính,Đinh=2 | Mậu,Kỷ=3 | Canh,Tân=4 | Nhâm,Quý=5
+ * Chi: Tý,Sửu,Ngọ,Mùi=0 | Dần,Mão,Thân,Dậu=1 | Thìn,Tỵ,Tuất,Hợi=2
+ * Cục = Can + Chi (Nếu > 5 thì trừ 5)
+ * Ánh xạ Nạp Âm: 1->Kim(4), 2->Thủy(2), 3->Hỏa(6), 4->Thổ(5), 5->Mộc(3)
  */
 export function calcNguHanhCuc(menhCan: TenCan, menhChi: TwoelveChi): NguHanhCuc {
-  const key = `${menhCan}-${menhChi}`;
-  const cuc = NAP_AM_CUC[key];
-  if (cuc === undefined) {
-    throw new Error(`Không tìm thấy Cục cho: ${key}`);
-  }
-  return cuc;
+  const canMap: Record<TenCan, number> = {
+    'Giáp': 1, 'Ất': 1, 'Bính': 2, 'Đinh': 2, 'Mậu': 3, 
+    'Kỷ': 3, 'Canh': 4, 'Tân': 4, 'Nhâm': 5, 'Quý': 5
+  };
+  const chiMap: Record<TwoelveChi, number> = {
+    'Tý': 0, 'Sửu': 0, 'Ngọ': 0, 'Mùi': 0,
+    'Dần': 1, 'Mão': 1, 'Thân': 1, 'Dậu': 1,
+    'Thìn': 2, 'Tỵ': 2, 'Tuất': 2, 'Hợi': 2
+  };
+
+  let sum = canMap[menhCan] + chiMap[menhChi];
+  if (sum > 5) sum -= 5;
+
+  const nạpÂmMap: Record<number, NguHanhCuc> = {
+    1: 4, // Kim Tứ Cục
+    2: 2, // Thủy Nhị Cục
+    3: 6, // Hỏa Lục Cục
+    4: 5, // Thổ Ngũ Cục
+    5: 3, // Mộc Tam Cục
+  };
+
+  return nạpÂmMap[sum] as NguHanhCuc;
 }
 
 export function getTenCuc(cuc: NguHanhCuc): TenCuc {
@@ -172,7 +142,11 @@ export function buildPalaces(
       palaceName,
       mainStars: [],
       auxStars: [],
+      borrowedStars: [],
       sihua: [],
+      trangSinh: '',
+      daiHan: 0,
+      isThanPalace: false,
       hasTuanKhong: false,
       hasTrinhKhong: false,
     });

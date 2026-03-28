@@ -1,0 +1,251 @@
+/**
+ * MinorStarEngine.ts — Engine an định các Bàng Tinh, Tạp Diệu (108 sao Tử Vi Đẩu Số)
+ * Bao gồm: Vòng Thái Tuế, Vòng Lộc Tồn (Bác sĩ), Nhật Nguyệt Thời Tuế Hệ sao.
+ */
+
+import type { Palace, Star } from '../types/ZiweiTypes';
+import { getStarNguHanh } from './NguHanhEngine';
+
+function createMinorStar(name: string, palaceIndex: number, category: Star['category'] = 'fixed'): Star {
+  return {
+    name,
+    category,
+    nguHanh: getStarNguHanh(name),
+    brightness: '',
+    palaceIndex: ((palaceIndex % 12) + 12) % 12,
+  };
+}
+
+function placeStar(palaces: Palace[], name: string, idx: number, category: Star['category'] = 'fixed') {
+  const normIdx = ((idx % 12) + 12) % 12;
+  palaces[normIdx]!.auxStars.push(createMinorStar(name, normIdx, category));
+}
+
+// Bảng thuộc tính sinh Dần, Thân, Tỵ, Hợi (phục vụ Cô Thần, Quả Tú, Kiếp Sát, Hoa Cái...)
+const SAN_HE: Record<number, number[]> = {
+  // Dần(2), Ngọ(6), Tuất(10)
+  2: [2, 6, 10], 6: [2, 6, 10], 10: [2, 6, 10],
+  // Thân(8), Tý(0), Thìn(4)
+  8: [8, 0, 4], 0: [8, 0, 4], 4: [8, 0, 4],
+  // Tỵ(5), Dậu(9), Sửu(1)
+  5: [5, 9, 1], 9: [5, 9, 1], 1: [5, 9, 1],
+  // Hợi(11), Mão(3), Mùi(7)
+  11: [11, 3, 7], 3: [11, 3, 7], 7: [11, 3, 7],
+};
+
+/**
+ * 1. An Vòng Thái Tuế (12 sao)
+ * Khởi Thái Tuế tại cung Địa chi Năm sinh. Tính thuận.
+ */
+function placeVongThaiTue(palaces: Palace[], yearChiIdx: number) {
+  const stars = [
+    'Thái Tuế', 'Thiếu Dương', 'Tang Môn', 'Thiếu Âm', 
+    'Quan Phù', 'Tử Phù', 'Tuế Phá', 'Long Đức', 
+    'Bạch Hổ', 'Phúc Đức', 'Điếu Khách', 'Trực Phù'
+  ];
+  for (let i = 0; i < 12; i++) {
+    placeStar(palaces, stars[i]!, yearChiIdx + i, 'fixed');
+  }
+}
+
+/**
+ * 2. An Vòng Lộc Tồn / Bác Sĩ (12 sao)
+ * Bác sĩ khởi tại cung Lộc Tồn, Dương Nam Âm Nữ đi Thuận, Âm Nam Dương Nữ đi Nghịch.
+ */
+function placeVongLocTonBacSi(palaces: Palace[], locTonIdx: number, gender: 'Nam' | 'Nữ', yearCanIdx: number) {
+  const stars = [
+    'Bác Sĩ', 'Lực Sĩ', 'Thanh Long', 'Tiểu Hao',
+    'Tướng Quân', 'Tấu Thư', 'Phi Liêm', 'Hỷ Thần',
+    'Bệnh Phù', 'Đại Hao', 'Phục Binh', 'Quan Phủ'
+  ];
+  // Xác định m Dương: Giáp, Bính, Mậu, Canh, Nhâm là Dương (0, 2, 4, 6, 8)
+  const isDuong = yearCanIdx % 2 === 0;
+  const isThuan = (isDuong && gender === 'Nam') || (!isDuong && gender === 'Nữ');
+
+  for (let i = 0; i < 12; i++) {
+    const idx = isThuan ? (locTonIdx + i) : (locTonIdx - i + 12);
+    placeStar(palaces, stars[i]!, idx, 'fixed');
+  }
+}
+
+/**
+ * 2.5. An Vòng Trường Sinh (12 sao)
+ * Khởi tại Sinh địa của Cục. Nam Dương Nữ Âm đi Thuận, Nam Âm Nữ Dương đi Nghịch.
+ */
+function placeVongTrangSinh(
+  palaces: Palace[], 
+  nguHanhCuc: number, 
+  gender: 'Nam' | 'Nữ', 
+  yearCanIdx: number
+) {
+  const stars = [
+    'Trường Sinh', 'Mộc Dục', 'Quan Đới', 'Lâm Quan',
+    'Đế Vượng', 'Suy', 'Bệnh', 'Tử',
+    'Mộ', 'Tuyệt', 'Thai', 'Dưỡng'
+  ];
+  
+  // Vị trí khởi Trường Sinh theo Cục
+  // Thủy(2) -> Thân(8), Mộc(3) -> Hợi(11), Kim(4) -> Tỵ(5), Thổ(5) -> Thân(8), Hỏa(6) -> Dần(2)
+  const mapCucToStart: Record<number, number> = { 2: 8, 3: 11, 4: 5, 5: 8, 6: 2 };
+  const startIdx = mapCucToStart[nguHanhCuc] ?? 8;
+
+  const isDuong = yearCanIdx % 2 === 0;
+  const isThuan = (isDuong && gender === 'Nam') || (!isDuong && gender === 'Nữ');
+
+  for (let i = 0; i < 12; i++) {
+    const idx = isThuan ? (startIdx + i) : (startIdx - i + 12);
+    placeStar(palaces, stars[i]!, idx, 'fixed');
+  }
+}
+
+/**
+ * 3. Tạp Diệu: Nguyệt Hệ (Tháng), Nhật Hệ (Ngày), Thời Hệ (Giờ), Tuế Hệ (Năm)
+ */
+function placeTapDieu(
+  palaces: Palace[], 
+  yearCanIdx: number, yearChiIdx: number, 
+  month: number, day: number, hourChiIdx: number
+) {
+  // === Theo Tháng ===
+  // Thiên Hình: Tháng 1 tại Dậu (9), đếm thuận
+  placeStar(palaces, 'Thiên Hình', 9 + month - 1, 'sha');
+  // Thiên Diêu, Thiên Y: Tháng 1 tại Sửu (1), đếm thuận
+  placeStar(palaces, 'Thiên Diêu', 1 + month - 1, 'sha');
+  placeStar(palaces, 'Thiên Y', 1 + month - 1, 'cat');
+  // Thiên Giải: Tháng 1 tại Thân (8), đếm thuận
+  placeStar(palaces, 'Thiên Giải', 8 + month - 1, 'cat');
+  // Địa Giải: Tháng 1 tại Mùi (7), đếm thuận
+  placeStar(palaces, 'Địa Giải', 7 + month - 1, 'cat');
+  // Giải Thần: Đứng cùng tháng với Thiên Giải (trong nhiều phái, hoặc Thân -> đếm thuận)
+  // Trong phái Bắc Tông thường nhập chung cung Giải Thần và Thiên Giải.
+  placeStar(palaces, 'Giải Thần', 8 + month - 1, 'cat');
+
+  // === Theo Ngày ===
+  // Tam Thai: Từ Tả Phù (Tháng 1 tại Dần 2, thuận) + ngày - 1
+  const taPhuIdx = (2 + month - 1) % 12;
+  placeStar(palaces, 'Tam Thai', taPhuIdx + day - 1, 'cat');
+  // Bát Tọa: Từ Hữu Bật (Tháng 1 tại Tuất 10, nghịch) - ngày + 1
+  const huuBatIdx = (10 - month + 1 + 12) % 12;
+  placeStar(palaces, 'Bát Tọa', huuBatIdx - day + 1 + 12, 'cat');
+  // n Quang: Từ Văn Xương (Tý Dựa Tuất 10, nghịch giờ) + ngày - 2
+  const vanXuongIdx = (10 - hourChiIdx + 12) % 12;
+  placeStar(palaces, 'Ân Quang', vanXuongIdx + day - 2 + 12, 'cat');
+  // Thiên Quý: Từ Văn Khúc (Tý Dựa Thìn 4, thuận giờ) - ngày + 2 (hoặc đếm nghịch ngày lùi 1)
+  const vanKhucIdx = (4 + hourChiIdx) % 12;
+  placeStar(palaces, 'Thiên Quý', vanKhucIdx - (day - 1) - 1 + 24, 'cat');
+
+  // === Theo Giờ ===
+  // Thai Phụ: Văn Khúc + 2, Phong Cáo: Văn Khúc - 2
+  placeStar(palaces, 'Thai Phụ', vanKhucIdx + 2, 'cat');
+  placeStar(palaces, 'Phong Cáo', vanKhucIdx - 2 + 12, 'cat');
+  
+  // Thiên Không (Ngay trước Địa Kiếp hoặc Thái Tuế + 1)
+  // Thực tế Việt Nam Tử Vi: Thiên Không an ngay sau Thái Tuế (cùng Thiếu Dương).
+  placeStar(palaces, 'Thiên Không', yearChiIdx + 1, 'sha');
+
+  // === Theo Năm ===
+  // Đào Hoa: Tý/Ngọ/Mão/Dậu sinh -> Dần Ngọ Tuất -> Mão (3)...
+  const daoHoaMap = { 2: 3, 6: 3, 10: 3, 8: 9, 0: 9, 4: 9, 5: 6, 9: 6, 1: 6, 11: 0, 3: 0, 7: 0 };
+  placeStar(palaces, 'Đào Hoa', (daoHoaMap as any)[yearChiIdx], 'cat');
+
+  // Hồng Loan: Mão (3) lùi theo Chi Năm (Tý=0)
+  const hongLoanIdx = (3 - yearChiIdx + 12) % 12;
+  placeStar(palaces, 'Hồng Loan', hongLoanIdx, 'cat');
+  // Thiên Hỷ: Đối cung Hồng Loan
+  placeStar(palaces, 'Thiên Hỷ', hongLoanIdx + 6, 'cat');
+
+  // Cô Thần: Tam hợp Dần Mão Thìn -> Tỵ(5), Tỵ Ngọ Mùi -> Thân(8), Thân Dậu Tuất -> Hợi(11), Hợi Tý Sửu -> Dần(2)
+  const coThanMap = { 2:5, 3:5, 4:5, 5:8, 6:8, 7:8, 8:11, 9:11, 10:11, 11:2, 0:2, 1:2 };
+  placeStar(palaces, 'Cô Thần', (coThanMap as any)[yearChiIdx], 'sha');
+
+  // Quả Tú: Tam hợp lùi -> Dần Mão Thìn -> Sửu(1), Tỵ Ngọ Mùi -> Thìn(4), Thân Dậu Tuất -> Mùi(7), Hợi Tý Sửu -> Tuất(10)
+  const quaTuMap = { 2:1, 3:1, 4:1, 5:4, 6:4, 7:4, 8:7, 9:7, 10:7, 11:10, 0:10, 1:10 };
+  placeStar(palaces, 'Quả Tú', (quaTuMap as any)[yearChiIdx], 'sha');
+
+  // Kiếp Sát: Cung đầu của tam hợp Thủy/Mộc/Hỏa/Kim
+  const kiepSatMap = { 2:11, 6:11, 10:11, 8:5, 0:5, 4:5, 5:2, 9:2, 1:2, 11:8, 3:8, 7:8 };
+  placeStar(palaces, 'Kiếp Sát', (kiepSatMap as any)[yearChiIdx], 'sha');
+
+  // Hoa Cái: Dần Ngọ Tuất -> Tuất(10)...
+  const hoaCaiMap = { 2:10, 6:10, 10:10, 8:4, 0:4, 4:4, 5:1, 9:1, 1:1, 11:7, 3:7, 7:7 };
+  placeStar(palaces, 'Hoa Cái', (hoaCaiMap as any)[yearChiIdx], 'cat');
+
+  // Phá Toái: Tỵ Dậu Sửu -> Tỵ(5)...
+  const phaToaiMap = { 2:9, 6:9, 10:9, 8:5, 0:5, 4:5, 5:1, 9:1, 1:1, 11:5, 3:5, 7:5 };
+  placeStar(palaces, 'Phá Toái', (phaToaiMap as any)[yearChiIdx], 'sha');
+
+  // Thiên Khốc: Từ Ngọ (6) lùi theo tuổi
+  placeStar(palaces, 'Thiên Khốc', 6 - yearChiIdx + 12, 'sha');
+  // Thiên Hư: Từ Ngọ (6) tiến theo tuổi
+  placeStar(palaces, 'Thiên Hư', 6 + yearChiIdx, 'sha');
+
+  // Long Trì: Từ Thìn (4) thuận theo năm
+  placeStar(palaces, 'Long Trì', 4 + yearChiIdx, 'cat');
+  // Phượng Các: Từ Tuất (10) nghịch theo năm
+  placeStar(palaces, 'Phượng Các', 10 - yearChiIdx + 12, 'cat');
+
+  // Thiên Quan, Thiên Phúc (Tùy Can Năm - Tham khảo cơ bản)
+  const thienQuanMap = [7, 4, 5, 2, 3, 9, 11, 9, 10, 6]; // Giáp->Mùi...
+  const thienPhucMap = [9, 8, 0, 11, 3, 2, 6, 5, 6, 5];
+  placeStar(palaces, 'Thiên Quan', thienQuanMap[yearCanIdx]!, 'cat');
+  placeStar(palaces, 'Thiên Phúc', thienPhucMap[yearCanIdx]!, 'cat');
+
+  // Lưu Hà: Tùy Can Năm
+  const luuHaMap = [9, 10, 7, 5, 5, 6, 8, 3, 11, 2];
+  placeStar(palaces, 'Lưu Hà', luuHaMap[yearCanIdx]!, 'sha');
+
+  // Thiên Trù: Tùy Can Năm
+  const thienTruMap = [5, 6, 0, 5, 6, 8, 2, 6, 9, 11];
+  placeStar(palaces, 'Thiên Trù', thienTruMap[yearCanIdx]!, 'cat');
+
+  // Thiên Mã: Dần Ngọ Tuất mã ở Thân(8)...
+  const thienMaMap = { 2: 8, 6: 8, 10: 8, 8: 2, 0: 2, 4: 2, 5: 11, 9: 11, 1: 11, 11: 5, 3: 5, 7: 5 };
+  placeStar(palaces, 'Thiên Mã', (thienMaMap as any)[yearChiIdx], 'cat');
+
+  // Thiên Đức: Khởi Dậu(9) thuận tháng
+  placeStar(palaces, 'Thiên Đức', (9 + month - 1), 'cat');
+  // Nguyệt Đức: Khởi Tỵ(5) thuận tháng
+  placeStar(palaces, 'Nguyệt Đức', (5 + month - 1), 'cat');
+
+  // Quốc Ấn, Đường Phù (Khởi từ Lộc Tồn)
+  const locTonPalace = palaces.find(p => p.auxStars.some(s => s.name === 'Lộc Tồn'));
+  const locTonIdx = locTonPalace ? locTonPalace.chiIndex : 2;
+  placeStar(palaces, 'Quốc Ấn', locTonIdx + 8, 'cat'); // Lộc Tồn + 8 (hoặc 9 tùy phái, thường là 9 lấy từ Dần)
+  placeStar(palaces, 'Đường Phù', locTonIdx + 7, 'cat'); 
+}
+
+/**
+ * Hàm Orchestrator chính: Gắn tất cả Bàng tinh vào Mệnh Bàn.
+ * Yêu cầu phải được gọi SAU KHI đã an Lộc Tồn từ AuxStarEngine.
+ */
+export function placeAllMinorStars(
+  palaces: Palace[],
+  yearCanIdx: number,
+  yearChiIdx: number,
+  month: number,
+  day: number,
+  hourChiIdx: number,
+  gender: 'Nam' | 'Nữ',
+  nguHanhCuc: number
+): Palace[] {
+  // Tìm cung chứa Lộc Tồn để an Vòng Bác Sĩ
+  const locTonPalace = palaces.find(p => p.auxStars.some(s => s.name === 'Lộc Tồn'));
+  const locTonIdx = locTonPalace ? locTonPalace.chiIndex : 2; // Mặc định Dần nếu lỗi (ít xảy ra)
+
+  placeVongThaiTue(palaces, yearChiIdx);
+  placeVongLocTonBacSi(palaces, locTonIdx, gender, yearCanIdx);
+  placeVongTrangSinh(palaces, nguHanhCuc, gender, yearCanIdx);
+  placeTapDieu(palaces, yearCanIdx, yearChiIdx, month, day, hourChiIdx);
+  
+  // Thiên Tài, Thiên Thọ tính từ Mệnh/Thân, xử lý sau cùng
+  const menhPalace = palaces.find(p => p.palaceName === 'Mệnh');
+  const thanPalace = palaces.find(p => p.isThanPalace);
+  if (menhPalace) {
+    placeStar(palaces, 'Thiên Tài', menhPalace.chiIndex + yearChiIdx, 'cat');
+  }
+  if (thanPalace) {
+    placeStar(palaces, 'Thiên Thọ', thanPalace.chiIndex + yearChiIdx, 'cat');
+  }
+
+  return palaces;
+}

@@ -6,7 +6,7 @@ import { CryptoService } from '../services/CryptoService';
 import { GoogleGenAI } from '@google/genai';
 
 interface ApiKeySetupProps {
-  onKeyReady: (decryptedKey: string) => void;
+  onKeyReady: (decryptedKey: string, modelName: string) => void;
 }
 
 type KeyStatus = 'idle' | 'testing' | 'valid' | 'invalid';
@@ -19,11 +19,23 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
   const [mode, setMode] = useState<'setup' | 'unlock'>('unlock');
   const [keyStatus, setKeyStatus] = useState<KeyStatus>('idle');
   const [showGuide, setShowGuide] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('gemini-3.1-pro-preview');
+
+  const models = [
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Mặc định)', desc: 'Mạnh nhất, thông minh nhất' },
+    { id: 'gemini-3.1-flash-preview', name: 'Gemini 3.1 Flash (Tốc độ)', desc: 'Nhanh, phản hồi tức thì' },
+    { id: 'gemini-3.1-flash-lite-preview', name: 'Gemini 3.1 Flash-Lite (Tiết kiệm)', desc: 'Cực nhẹ, tối ưu tài nguyên' },
+    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash', desc: 'Bản Flash tiêu chuẩn thế hệ 3' },
+  ];
 
   useEffect(() => {
     const checkKey = CryptoService.hasStoredKey();
     setHasEncryptedKey(checkKey);
     setMode(checkKey ? 'unlock' : 'setup');
+    
+    // Load model preference
+    const savedModel = localStorage.getItem('gemini_model_preference');
+    if (savedModel) setSelectedModel(savedModel);
   }, []);
 
   const testApiKey = async (keyToTest: string) => {
@@ -49,9 +61,10 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
     try {
       const encrypted = await CryptoService.encrypt(apiKey, password);
       CryptoService.saveEncryptedKey(encrypted);
+      localStorage.setItem('gemini_model_preference', selectedModel);
       setHasEncryptedKey(true);
       setError('');
-      onKeyReady(apiKey);
+      onKeyReady(apiKey, selectedModel);
     } catch {
       setError('Không thể mã hóa API Key.');
     }
@@ -64,7 +77,8 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
       const encrypted = CryptoService.getStoredKey();
       if (!encrypted) throw new Error('Không tìm thấy khóa.');
       const decryptedKey = await CryptoService.decrypt(encrypted, password);
-      onKeyReady(decryptedKey);
+      localStorage.setItem('gemini_model_preference', selectedModel); // Cập nhật lại nếu người dùng đổi model lúc unlock
+      onKeyReady(decryptedKey, selectedModel);
     } catch {
       setError('Mật khẩu sai hoặc dữ liệu bị lỗi.');
     }
@@ -118,13 +132,27 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
         <p className="text-xs text-white/50 mb-4">API Key của bạn đã được mã hóa an toàn. Nhập mật khẩu để kích hoạt.</p>
 
         <form onSubmit={handleUnlock} className="flex gap-2 items-start flex-wrap sm:flex-nowrap">
-          <div className="flex-1 w-full sm:w-auto">
-            <input type="password" placeholder="Mật khẩu cục bộ (6+ ký tự)"
-              className="input w-full" value={password} onChange={e => setPassword(e.target.value)} />
-            {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+          <div className="flex-1 w-full sm:w-auto space-y-3">
+             <div className="flex flex-col gap-1">
+                <label className="text-[10px] text-white/40 uppercase font-bold px-1">Chọn Model</label>
+                <select 
+                  className="input !py-1 text-sm bg-black/60 border-white/20"
+                  value={selectedModel}
+                  onChange={e => setSelectedModel(e.target.value)}
+                >
+                  {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                </select>
+             </div>
+             <div>
+                <input type="password" placeholder="Mật khẩu cục bộ (6+ ký tự)"
+                  className="input w-full" value={password} onChange={e => setPassword(e.target.value)} />
+                {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+             </div>
           </div>
-          <button type="submit" className="btn-primary whitespace-nowrap">Mở Khóa</button>
-          <button type="button" onClick={handleReset} className="btn-secondary whitespace-nowrap !border-red-800/50 text-red-300 hover:!bg-red-900/20">Cài lại</button>
+          <div className="flex flex-col gap-2 pt-5">
+            <button type="submit" className="btn-primary !py-2 whitespace-nowrap">Mở Khóa</button>
+            <button type="button" onClick={handleReset} className="btn-secondary !py-1 whitespace-nowrap !border-red-800/50 text-red-300 hover:!bg-red-900/20 text-xs">Cài lại</button>
+          </div>
         </form>
       </div>
     );
@@ -168,6 +196,18 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
               🧪 Test
             </button>
           </div>
+        </div>
+        <div>
+          <label className="label">Chọn Model AI</label>
+          <select 
+            className="input w-full bg-black/40"
+            value={selectedModel}
+            onChange={e => setSelectedModel(e.target.value)}
+          >
+            {models.map(m => (
+              <option key={m.id} value={m.id}>{m.name} — {m.desc}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className="label">Mật Khẩu Bảo Vệ</label>

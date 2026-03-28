@@ -154,6 +154,9 @@ export interface Palace {
   /** Tứ Hóa tại cung này */
   sihua: SihuaTrigger[];
 
+  /** Danh sách chính tinh mượn (cho cung Vô chính diệu) */
+  borrowedStars: Star[];
+
   /** Cung có Tuần Không */
   hasTuanKhong: boolean;
 

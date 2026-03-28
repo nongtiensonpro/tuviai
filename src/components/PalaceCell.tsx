@@ -112,7 +112,25 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
               {star.sihua && <span className="text-coral ml-[2px] font-bold tracking-normal">[{star.sihua}]</span>}
             </div>
           ))}
-          {isVCD && (
+
+          {/* HIỂN THỊ SAO MƯỢN CHO CUNG VCD */}
+          {isVCD && palace.borrowedStars && palace.borrowedStars.length > 0 && (
+            <div className="flex flex-col items-center opacity-40 italic scale-95 origin-top">
+              {palace.borrowedStars.map((star, idx) => (
+                <div 
+                  key={`borrowed-${idx}`} 
+                  title={`Sao mượn từ cung xung chiếu: ${star.name}`}
+                  className={`text-center font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}
+                >
+                  {star.name}
+                  {star.brightness && <span className="text-[9px] ml-[1px] font-normal">({star.brightness})</span>}
+                  <span className="text-[8px] ml-0.5 font-normal tracking-tighter opacity-80">(Chiếu)</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isVCD && (mainStars.length === 0 && (!palace.borrowedStars || palace.borrowedStars.length === 0)) && (
             <div className="text-[11px] text-white/30 italic mt-2 font-serif font-medium tracking-widest">
               Vô chính diệu
             </div>

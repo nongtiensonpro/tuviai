@@ -13,30 +13,42 @@ import { getStarNguHanh } from './NguHanhEngine';
 // ============================================================
 
 /**
- * Bảng lookup vị trí sao Tử Vi theo (cục, dư)
- * Source: SKILL.md §6
- * dư = ngayAm % cuc → chiIndex của cung chứa Tử Vi
- */
-const ZIWEI_LOOKUP: Record<NguHanhCuc, Record<number, number>> = {
-  2: { 0: 6, 1: 2 },
-  3: { 0: 9, 1: 3, 2: 6 },
-  4: { 0: 10, 1: 0, 2: 3, 3: 6 },
-  5: { 0: 11, 1: 1, 2: 4, 3: 7, 4: 10 },
-  6: { 0: 6, 1: 9, 2: 0, 3: 3, 4: 6, 5: 9 },
-};
-
-/**
- * Tìm vị trí sao Tử Vi (chiIndex)
+ * Tìm vị trí sao Tử Vi (chiIndex) - Thuật toán Tử Vi Đẩu Số truyền thống
+ * X = (Ngày sinh + Y) / Cục. 
+ * Y là số nhỏ nhất (0..Cục-1) để (Ngày sinh + Y) mod Cục == 0.
+ * A = X + 1 (Vị trí tạm từ Dần).
+ * Nếu Y lẻ: Z = A - Y. Nếu Y chẵn: Z = A + Y.
+ * Z chính là chiIndex của Tử Vi.
+ * 
  * @param ngayAm - ngày sinh âm lịch (1-30)
  * @param cuc - Ngũ Hành Nạp Âm Cục (2,3,4,5,6)
  */
 export function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
-  const remainder = ngayAm % cuc;
-  const pos = ZIWEI_LOOKUP[cuc]?.[remainder];
-  if (pos === undefined) {
-    throw new Error(`Không tính được vị trí Tử Vi: ngày=${ngayAm}, cục=${cuc}, dư=${remainder}`);
+  let Y = 0;
+  while ((ngayAm + Y) % cuc !== 0) {
+    Y++;
   }
-  return pos;
+  const X = Math.floor((ngayAm + Y) / cuc);
+  const A = X + 1; // Khởi từ Dần (Dần là 2, nhưng ta tính offset A, sau đó -1, hoặc giữ Z tính sau)
+
+  let Z = 0;
+  if (Y % 2 !== 0) {
+    // Y lẻ -> đếm lùi Y cung từ A
+    Z = A - Y;
+  } else {
+    // Y chẵn -> đếm tiến Y cung từ A
+    Z = A + Y;
+  }
+  // Base Dần là 2:
+  // Vì A coi như vị trí cung (Dần=2), công thức lúc nãy: A=X+1 là offset.
+  // Mốc thực sự là Dần (2).
+  // A thực sự bằng (2 + X - 1) = X + 1. 
+  // Rồi Z thực sự = (X+1) +/- Y.
+  const finalIdx = (Z + 12) % 12; // Z là offset từ 0, mà Tý=0, Dần=2. Khúc này đã calibrate chuẩn Tý=0.
+  // Wait, Z = X + 1 +/- Y đã tính Dần = 2 chưa?
+  // Ở đây: A = X + 1, nếu X=1 => A=2 (Dần). 
+  // Vậy Z = 2 là Dần. Z = 0 là Tý. Rất chính xác!
+  return finalIdx;
 }
 
 // ============================================================
@@ -140,15 +152,15 @@ export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
   const Z = ziweiPos;
   place('紫微', Z);
   place('天機', (Z - 1 + 12) % 12);
-  // Thái Dương: bỏ qua nếu trùng Tý hoặc Hợi (có trường phái khác nhau)
-  // Theo SKILL.md: (Z-3+12)%12
   place('太陽', (Z - 3 + 12) % 12);
   place('武曲', (Z - 4 + 12) % 12);
   place('天同', (Z - 5 + 12) % 12);
   place('廉貞', (Z - 8 + 12) % 12);
 
   // --- Chòm Thiên Phủ ---
-  const P = (14 - Z) % 12; // Đối xứng qua trục Dần-Thân
+  // Trục đối xứng của Tử Vi và Thiên Phủ là trục Dần - Thân (2 - 8).
+  // Suy ra (Z + P) mod 12 = 4. => P = (16 - Z) % 12.
+  const P = (16 - Z) % 12; 
   place('天府', P);
   place('太陰', (P + 1) % 12);
   place('貪狼', (P + 2) % 12);
@@ -156,7 +168,7 @@ export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
   place('天相', (P + 4) % 12);
   place('天梁', (P + 5) % 12);
   place('七殺', (P + 6) % 12);
-  place('破軍', (P + 10) % 12); // Phá Quân: +10 không phải +7
+  place('破軍', (P + 10) % 12); 
 
   return result;
 }

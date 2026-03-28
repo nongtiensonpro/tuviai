@@ -15,6 +15,7 @@ export interface AnalysisPanelProps {
 
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalaceName }) => {
   const [apiKey, setApiKey] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-pro-preview');
   const [isLoading, setIsLoading] = useState(false);
   
   // State for Structured Output
@@ -46,11 +47,11 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     
     try {
        // 1. Fetch Structured JSON
-       const result = await GeminiService.analyzeChartJSON(apiKey, chart, specificPalace);
+       const result = await GeminiService.analyzeChartJSON(apiKey, chart, specificPalace, undefined, selectedModel);
        setAnalysisResult(result);
        
        // 2. Initialize Chat session ngầm định để đàm thoại tiếp nối Mệnh Bàn
-       const session = GeminiService.createChatSession(apiKey, chart, specificPalace);
+       const session = GeminiService.createChatSession(apiKey, chart, specificPalace, selectedModel);
        await session.initialize();
        setCurrentChatSession(session);
     } catch (err: any) {
@@ -118,7 +119,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
       <div className="bg-black/50 border border-gold/40 rounded-xl p-6 md:p-8 backdrop-blur shadow-2xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-white/10 pb-4 gap-3">
            <h2 className="text-2xl font-serif-sc text-gold flex items-center gap-2">
-             <span>✨</span> Đại Sư AI (Gemini 2.5 Flash)
+             <span>✨</span> Đại Sư AI ({selectedModel.replace('gemini-', '').toUpperCase()})
            </h2>
            <div className="flex flex-wrap items-center gap-2">
                {targetPalaceName && (
@@ -145,7 +146,10 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
         </div>
 
         {!apiKey ? (
-          <ApiKeySetup onKeyReady={key => setApiKey(key)} />
+          <ApiKeySetup onKeyReady={(key, model) => {
+            setApiKey(key);
+            setSelectedModel(model);
+          }} />
         ) : (
           <div className="flex flex-col gap-4">
             
