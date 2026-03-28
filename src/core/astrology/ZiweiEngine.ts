@@ -1,0 +1,177 @@
+/**
+ * ZiweiEngine.ts — An định 14 chính tinh lên 12 cung mệnh bàn
+ * Source: .agents/skills/ziwei-algorithm/SKILL.md §6, §7
+ *
+ * QUAN TRỌNG: Chỉ dùng công thức từ SKILL.md, không tự suy diễn
+ */
+
+import type { Palace, Star, NguHanhCuc, StarBrightness } from '../types/ZiweiTypes';
+
+// ============================================================
+// AN SAO TỬ VI (BƯỚC 1)
+// ============================================================
+
+/**
+ * Bảng lookup vị trí sao Tử Vi theo (cục, dư)
+ * Source: SKILL.md §6
+ * dư = ngayAm % cuc → chiIndex của cung chứa Tử Vi
+ */
+const ZIWEI_LOOKUP: Record<NguHanhCuc, Record<number, number>> = {
+  2: { 0: 6, 1: 2 },
+  3: { 0: 9, 1: 3, 2: 6 },
+  4: { 0: 10, 1: 0, 2: 3, 3: 6 },
+  5: { 0: 11, 1: 1, 2: 4, 3: 7, 4: 10 },
+  6: { 0: 6, 1: 9, 2: 0, 3: 3, 4: 6, 5: 9 },
+};
+
+/**
+ * Tìm vị trí sao Tử Vi (chiIndex)
+ * @param ngayAm - ngày sinh âm lịch (1-30)
+ * @param cuc - Ngũ Hành Nạp Âm Cục (2,3,4,5,6)
+ */
+export function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
+  const remainder = ngayAm % cuc;
+  const pos = ZIWEI_LOOKUP[cuc]?.[remainder];
+  if (pos === undefined) {
+    throw new Error(`Không tính được vị trí Tử Vi: ngày=${ngayAm}, cục=${cuc}, dư=${remainder}`);
+  }
+  return pos;
+}
+
+// ============================================================
+// BẢNG ĐỘ SÁNG (MIẾU/VƯỢNG/.../HÃM)
+// ============================================================
+
+/**
+ * Bảng độ sáng của 14 chính tinh theo từng Địa Chi cung
+ * chiIndex: 0=Tý, 1=Sửu, 2=Dần, 3=Mão, 4=Thìn, 5=Tỵ
+ *           6=Ngọ, 7=Mùi, 8=Thân, 9=Dậu, 10=Tuất, 11=Hợi
+ */
+const BRIGHTNESS: Record<string, StarBrightness[]> = {
+  // [Tý, Sửu, Dần, Mão, Thìn, Tỵ, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi]
+  '紫微': ['得', '得', '得', '得', '得', '庙', '庙', '旺', '得', '陷', '旺', '得'],
+  '天機': ['平', '得', '陷', '庙', '陷', '得', '平', '利', '陷', '庙', '陷', '旺'],
+  '太陽': ['陷', '陷', '旺', '旺', '庙', '庙', '庙', '旺', '得', '陷', '陷', '陷'],
+  '武曲': ['庙', '得', '得', '陷', '得', '庙', '陷', '得', '庙', '旺', '得', '陷'],
+  '天同': ['旺', '陷', '旺', '旺', '陷', '陷', '陷', '庙', '庙', '陷', '陷', '庙'],
+  '廉貞': ['陷', '庙', '庙', '陷', '平', '陷', '旺', '陷', '得', '陷', '旺', '陷'],
+  '天府': ['庙', '庙', '得', '得', '庙', '得', '庙', '庙', '得', '旺', '庙', '得'],
+  '太陰': ['庙', '旺', '陷', '陷', '陷', '陷', '陷', '陷', '旺', '庙', '得', '旺'],
+  '貪狼': ['旺', '得', '庙', '旺', '得', '陷', '平', '平', '旺', '庙', '陷', '庙'],
+  '巨門': ['平', '庙', '陷', '陷', '陷', '旺', '平', '旺', '陷', '陷', '庙', '陷'],
+  '天相': ['庙', '得', '旺', '得', '庙', '得', '庙', '得', '旺', '得', '庙', '得'],
+  '天梁': ['庙', '旺', '旺', '陷', '庙', '陷', '旺', '旺', '陷', '陷', '庙', '陷'],
+  '七殺': ['庙', '陷', '旺', '陷', '陷', '庙', '庙', '陷', '旺', '陷', '陷', '庙'],
+  '破軍': ['旺', '陷', '陷', '旺', '庙', '旺', '陷', '旺', '旺', '旺', '旺', '陷'],
+};
+
+/** Map tên Hán sang tên Việt cho 14 chính tinh */
+const STAR_HAN_TO_VIET: Record<string, string> = {
+  '紫微': 'Tử Vi',
+  '天機': 'Thiên Cơ',
+  '太陽': 'Thái Dương',
+  '武曲': 'Vũ Khúc',
+  '天同': 'Thiên Đồng',
+  '廉貞': 'Liêm Trinh',
+  '天府': 'Thiên Phủ',
+  '太陰': 'Thái Âm',
+  '貪狼': 'Tham Lang',
+  '巨門': 'Cự Môn',
+  '天相': 'Thiên Tướng',
+  '天梁': 'Thiên Lương',
+  '七殺': 'Thất Sát',
+  '破軍': 'Phá Quân',
+};
+
+function getBrightness(starHan: string, chiIndex: number): StarBrightness {
+  return BRIGHTNESS[starHan]?.[chiIndex] ?? '';
+}
+
+function createMainStar(hanName: string, chiIndex: number): Star {
+  return {
+    name: STAR_HAN_TO_VIET[hanName] ?? hanName,
+    category: 'main',
+    brightness: getBrightness(hanName, chiIndex),
+    palaceIndex: chiIndex,
+  };
+}
+
+// ============================================================
+// AN 14 CHÍNH TINH
+// ============================================================
+
+/**
+ * An 14 chính tinh vào mảng 12 cung
+ * Source: SKILL.md §7
+ *
+ * Chòm Tử Vi:
+ *   Tử Vi    : Z
+ *   Thiên Cơ : Z-1
+ *   Thái Dương: Z-3
+ *   Vũ Khúc  : Z-4
+ *   Thiên Đồng: Z-5
+ *   Liêm Trinh: Z-8
+ *
+ * Chòm Thiên Phủ:
+ *   Thiên Phủ: (14-Z) % 12
+ *   Thái Âm  : P+1
+ *   Tham Lang: P+2
+ *   Cự Môn   : P+3
+ *   Thiên Tướng: P+4
+ *   Thiên Lương: P+5
+ *   Thất Sát : P+6
+ *   Phá Quân : P+10
+ */
+export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
+  // Clone palaces để không mutate original
+  const result = palaces.map(p => ({ ...p, mainStars: [...p.mainStars] }));
+
+  // Helper: đặt sao vào cung
+  function place(hanName: string, chiIndex: number): void {
+    const idx = ((chiIndex % 12) + 12) % 12;
+    const star = createMainStar(hanName, idx);
+    result[idx]!.mainStars.push(star);
+  }
+
+  // --- Chòm Tử Vi ---
+  const Z = ziweiPos;
+  place('紫微', Z);
+  place('天機', (Z - 1 + 12) % 12);
+  // Thái Dương: bỏ qua nếu trùng Tý hoặc Hợi (có trường phái khác nhau)
+  // Theo SKILL.md: (Z-3+12)%12
+  place('太陽', (Z - 3 + 12) % 12);
+  place('武曲', (Z - 4 + 12) % 12);
+  place('天同', (Z - 5 + 12) % 12);
+  place('廉貞', (Z - 8 + 12) % 12);
+
+  // --- Chòm Thiên Phủ ---
+  const P = (14 - Z) % 12; // Đối xứng qua trục Dần-Thân
+  place('天府', P);
+  place('太陰', (P + 1) % 12);
+  place('貪狼', (P + 2) % 12);
+  place('巨門', (P + 3) % 12);
+  place('天相', (P + 4) % 12);
+  place('天梁', (P + 5) % 12);
+  place('七殺', (P + 6) % 12);
+  place('破軍', (P + 10) % 12); // Phá Quân: +10 không phải +7
+
+  return result;
+}
+
+/**
+ * Utility: Lấy tên Việt từ tên Hán
+ */
+export function getStarVietnameseName(hanName: string): string {
+  return STAR_HAN_TO_VIET[hanName] ?? hanName;
+}
+
+/**
+ * Utility: Tìm sao Tử Vi trong mệnh bàn
+ */
+export function findZiweiStar(palaces: Palace[]): { chiIndex: number; star: Star } | null {
+  for (const palace of palaces) {
+    const star = palace.mainStars.find(s => s.name === 'Tử Vi');
+    if (star) return { chiIndex: palace.chiIndex, star };
+  }
+  return null;
+}

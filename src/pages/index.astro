@@ -1,0 +1,149 @@
+---
+// src/pages/index.astro
+// Trang chính ứng dụng Tử Vi Đẩu Số AI
+// Static output — không có server-side rendering
+import '../styles/global.css';
+import { AstroApp } from '../components/AstroApp';
+---
+
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>Tử Vi Đẩu Số AI — Luận Giải Mệnh Bàn Thông Minh</title>
+    <meta name="description" content="Ứng dụng Tử Vi Đẩu Số hiện đại với AI Gemini. Tính toán mệnh bàn chính xác, luận giải sâu sắc theo cả hai trường phái Nam Tông và Bắc Tông. Hoàn toàn miễn phí, bảo mật tuyệt đối." />
+    <meta name="keywords" content="tử vi đẩu số, zi wei dou shu, mệnh bàn, chiêm tinh, AI, Gemini" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Tử Vi Đẩu Số AI" />
+    <meta property="og:description" content="Luận giải mệnh bàn thông minh với AI Gemini" />
+    <meta property="og:type" content="website" />
+
+    <!-- Content Security Policy — chỉ cho phép giao tiếp với Gemini API -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https://generativelanguage.googleapis.com;
+        img-src 'self' data:;
+        object-src 'none';
+        base-uri 'self';
+      "
+    />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="min-h-screen bg-ziwei text-white font-sans">
+    <!-- Header -->
+    <header class="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">☯</span>
+          <div>
+            <h1 class="text-lg font-bold text-gold leading-none">紫微斗數</h1>
+            <p class="text-xs text-white/60">Tử Vi Đẩu Số AI</p>
+          </div>
+        </div>
+        <nav class="flex items-center gap-4">
+          <button
+            id="btn-api-settings"
+            class="text-sm text-white/70 hover:text-white transition-colors flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/30"
+            aria-label="Cài đặt API Key"
+          >
+            <span>🔑</span>
+            <span class="hidden sm:inline">API Key</span>
+          </button>
+          <a
+            href="https://aistudio.google.com/apikey"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm text-gold/80 hover:text-gold transition-colors hidden sm:block"
+          >
+            Lấy API Key →
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+      <!-- Hero Section (hiển thị khi chưa có mệnh bàn) -->
+      <section id="section-hero" class="text-center py-16">
+        <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
+          <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
+          <span class="text-sm text-white/70">Powered by Gemini AI</span>
+        </div>
+
+        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
+          <span class="text-gold font-serif-sc">紫微</span>
+          <span class="text-white"> Đẩu Số</span>
+        </h2>
+        <p class="text-lg text-white/60 max-w-2xl mx-auto mb-10">
+          Hệ thống chiêm tinh học đỉnh cao của Á Đông, kết hợp AI Gemini để luận giải mệnh bàn chính xác và sâu sắc nhất.
+        </p>
+
+        {/* Mệnh Bàn Container (hiển thị khi tính toán xong) */}
+        <div id="ziwei-board-container" class="mt-8">
+           <AstroApp client:load />
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 mt-16 py-8 text-center text-white/30 text-sm">
+      <p>Tử Vi Đẩu Số AI — Ứng dụng tĩnh, không có backend, bảo mật tuyệt đối</p>
+      <p class="mt-1">Dữ liệu của bạn không bao giờ rời khỏi thiết bị</p>
+    </footer>
+
+    <!-- API Key Modal Placeholder -->
+    <div id="modal-api-key" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="card max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold text-gold mb-4">🔑 Cài Đặt Gemini API Key</h3>
+        <p class="text-sm text-white/60 mb-4">
+          API Key được mã hóa ngay trên thiết bị của bạn trước khi lưu.
+          <a href="https://aistudio.google.com/apikey" target="_blank" class="text-gold hover:underline">Lấy key miễn phí tại đây →</a>
+        </p>
+        <div class="space-y-3">
+          <div>
+            <label class="label" for="modal-input-key">API Key</label>
+            <input id="modal-input-key" type="password" placeholder="AIza..." class="input" />
+          </div>
+          <div>
+            <label class="label" for="modal-input-pin">Mã PIN bảo vệ (4-8 ký tự)</label>
+            <input id="modal-input-pin" type="password" placeholder="••••" class="input" maxlength="8" />
+          </div>
+          <div class="flex gap-3 mt-4">
+            <button id="modal-btn-cancel" class="btn-secondary flex-1">Hủy</button>
+            <button id="modal-btn-save" class="btn-primary flex-1">🔐 Lưu An Toàn</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Modal logic cơ bản
+      const btnSettings = document.getElementById('btn-api-settings');
+      const modal = document.getElementById('modal-api-key');
+      const btnCancel = document.getElementById('modal-btn-cancel');
+
+      btnSettings?.addEventListener('click', () => modal?.classList.remove('hidden'));
+      btnCancel?.addEventListener('click', () => modal?.classList.add('hidden'));
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+      });
+    </script>
+  </body>
+</html>
