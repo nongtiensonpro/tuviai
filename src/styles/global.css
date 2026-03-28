@@ -251,6 +251,72 @@ select.input option {
   animation: shimmer 1.5s infinite;
 }
 
+/* ---- Star Particle Effects ---- */
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50%       { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes starFloat {
+  0%   { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-8px) rotate(180deg); }
+}
+
+@keyframes cosmicRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes cosmicRotateReverse {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+/* Container star particles (dùng trong index.astro) */
+.star-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.star-field span {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+  animation: starTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite;
+  opacity: 0;
+}
+
+/* SVG Bát Quái decorative element */
+.bagua-deco {
+  position: absolute;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  animation: cosmicRotate 120s linear infinite;
+}
+
+.bagua-deco-reverse {
+  position: absolute;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  animation: cosmicRotateReverse 80s linear infinite;
+}
+
+/* Ambient glow ring */
+.cosmic-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 192, 64, 0.08);
+  pointer-events: none;
+  animation: cosmicRotate 60s linear infinite;
+}
+
 /* ---------- Mệnh Bàn Grid ---------- */
 .ziwei-grid {
   display: grid;
@@ -305,13 +371,59 @@ select.input option {
 .hidden { display: none !important; }
 
 /* ---------- Responsive ---------- */
+
+/* Wrapper cho scroll ngang trên mobile */
+.ziwei-board-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ziwei-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  padding-bottom: 4px;
+}
+
+.ziwei-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari — ẩn scrollbar nhưng vẫn scroll được */
+}
+
+/* Grid luôn giữ 4x4, min-width đảm bảo không bị squish */
+.ziwei-grid {
+  min-width: 560px; /* Đủ rộng để hiển thị 4 cột */
+}
+
+/* Scroll hint chỉ hiện trên mobile */
+.ziwei-scroll-hint {
+  display: none;
+  text-align: center;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  padding: 6px 0 2px;
+  letter-spacing: 0.1em;
+  animation: hintPulse 2s ease infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
 @media (max-width: 768px) {
+  .ziwei-scroll-hint { display: block; }
+
   .ziwei-grid {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto;
+    /* Trên mobile, mỗi ô thu nhỏ lại một chút */
+    gap: 1px;
   }
-  .palace-center {
-    grid-column: 1 / -1;
-    grid-row: auto;
+
+  .palace-cell {
+    min-height: 95px;
+    padding: 5px;
+    font-size: 0.75rem;
   }
+
+  /* Bảo toàn layout grid 4x4, KHÔNG thay đổi thành 3 cột */
+  /* (Người dùng cuộn ngang để xem toàn bộ Mệnh Bàn) */
 }

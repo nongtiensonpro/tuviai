@@ -26,19 +26,23 @@ export type TenCuc = 'Thủy Nhị Cục' | 'Mộc Tam Cục' | 'Kim Tứ Cục'
 /** Giới tính */
 export type Gender = 'male' | 'female';
 
+/** Giao thoa Âm Dương */
+export type AmDuongLy = 'Âm dương thuận lý' | 'Âm dương nghịch lý';
+
 /** Độ sáng của sao trên mệnh bàn */
 export type StarBrightness =
-  | '庙'  // Miếu — sáng nhất
-  | '旺'  // Vượng
-  | '得'  // Đắc
-  | '利'  // Lợi
-  | '平'  // Bình
-  | '不'  // Không tốt
-  | '陷'  // Hãm — tối nhất
-  | '';   // Không xác định (trống cung)
+  | 'M'  // Miếu (庙) — sáng nhất
+  | 'V'  // Vượng (旺)
+  | 'Đ'  // Đắc  (得)
+  | 'B'  // Bình (平 / 利)
+  | 'H'  // Hãm  (陷) — tối nhất
+  | '';  // Không xác định (trống cung)
 
 /** Trạng thái Tứ Hóa */
 export type SihuaType = 'Lộc' | 'Quyền' | 'Khoa' | 'Kỵ';
+
+/** Ngũ Hành của một ngôi sao / bản mệnh */
+export type NguHanh = 'Kim' | 'Mộc' | 'Thủy' | 'Hỏa' | 'Thổ';
 
 /** Loại sao */
 export type StarCategory =
@@ -93,6 +97,7 @@ export interface NamCanChi extends CanChi {
 export interface Star {
   name: string;             // Tên sao (tiếng Việt)
   category: StarCategory;
+  nguHanh: NguHanh;         // Kim, Mộc, Thủy, Hỏa, Thổ (Cần cho UI hiển thị màu)
   brightness: StarBrightness;
   sihua?: SihuaType;        // Tứ Hóa nếu có
   palaceIndex: number;      // Cung tọa lạc (0-11, index Địa Chi)
@@ -128,6 +133,18 @@ export interface Palace {
   /** Tên cung chức năng */
   palaceName: PalaceName;
 
+  /** Vòng Tràng Sinh (Thai, Dưỡng, Trường Sinh...) */
+  trangSinh: string;
+
+  /** Đại Hạn (tuổi bắt đầu, ví dụ: 15) */
+  daiHan: number;
+
+  /** Tiểu Hạn (Năm xem hiện tại rơi vào cung nào - optional) */
+  tieuHan?: string;
+
+  /** Có phải là Cung Thân không? (Để gắn badge 'Thân') */
+  isThanPalace: boolean;
+
   /** Danh sách chính tinh */
   mainStars: Star[];
 
@@ -158,9 +175,21 @@ export interface ZiweiChart {
   /** Thiên Can + Địa Chi năm sinh */
   namCanChi: NamCanChi;
 
+  /** Nạp Âm Bản Mệnh (e.g. Thành Đầu Thổ) */
+  banMenh: string;
+
   /** Ngũ Hành Nạp Âm Cục */
   nguHanhCuc: NguHanhCuc;
   tenCuc: TenCuc;
+
+  /** Thuộc tính Âm Dương Lý */
+  amDuongLy: AmDuongLy;
+  amDuongNamNu: string; // "Dương Nam", "Âm Nữ"...
+  menhCucSinhKhac: string; // "Cục hòa Bản Mệnh", "Mệnh sinh Cục"...
+
+  /** Chủ Tinh */
+  menhChu: string;
+  thanChu: string;
 
   /** Index cung Mệnh (0-11, tương ứng Địa Chi) */
   cungMenhIndex: number;

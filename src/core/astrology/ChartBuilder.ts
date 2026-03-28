@@ -20,6 +20,15 @@ import {
   calcTuanTrietKhong,
 } from './AuxStarEngine';
 import { applySihua } from './SihuaEngine';
+import {
+  calcAmDuongNamNu,
+  calcAmDuongLy,
+  calcMenhCucSinhKhac,
+  calcMenhChu,
+  calcThanChu,
+  calcTrangSinh,
+  calcDaiHan
+} from './AdvancedCalculator';
 
 /**
  * Hàm chính: Tính toán và trả về ZiweiChart đầy đủ
@@ -56,8 +65,22 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   const nguHanhCuc = calcNguHanhCuc(menhCan, menhChi);
   const tenCuc = CUC_NAME[nguHanhCuc];
 
-  // Step 6: Xây dựng 12 cung cơ bản (chưa có sao)
+  // Step 6: Các thông số Học thuật Cổ điển (Mệnh Chủ, Thân Chủ, Âm Dương...)
+  const { amDuong, isThuanHanh } = calcAmDuongNamNu(yearCanChi.canIndex, gender);
+  const amDuongLy = calcAmDuongLy(menhChiIndex, yearCanChi.canIndex);
+  const menhCucSinhKhac = calcMenhCucSinhKhac();
+  const menhChu = calcMenhChu(menhChiIndex);
+  const thanChu = calcThanChu(yearCanChi.chiIndex);
+
+  // Step 7: Xây dựng 12 cung cơ bản (chưa có sao)
   let palaces = buildPalaces(menhChiIndex, namCanChi, yearCanChi.canIndex);
+
+  // Gắn Đại Hạn, Tràng Sinh và nhãn Thân
+  palaces.forEach(p => {
+    p.daiHan = calcDaiHan(nguHanhCuc, isThuanHanh, menhChiIndex, p.chiIndex);
+    p.trangSinh = calcTrangSinh(nguHanhCuc, isThuanHanh, p.chiIndex);
+    p.isThanPalace = p.chiIndex === thanChiIndex;
+  });
 
   // Step 7: Tìm vị trí sao Tử Vi
   const ziweiPos = findZiweiPosition(lunar.day, nguHanhCuc);
@@ -95,8 +118,14 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
     lunarDate: lunar,
     gender,
     namCanChi,
+    banMenh: `${namCanChi.displayName} - ${menhCucSinhKhac}`, // Ghép tạm
     nguHanhCuc,
     tenCuc,
+    amDuongLy,
+    amDuongNamNu: amDuong,
+    menhCucSinhKhac,
+    menhChu,
+    thanChu,
     cungMenhIndex: menhChiIndex,
     cungMenhChi: menhChi,
     cungThanIndex: thanChiIndex,

@@ -4,6 +4,7 @@
  */
 
 import type { Palace, Star, TenCan, TwoelveChi } from '../types/ZiweiTypes';
+import { getStarNguHanh } from './NguHanhEngine';
 
 // ============================================================
 // BẢNG TRA CỨU PHỤ TINH
@@ -72,6 +73,7 @@ function createAuxStar(
   return {
     name,
     category,
+    nguHanh: getStarNguHanh(name),
     brightness: '',
     palaceIndex: normalizedIdx,
   };

@@ -40,34 +40,39 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
   }
 
   return (
-    <div className="ziwei-grid mx-auto max-w-[800px] w-full text-white">
-      {GRID_CELLS_ORDER.map((item, index) => {
-        // Render Center Panel
-        if (item === 'CENTER') {
-          // Chỉ render CenterPanel cho ô CENTER đầu tiên (grid-area: 2 / 2 / span 2 / span 2)
-          // Các ô "CENTER" kia đã được xử lý bằng grid area trong global css cho .palace-center
-          if (index === 5) {
-            return <CenterPanel key="center" chart={chart} />;
-          }
-          return null;
-        }
+    <div className="ziwei-board-wrapper">
+      {/* Scroll hint — chỉ hiện trên mobile */}
+      <p className="ziwei-scroll-hint">← Vuốt để xem toàn bộ Mệnh Bàn →</p>
 
-        // Render Palace Cell
-        const chiIndex = item as number;
-        const palace = chart.palaces[chiIndex];
-        if (!palace) return null;
+      <div className="ziwei-scroll-container">
+        <div className="ziwei-grid mx-auto max-w-[800px] w-full text-white">
+          {GRID_CELLS_ORDER.map((item, index) => {
+            // Render Center Panel
+            if (item === 'CENTER') {
+              if (index === 5) {
+                return <CenterPanel key="center" chart={chart} />;
+              }
+              return null;
+            }
 
-        const isActive = activePalace === palace.palaceName;
+            // Render Palace Cell
+            const chiIndex = item as number;
+            const palace = chart.palaces[chiIndex];
+            if (!palace) return null;
 
-        return (
-          <PalaceCell
-            key={`palace-${chiIndex}`}
-            palace={palace}
-            isActive={isActive}
-            onClick={() => onPalaceClick?.(palace.palaceName)}
-          />
-        );
-      })}
+            const isActive = activePalace === palace.palaceName;
+
+            return (
+              <PalaceCell
+                key={`palace-${chiIndex}`}
+                palace={palace}
+                isActive={isActive}
+                onClick={() => onPalaceClick?.(palace.palaceName)}
+              />
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

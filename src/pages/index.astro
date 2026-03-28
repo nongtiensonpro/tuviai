@@ -48,6 +48,47 @@ import { AstroApp } from '../components/AstroApp';
   </head>
 
   <body class="min-h-screen bg-ziwei text-white font-sans">
+    <!-- Cosmic Star Field (CSS-only, no JS) -->
+    <div class="star-field" aria-hidden="true">
+      <span style="--dur:2.5s;--delay:0.0s;top:5%;left:12%"></span>
+      <span style="--dur:3.2s;--delay:0.5s;top:12%;left:78%"></span>
+      <span style="--dur:4.1s;--delay:1.0s;top:22%;left:45%"></span>
+      <span style="--dur:2.8s;--delay:1.5s;top:35%;left:92%"></span>
+      <span style="--dur:5.0s;--delay:0.2s;top:8%;left:35%"></span>
+      <span style="--dur:3.6s;--delay:2.0s;top:55%;left:7%"></span>
+      <span style="--dur:2.2s;--delay:0.8s;top:70%;left:60%"></span>
+      <span style="--dur:4.5s;--delay:1.2s;top:85%;left:25%"></span>
+      <span style="--dur:3.0s;--delay:0.3s;top:42%;left:88%"></span>
+      <span style="--dur:2.7s;--delay:1.7s;top:18%;left:62%"></span>
+      <span style="--dur:3.8s;--delay:2.5s;top:60%;left:40%"></span>
+      <span style="--dur:4.3s;--delay:0.6s;top:78%;left:82%"></span>
+      <span style="--dur:2.9s;--delay:1.9s;top:30%;left:18%"></span>
+      <span style="--dur:5.2s;--delay:0.4s;top:92%;left:55%"></span>
+      <span style="--dur:3.4s;--delay:2.2s;top:48%;left:3%"></span>
+      <span style="width:3px;height:3px;background:rgba(240,192,64,0.8);--dur:6s;--delay:1.1s;top:15%;left:50%"></span>
+      <span style="width:3px;height:3px;background:rgba(78,205,196,0.6);--dur:5.5s;--delay:2.8s;top:72%;left:15%"></span>
+      <span style="width:1px;height:1px;--dur:4.8s;--delay:0.9s;top:38%;left:70%"></span>
+      <span style="width:1px;height:1px;--dur:3.1s;--delay:3.2s;top:95%;left:42%"></span>
+      <span style="width:2px;height:2px;background:rgba(124,111,247,0.7);--dur:7s;--delay:1.4s;top:3%;left:85%"></span>
+    </div>
+
+    <!-- Bát Quái SVG decorative (fixed, rất mờ) -->
+    <svg class="bagua-deco" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg);" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Vòng ngoài -->
+      <circle cx="100" cy="100" r="95" stroke="rgba(240,192,64,0.6)" stroke-width="0.5"/>
+      <circle cx="100" cy="100" r="75" stroke="rgba(240,192,64,0.4)" stroke-width="0.3"/>
+      <!-- 8 tạc bạch (quẻ tượng trưng) -->
+      <line x1="100" y1="5" x2="100" y2="195" stroke="rgba(240,192,64,0.3)" stroke-width="0.3"/>
+      <line x1="5" y1="100" x2="195" y2="100" stroke="rgba(240,192,64,0.3)" stroke-width="0.3"/>
+      <line x1="33" y1="33" x2="167" y2="167" stroke="rgba(240,192,64,0.2)" stroke-width="0.3"/>
+      <line x1="167" y1="33" x2="33" y2="167" stroke="rgba(240,192,64,0.2)" stroke-width="0.3"/>
+      <!-- Âm Dương symbol nhỏ -->
+      <circle cx="100" cy="100" r="20" fill="none" stroke="rgba(240,192,64,0.5)" stroke-width="0.5"/>
+      <path d="M100 80 A10 10 0 0 1 100 100 A10 10 0 0 0 100 120 A20 20 0 0 1 100 80Z" fill="rgba(240,192,64,0.15)"/>
+    </svg>
+
+    <!-- Vòng trang trí cộng củng thêm -->
+    <div class="cosmic-ring" style="width:800px;height:800px;top:50%;left:50%;margin:-400px 0 0 -400px;" aria-hidden="true"></div>
     <!-- Header -->
     <header class="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -81,25 +122,57 @@ import { AstroApp } from '../components/AstroApp';
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
-      <!-- Hero Section (hiển thị khi chưa có mệnh bàn) -->
-      <section id="section-hero" class="text-center py-16">
-        <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-6">
-          <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
-          <span class="text-sm text-white/70">Powered by Gemini AI</span>
+      <!-- Hero Section -->
+      <section id="section-hero" class="py-12 md:py-16">
+        <!-- Badge -->
+        <div class="flex justify-center mb-6">
+          <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+            <span class="w-2 h-2 bg-gold rounded-full animate-pulse"></span>
+            <span class="text-sm text-white/70">Powered by Gemini 2.5 Flash AI</span>
+          </div>
         </div>
 
-        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-          <span class="text-gold font-serif-sc">紫微</span>
-          <span class="text-white"> Đẩu Số</span>
-        </h2>
-        <p class="text-lg text-white/60 max-w-2xl mx-auto mb-10">
-          Hệ thống chiêm tinh học đỉnh cao của Á Đông, kết hợp AI Gemini để luận giải mệnh bàn chính xác và sâu sắc nhất.
-        </p>
-
-        {/* Mệnh Bàn Container (hiển thị khi tính toán xong) */}
-        <div id="ziwei-board-container" class="mt-8">
-           <AstroApp client:load />
+        <!-- Tiêu đề -->
+        <div class="text-center mb-8">
+          <h2 class="text-5xl sm:text-6xl lg:text-7xl font-bold mb-3 leading-none">
+            <span class="text-gold font-serif-sc" style="text-shadow: 0 0 40px rgba(240,192,64,0.3)">紫微斗數</span>
+          </h2>
+          <p class="text-xl sm:text-2xl text-white/80 font-light tracking-widest mb-3">TỬ VI ĐẨU SỐ AI</p>
+          <p class="text-white/50 max-w-xl mx-auto text-sm leading-relaxed">
+            Hệ thống chiêm tinh học đỉnh cao Á Đông — 108 vì sao được an định chính xác tuyệt đối bằng thuật toán TypeScript, kết hợp AI Gemini luận giải sâu sắc.
+          </p>
         </div>
+
+        <!-- Feature badges -->
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+          <span class="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">🔒 Bảo mật — Key chỉ lưu máy bạn</span>
+          <span class="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">⚡ Không Backend — 100% Static</span>
+          <span class="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/60">🌐 Miễn phí hoàn toàn</span>
+        </div>
+
+        <!-- Steps Indicator -->
+        <div class="flex items-center justify-center gap-0 mb-10 max-w-lg mx-auto">
+          <div class="flex flex-col items-center text-center flex-1">
+            <div class="w-9 h-9 rounded-full bg-gold/20 border-2 border-gold/60 flex items-center justify-center text-gold font-bold text-sm mb-2">1</div>
+            <p class="text-xs text-white/60 leading-snug">Nhập<br/>Ngày Sinh</p>
+          </div>
+          <div class="flex-none w-12 h-px bg-gradient-to-r from-gold/40 to-white/10 mb-5"></div>
+          <div class="flex flex-col items-center text-center flex-1">
+            <div class="w-9 h-9 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-white/50 font-bold text-sm mb-2">2</div>
+            <p class="text-xs text-white/40 leading-snug">An Sao<br/>Mệnh Bàn</p>
+          </div>
+          <div class="flex-none w-12 h-px bg-white/10 mb-5"></div>
+          <div class="flex flex-col items-center text-center flex-1">
+            <div class="w-9 h-9 rounded-full bg-white/5 border-2 border-white/20 flex items-center justify-center text-white/50 font-bold text-sm mb-2">3</div>
+            <p class="text-xs text-white/40 leading-snug">Luận Giải<br/>bằng AI</p>
+          </div>
+        </div>
+
+        <!-- App Container -->
+        <div id="ziwei-board-container">
+          <AstroApp client:load />
+        </div>
+      </section>
     </main>
 
     <!-- Footer -->
