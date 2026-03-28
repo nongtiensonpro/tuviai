@@ -251,7 +251,7 @@ describe('ZiweiEngine', () => {
       const yearCanChi = getYearCanChi(1990);
       const palaces = buildPalaces(3, namCanChi, yearCanChi.canIndex);
       const ziweiPos = 3; // Mão
-      const expectedThienPhuPos = (14 - ziweiPos) % 12; // 11 = Hợi
+      const expectedThienPhuPos = (4 - ziweiPos + 12) % 12; // 1 = Sửu
       const result = placeMainStars(palaces, ziweiPos);
       const hasThienPhu = result[expectedThienPhuPos]!.mainStars.some(s => s.name === 'Thiên Phủ');
       expect(hasThienPhu).toBe(true);
