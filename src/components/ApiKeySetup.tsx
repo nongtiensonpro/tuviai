@@ -19,13 +19,16 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
   const [mode, setMode] = useState<'setup' | 'unlock'>('unlock');
   const [keyStatus, setKeyStatus] = useState<KeyStatus>('idle');
   const [showGuide, setShowGuide] = useState(false);
-  const [selectedModel, setSelectedModel] = useState('gemini-3.1-pro-preview');
+  const [selectedModel, setSelectedModel] = useState('gemini-flash-latest');
 
   const models = [
-    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Mặc định)', desc: 'Mạnh nhất, thông minh nhất' },
-    { id: 'gemini-3.1-flash-preview', name: 'Gemini 3.1 Flash (Tốc độ)', desc: 'Nhanh, phản hồi tức thì' },
-    { id: 'gemini-3.1-flash-lite-preview', name: 'Gemini 3.1 Flash-Lite (Tiết kiệm)', desc: 'Cực nhẹ, tối ưu tài nguyên' },
-    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash', desc: 'Bản Flash tiêu chuẩn thế hệ 3' },
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Khuyên dùng)', desc: 'Mạnh nhất, luận giải chuyên sâu' },
+    { id: 'gemini-3.1-flash-lite-preview', name: 'Gemini 3.1 Flash-Lite (Mini)', desc: 'Phiên bản rút gọn 3.1' },
+    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash (Khuyên dùng)', desc: 'Mạnh nhất, nhanh, giá rẻ' },
+    { id: 'gemini-pro-latest', name: 'Gemini Pro (Mới nhất)', desc: 'Phiên Pro mới nhất' },
+    { id: 'gemini-flash-latest', name: 'Gemini Flash (Mới nhất)', desc: 'Phiên nhanh mới nhất' },
+    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro (Ổn định)', desc: 'Phiên bản Pro ổn định cao' },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash (Tốc độ)', desc: 'Nhanh, phổ thông, ít lỗi API nhất' },
   ];
 
   useEffect(() => {
@@ -51,6 +54,37 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
       setKeyStatus('valid');
     } catch {
       setKeyStatus('invalid');
+    }
+  };
+
+  const checkAvailableModels = async (keyToTest: string) => {
+    try {
+      if (!keyToTest || keyToTest.length < 10) {
+        alert("Vui lòng nhập API Key hợp lệ trước khi kiểm tra!");
+        return;
+      }
+      console.log("Đang lấy danh sách model từ Google...");
+      const ai = new GoogleGenAI({ apiKey: keyToTest });
+
+      // Gọi API ListModels
+      const response = await ai.models.list();
+      const allModels = [];
+
+      for await (const model of response) {
+        const m = model as any;
+        if (m.name) {
+          allModels.push(m.name.replace('models/', ''));
+        }
+      }
+
+      console.log("🔥 TẤT CẢ CÁC MODEL KHẢ DỤNG TỪ API KEY CỦA BẠN LÀ:");
+      console.log(allModels.join('\n'));
+
+      alert(`Đã in danh sách ${allModels.length} model ra Console (F12)!\nHãy kiểm tra và chọn chuỗi chính xác (vd: gemini-2.0-pro-exp...).`);
+
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách model:", err);
+      alert("Có lỗi khi lấy danh sách, vui lòng kiểm tra lại API Key hoặc xem chi tiết trong Console.");
     }
   };
 
@@ -198,7 +232,17 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
           </div>
         </div>
         <div>
-          <label className="label">Chọn Model AI</label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="label mb-0">Chọn Model AI</label>
+            <button
+              type="button"
+              onClick={() => checkAvailableModels(apiKey)}
+              disabled={!apiKey}
+              className="text-[10px] bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 transition-colors disabled:opacity-30"
+            >
+              🔍 Xem model hỗ trợ
+            </button>
+          </div>
           <select
             className="input w-full bg-black/40"
             value={selectedModel}
