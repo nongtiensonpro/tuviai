@@ -28,7 +28,8 @@ import {
   calcMenhChu,
   calcThanChu,
   calcTrangSinh,
-  calcDaiHan
+  calcDaiHan,
+  getNapAmInfo,
 } from './AdvancedCalculator';
 
 /**
@@ -57,7 +58,7 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   const menhChi = TWELVE_CHI[menhChiIndex]!;
 
   // Step 4: Vị trí Cung Thân
-  const thanChiIndex = calcThanChiIndex(lunar.month);
+  const thanChiIndex = calcThanChiIndex(lunar.month, lunar.hourChiIndex);
   const thanChi = TWELVE_CHI[thanChiIndex]!;
 
   // Step 5: Ngũ Hành Nạp Âm Cục của Cung Mệnh
@@ -65,11 +66,12 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   const { can: menhCan } = getMenhCanChi(menhChiIndex, yearCanChi.canIndex);
   const nguHanhCuc = calcNguHanhCuc(menhCan, menhChi);
   const tenCuc = CUC_NAME[nguHanhCuc];
+  const napAmInfo = getNapAmInfo(namCanChi.can, namCanChi.chi);
 
   // Step 6: Các thông số Học thuật Cổ điển (Mệnh Chủ, Thân Chủ, Âm Dương...)
   const { amDuong, isThuanHanh } = calcAmDuongNamNu(yearCanChi.canIndex, gender);
   const amDuongLy = calcAmDuongLy(menhChiIndex, yearCanChi.canIndex);
-  const menhCucSinhKhac = calcMenhCucSinhKhac();
+  const menhCucSinhKhac = calcMenhCucSinhKhac(napAmInfo.nguHanh, nguHanhCuc);
   const menhChu = calcMenhChu(menhChiIndex);
   const thanChu = calcThanChu(yearCanChi.chiIndex);
 
@@ -134,7 +136,7 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
     lunarDate: lunar,
     gender,
     namCanChi,
-    banMenh: `${namCanChi.displayName} - ${menhCucSinhKhac}`, // Ghép tạm
+    banMenh: napAmInfo.name,
     nguHanhCuc,
     tenCuc,
     amDuongLy,

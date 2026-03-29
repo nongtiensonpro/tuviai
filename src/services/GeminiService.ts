@@ -2,9 +2,63 @@
  * GeminiService.ts — Tương tác trực tiếp với Google Gemini AI (Backend-less)
  * Hỗ trợ Structured Output (JSON) và Lịch sử Chat (Session)
  */
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { PromptBuilder, type StructuredAiResponse, analyzeSchema } from './PromptBuilder';
-import type { ZiweiChart } from '../core/types/ZiweiTypes';
+import type { AnalysisBridgeContext, AnalysisThread, PalaceAnalysis, PalaceName, ZiweiChart } from '../core/types/ZiweiTypes';
+
+export interface GeminiChatSession {
+  sendMessage: (thread: AnalysisThread, msg: string) => Promise<string>;
+}
+
+const PALACE_NAMES = new Set<PalaceName>([
+  'Mệnh',
+  'Phụ Mẫu',
+  'Phúc Đức',
+  'Điền Trạch',
+  'Quan Lộc',
+  'Nô Bộc',
+  'Thiên Di',
+  'Tật Ách',
+  'Tài Bạch',
+  'Tử Tức',
+  'Phu Thê',
+  'Huynh Đệ',
+]);
+
+function parseString(value: unknown, fallback: string = ''): string {
+  return typeof value === 'string' ? value.trim() : fallback;
+}
+
+function parseStringArray(value: unknown, minItems: number = 0): string[] {
+  const items = Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string').map(item => item.trim()).filter(Boolean)
+    : [];
+
+  if (items.length >= minItems) {
+    return items;
+  }
+
+  return items;
+}
+
+function parseReferencedPalaces(value: unknown): PalaceName[] {
+  return parseStringArray(value).filter((item): item is PalaceName => PALACE_NAMES.has(item as PalaceName));
+}
+
+function normalizeAnalysisResponse(payload: unknown): PalaceAnalysis {
+  const raw = (payload && typeof payload === 'object') ? payload as Record<string, unknown> : {};
+
+  return {
+    summary: parseString(raw.summary, 'Chưa thể tạo tóm tắt rõ ràng từ phản hồi AI.'),
+    palace_analysis: parseString(raw.palace_analysis, 'AI chưa trả về phần luận giải chi tiết.'),
+    key_points: parseStringArray(raw.key_points),
+    karmic_interactions: parseStringArray(raw.karmic_interactions),
+    referenced_palaces: parseReferencedPalaces(raw.referenced_palaces),
+    sihua_triggers: parseString(raw.sihua_triggers, 'Chưa có phân tích Tứ Hóa rõ ràng.'),
+    modern_advice: parseString(raw.modern_advice, 'Chưa có lời khuyên thực hành rõ ràng.'),
+    follow_up_suggestions: parseStringArray(raw.follow_up_suggestions),
+  };
+}
 
 export class GeminiService {
   /**
@@ -17,9 +71,10 @@ export class GeminiService {
   static async analyzeChartJSON(
     apiKey: string,
     chart: ZiweiChart,
-    targetPalaceName?: string,
+    targetPalaceName?: PalaceName,
     userQuestion?: string,
-    modelName: string = 'gemini-3.1-pro-preview'
+    modelName: string = 'gemini-3.1-pro-preview',
+    bridgeContext?: AnalysisBridgeContext,
   ): Promise<StructuredAiResponse> {
     
     if (!apiKey) throw new Error("API Key không hợp lệ.");
@@ -27,7 +82,7 @@ export class GeminiService {
     try {
       const ai = new GoogleGenAI({ apiKey });
       const systemInstruction = PromptBuilder.buildSystemInstruction();
-      const prompt = PromptBuilder.buildAnalysisPrompt(chart, targetPalaceName, userQuestion);
+      const prompt = PromptBuilder.buildAnalysisPrompt(chart, targetPalaceName, userQuestion, bridgeContext);
 
       const response = await ai.models.generateContent({
         model: modelName,
@@ -35,53 +90,46 @@ export class GeminiService {
         config: {
           systemInstruction,
           temperature: 0.7,
-          // Ép kiểu đầu ra thành JSON có cấu trúc chuẩn theo Schema định nghĩa ở PromptBuilder
           responseMimeType: "application/json",
-          // Lưu ý: @google/genai SDK v0.1 dùng `responseSchema` theo OpenAPI hoặc TypeScript
-          // Việc định nghĩa type Type.OBJECT thông qua Type enum tuỳ biến
-          responseSchema: analyzeSchema as any
+          responseSchema: analyzeSchema
         }
       });
 
       const responseText = response.text;
       if (!responseText) throw new Error("Không có dữ liệu trả về.");
-      
-      return JSON.parse(responseText) as StructuredAiResponse;
 
-    } catch (error: any) {
+      return normalizeAnalysisResponse(JSON.parse(responseText));
+
+    } catch (error: unknown) {
       console.error("Gemini API Error:", error);
-      throw new Error(error.message || "Lỗi gọi API Google Gemini.");
+      const message = error instanceof Error ? error.message : "Lỗi gọi API Google Gemini.";
+      throw new Error(message);
     }
   }
 
   /**
-   * Tính năng Chat đàm thoại. Mở 1 Chat Session.
+   * Tính năng Chat đàm thoại. Tạo phiên follow-up dùng thread memory cục bộ.
    */
-  static createChatSession(apiKey: string, chart: ZiweiChart, targetPalaceName?: string, modelName: string = 'gemini-3.1-pro-preview') {
+  static createChatSession(
+    apiKey: string,
+    modelName: string = 'gemini-3.1-pro-preview',
+  ): GeminiChatSession {
     if (!apiKey) throw new Error("API Key không hợp lệ.");
     const ai = new GoogleGenAI({ apiKey });
-    const systemInstruction = PromptBuilder.buildSystemInstruction();
-    
-    const contextPrompt = PromptBuilder.buildAnalysisPrompt(chart, targetPalaceName);
-
-    // Bắt đầu một Chat session
-    const chat = ai.chats.create({
-      model: modelName,
-      config: {
-        systemInstruction,
-        temperature: 0.7
-      }
-    });
 
     return {
-      // Gửi context giả làm 1 lượt mồi trước khi người dùng đặt câu hỏi
-      initialize: async () => {
-         await chat.sendMessage({ message: `Giữ context này làm nền tảng phân tích: \n\n${contextPrompt}` });
+      sendMessage: async (thread: AnalysisThread, msg: string) => {
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: PromptBuilder.buildFollowUpPrompt(thread, msg),
+          config: {
+            systemInstruction: PromptBuilder.buildFollowUpSystemInstruction(),
+            temperature: 0.7,
+          },
+        });
+
+        return response.text?.trim() || "AI không trả lời được.";
       },
-      sendMessage: async (msg: string) => {
-         const response = await chat.sendMessage({ message: msg });
-         return response.text || "AI không trả lời được.";
-      }
     };
   }
 }

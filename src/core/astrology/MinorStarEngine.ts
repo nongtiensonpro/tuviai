@@ -33,6 +33,41 @@ const SAN_HE: Record<number, number[]> = {
   11: [11, 3, 7], 3: [11, 3, 7], 7: [11, 3, 7],
 };
 
+const DAO_HOA_BY_YEAR_CHI: Record<number, number> = {
+  0: 9, 1: 6, 2: 3, 3: 0, 4: 9, 5: 6,
+  6: 3, 7: 0, 8: 9, 9: 6, 10: 3, 11: 0,
+};
+
+const CO_THAN_BY_YEAR_CHI: Record<number, number> = {
+  0: 2, 1: 2, 2: 5, 3: 5, 4: 5, 5: 8,
+  6: 8, 7: 8, 8: 11, 9: 11, 10: 11, 11: 2,
+};
+
+const QUA_TU_BY_YEAR_CHI: Record<number, number> = {
+  0: 10, 1: 10, 2: 1, 3: 1, 4: 1, 5: 4,
+  6: 4, 7: 4, 8: 7, 9: 7, 10: 7, 11: 10,
+};
+
+const KIEP_SAT_BY_YEAR_CHI: Record<number, number> = {
+  0: 5, 1: 2, 2: 11, 3: 8, 4: 5, 5: 2,
+  6: 11, 7: 8, 8: 5, 9: 2, 10: 11, 11: 8,
+};
+
+const HOA_CAI_BY_YEAR_CHI: Record<number, number> = {
+  0: 4, 1: 1, 2: 10, 3: 7, 4: 4, 5: 1,
+  6: 10, 7: 7, 8: 4, 9: 1, 10: 10, 11: 7,
+};
+
+const PHA_TOAI_BY_YEAR_CHI: Record<number, number> = {
+  0: 5, 1: 1, 2: 9, 3: 5, 4: 1, 5: 9,
+  6: 5, 7: 1, 8: 9, 9: 5, 10: 1, 11: 9,
+};
+
+const THIEN_MA_BY_YEAR_CHI: Record<number, number> = {
+  0: 2, 1: 11, 2: 8, 3: 5, 4: 2, 5: 11,
+  6: 8, 7: 5, 8: 2, 9: 11, 10: 8, 11: 5,
+};
+
 /**
  * 1. An Vòng Thái Tuế (12 sao)
  * Khởi Thái Tuế tại cung Địa chi Năm sinh. Tính thuận.
@@ -116,10 +151,6 @@ function placeTapDieu(
   placeStar(palaces, 'Thiên Giải', 8 + month - 1, 'cat');
   // Địa Giải: Tháng 1 tại Mùi (7), đếm thuận
   placeStar(palaces, 'Địa Giải', 7 + month - 1, 'cat');
-  // Giải Thần: Đứng cùng tháng với Thiên Giải (trong nhiều phái, hoặc Thân -> đếm thuận)
-  // Trong phái Bắc Tông thường nhập chung cung Giải Thần và Thiên Giải.
-  placeStar(palaces, 'Giải Thần', 8 + month - 1, 'cat');
-
   // === Theo Ngày ===
   // Tam Thai: Từ Tả Phù (Tháng 1 tại Dần 2, thuận) + ngày - 1
   const taPhuIdx = (2 + month - 1) % 12;
@@ -145,8 +176,7 @@ function placeTapDieu(
 
   // === Theo Năm ===
   // Đào Hoa: Tý/Ngọ/Mão/Dậu sinh -> Dần Ngọ Tuất -> Mão (3)...
-  const daoHoaMap = { 2: 3, 6: 3, 10: 3, 8: 9, 0: 9, 4: 9, 5: 6, 9: 6, 1: 6, 11: 0, 3: 0, 7: 0 };
-  placeStar(palaces, 'Đào Hoa', (daoHoaMap as any)[yearChiIdx], 'cat');
+  placeStar(palaces, 'Đào Hoa', DAO_HOA_BY_YEAR_CHI[yearChiIdx] ?? 3, 'cat');
 
   // Hồng Loan: Mão (3) lùi theo Chi Năm (Tý=0)
   const hongLoanIdx = (3 - yearChiIdx + 12) % 12;
@@ -155,24 +185,19 @@ function placeTapDieu(
   placeStar(palaces, 'Thiên Hỷ', hongLoanIdx + 6, 'cat');
 
   // Cô Thần: Tam hợp Dần Mão Thìn -> Tỵ(5), Tỵ Ngọ Mùi -> Thân(8), Thân Dậu Tuất -> Hợi(11), Hợi Tý Sửu -> Dần(2)
-  const coThanMap = { 2:5, 3:5, 4:5, 5:8, 6:8, 7:8, 8:11, 9:11, 10:11, 11:2, 0:2, 1:2 };
-  placeStar(palaces, 'Cô Thần', (coThanMap as any)[yearChiIdx], 'sha');
+  placeStar(palaces, 'Cô Thần', CO_THAN_BY_YEAR_CHI[yearChiIdx] ?? 2, 'sha');
 
   // Quả Tú: Tam hợp lùi -> Dần Mão Thìn -> Sửu(1), Tỵ Ngọ Mùi -> Thìn(4), Thân Dậu Tuất -> Mùi(7), Hợi Tý Sửu -> Tuất(10)
-  const quaTuMap = { 2:1, 3:1, 4:1, 5:4, 6:4, 7:4, 8:7, 9:7, 10:7, 11:10, 0:10, 1:10 };
-  placeStar(palaces, 'Quả Tú', (quaTuMap as any)[yearChiIdx], 'sha');
+  placeStar(palaces, 'Quả Tú', QUA_TU_BY_YEAR_CHI[yearChiIdx] ?? 10, 'sha');
 
   // Kiếp Sát: Cung đầu của tam hợp Thủy/Mộc/Hỏa/Kim
-  const kiepSatMap = { 2:11, 6:11, 10:11, 8:5, 0:5, 4:5, 5:2, 9:2, 1:2, 11:8, 3:8, 7:8 };
-  placeStar(palaces, 'Kiếp Sát', (kiepSatMap as any)[yearChiIdx], 'sha');
+  placeStar(palaces, 'Kiếp Sát', KIEP_SAT_BY_YEAR_CHI[yearChiIdx] ?? 11, 'sha');
 
   // Hoa Cái: Dần Ngọ Tuất -> Tuất(10)...
-  const hoaCaiMap = { 2:10, 6:10, 10:10, 8:4, 0:4, 4:4, 5:1, 9:1, 1:1, 11:7, 3:7, 7:7 };
-  placeStar(palaces, 'Hoa Cái', (hoaCaiMap as any)[yearChiIdx], 'cat');
+  placeStar(palaces, 'Hoa Cái', HOA_CAI_BY_YEAR_CHI[yearChiIdx] ?? 10, 'cat');
 
-  // Phá Toái: Tỵ Dậu Sửu -> Tỵ(5)...
-  const phaToaiMap = { 2:9, 6:9, 10:9, 8:5, 0:5, 4:5, 5:1, 9:1, 1:1, 11:5, 3:5, 7:5 };
-  placeStar(palaces, 'Phá Toái', (phaToaiMap as any)[yearChiIdx], 'sha');
+  // Phá Toái theo nhóm Tý/Ngọ/Mão/Dậu, Dần/Thân/Tỵ/Hợi, Thìn/Tuất/Sửu/Mùi
+  placeStar(palaces, 'Phá Toái', PHA_TOAI_BY_YEAR_CHI[yearChiIdx] ?? 5, 'sha');
 
   // Thiên Khốc: Từ Ngọ (6) lùi theo tuổi
   placeStar(palaces, 'Thiên Khốc', 6 - yearChiIdx + 12, 'sha');
@@ -182,9 +207,12 @@ function placeTapDieu(
   // Long Trì: Từ Thìn (4) thuận theo năm
   placeStar(palaces, 'Long Trì', 4 + yearChiIdx, 'cat');
   // Phượng Các: Từ Tuất (10) nghịch theo năm
-  placeStar(palaces, 'Phượng Các', 10 - yearChiIdx + 12, 'cat');
+  const phuongCacIdx = (10 - yearChiIdx + 12) % 12;
+  placeStar(palaces, 'Phượng Các', phuongCacIdx, 'cat');
+  // Giải Thần đồng cung với Phượng Các
+  placeStar(palaces, 'Giải Thần', phuongCacIdx, 'cat');
 
-  // Thiên Quan, Thiên Phúc (Tùy Can Năm - Tham khảo cơ bản)
+  // Thiên Quan, Thiên Phúc theo Thiên Can năm sinh
   const thienQuanMap = [7, 4, 5, 2, 3, 9, 11, 9, 10, 6]; // Giáp->Mùi...
   const thienPhucMap = [9, 8, 0, 11, 3, 2, 6, 5, 6, 5];
   placeStar(palaces, 'Thiên Quan', thienQuanMap[yearCanIdx]!, 'cat');
@@ -199,19 +227,17 @@ function placeTapDieu(
   placeStar(palaces, 'Thiên Trù', thienTruMap[yearCanIdx]!, 'cat');
 
   // Thiên Mã: Dần Ngọ Tuất mã ở Thân(8)...
-  const thienMaMap = { 2: 8, 6: 8, 10: 8, 8: 2, 0: 2, 4: 2, 5: 11, 9: 11, 1: 11, 11: 5, 3: 5, 7: 5 };
-  placeStar(palaces, 'Thiên Mã', (thienMaMap as any)[yearChiIdx], 'cat');
+  placeStar(palaces, 'Thiên Mã', THIEN_MA_BY_YEAR_CHI[yearChiIdx] ?? 8, 'cat');
 
-  // Thiên Đức: Khởi Dậu(9) thuận tháng
-  placeStar(palaces, 'Thiên Đức', (9 + month - 1), 'cat');
-  // Nguyệt Đức: Khởi Tỵ(5) thuận tháng
-  placeStar(palaces, 'Nguyệt Đức', (5 + month - 1), 'cat');
+  // Thiên Đức, Nguyệt Đức khởi theo năm
+  placeStar(palaces, 'Thiên Đức', 9 + yearChiIdx, 'cat');
+  placeStar(palaces, 'Nguyệt Đức', 5 + yearChiIdx, 'cat');
 
   // Quốc Ấn, Đường Phù (Khởi từ Lộc Tồn)
   const locTonPalace = palaces.find(p => p.auxStars.some(s => s.name === 'Lộc Tồn'));
   const locTonIdx = locTonPalace ? locTonPalace.chiIndex : 2;
-  placeStar(palaces, 'Quốc Ấn', locTonIdx + 8, 'cat'); // Lộc Tồn + 8 (hoặc 9 tùy phái, thường là 9 lấy từ Dần)
-  placeStar(palaces, 'Đường Phù', locTonIdx + 7, 'cat'); 
+  placeStar(palaces, 'Quốc Ấn', locTonIdx + 8, 'cat');
+  placeStar(palaces, 'Đường Phù', locTonIdx - 7 + 12, 'cat');
 }
 
 /**

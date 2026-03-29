@@ -128,6 +128,26 @@ describe('PalaceCalculator', () => {
     });
   });
 
+  describe('calcThanChiIndex', () => {
+    it('Tháng 1, giờ Tý -> Cung Thân tại Dần (index 2)', () => {
+      expect(calcThanChiIndex(1, 0)).toBe(2);
+    });
+
+    it('Tháng 1, giờ Ngọ -> Cung Thân tại Thân (index 8)', () => {
+      expect(calcThanChiIndex(1, 6)).toBe(8);
+    });
+
+    it('Cung Thân luôn cách Cung Mệnh một số cung chẵn', () => {
+      for (let month = 1; month <= 12; month += 1) {
+        for (let hour = 0; hour < 12; hour += 1) {
+          const menh = calcMenhChiIndex(month, hour);
+          const than = calcThanChiIndex(month, hour);
+          expect(((than - menh + 12) % 12) % 2).toBe(0);
+        }
+      }
+    });
+  });
+
   describe('calcNguHanhCuc', () => {
     it('Giáp-Tý → Kim Tứ Cục (4)', () => {
       expect(calcNguHanhCuc('Giáp', 'Tý')).toBe(4);
@@ -251,7 +271,7 @@ describe('ZiweiEngine', () => {
       const yearCanChi = getYearCanChi(1990);
       const palaces = buildPalaces(3, namCanChi, yearCanChi.canIndex);
       const ziweiPos = 3; // Mão
-      const expectedThienPhuPos = (4 - ziweiPos + 12) % 12; // 1 = Sửu
+      const expectedThienPhuPos = (14 - ziweiPos) % 12;
       const result = placeMainStars(palaces, ziweiPos);
       const hasThienPhu = result[expectedThienPhuPos]!.mainStars.some(s => s.name === 'Thiên Phủ');
       expect(hasThienPhu).toBe(true);

@@ -34,31 +34,13 @@ export function calcMenhChiIndex(lunarMonth: number, hourChiIndex: number): numb
 
 /**
  * Tính index Địa Chi của Cung Thân
- * Cung Thân bắt đầu từ Dần(2) với Tháng 1, đếm thuận
- * Tháng 1→Dần, Tháng 2→Thân, Tháng 3→Mão... => pattern khác
- *
- * Quy tắc cụ thể:
- * Cung Thân: Tháng 1,7=Dần; Tháng 2,8=Thân; Tháng 3,9=Tý;
- *            Tháng 4,10=Ngọ; Tháng 5,11=Mão; Tháng 6,12=Dậu
+ * Theo phép an cổ điển:
+ * - Bắt đầu từ Dần là tháng Giêng, đếm thuận tới tháng sinh
+ * - Từ điểm đó gọi là giờ Tý, tiếp tục đếm thuận tới giờ sinh
  */
-export function calcThanChiIndex(lunarMonth: number): number {
-  // Mảng 12 vị trí cung Thân theo tháng (1-indexed)
-  const THAN_BY_MONTH: number[] = [
-    0,  // placeholder
-    2,  // Tháng 1: Dần
-    8,  // Tháng 2: Thân
-    0,  // Tháng 3: Tý
-    6,  // Tháng 4: Ngọ
-    3,  // Tháng 5: Mão
-    9,  // Tháng 6: Dậu
-    2,  // Tháng 7: Dần
-    8,  // Tháng 8: Thân
-    0,  // Tháng 9: Tý
-    6,  // Tháng 10: Ngọ
-    3,  // Tháng 11: Mão
-    9,  // Tháng 12: Dậu
-  ];
-  return THAN_BY_MONTH[lunarMonth] ?? 2;
+export function calcThanChiIndex(lunarMonth: number, hourChiIndex: number): number {
+  const thangChiIndex = (lunarMonth + 1) % 12;
+  return (thangChiIndex + hourChiIndex) % 12;
 }
 
 // ============================================================

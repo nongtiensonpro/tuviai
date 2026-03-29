@@ -1,69 +1,170 @@
 /**
  * PromptBuilder.ts — Định dạng Mega Prompt để Gemini AI phân tích lá số
  */
-import type { ZiweiChart, PalaceName } from '../core/types/ZiweiTypes';
-import { chartToPromptContext } from '../core/astrology/ChartBuilder';
+import type { AnalysisBridgeContext, AnalysisThread, FollowUpPromptContext, PalaceAnalysis, PalaceName, ZiweiChart } from '../core/types/ZiweiTypes';
+import { AnalysisContextBuilder } from './AnalysisContextBuilder';
+import { AnalysisThreadService } from './AnalysisThreadService';
 
-export interface StructuredAiResponse {
-  palace_analysis: string;
-  karmic_interactions: string[];
-  sihua_triggers: string;
-  modern_advice: string;
-}
+export type StructuredAiResponse = PalaceAnalysis;
 
 export const analyzeSchema = {
   type: "object",
   properties: {
+    summary: {
+      type: "string",
+      description: "Tóm tắt 2-3 câu, giúp người đọc nắm nhanh mấu chốt của phần luận giải.",
+    },
     palace_analysis: {
       type: "string",
-      description: "Phân tích kỹ càng về ý nghĩa của các CHÍNH TINH và PHỤ TINH tại cung được chỉ định (hoặc tổng quan nếu không chỉ định cung).",
+      description: "Phân tích kỹ càng, có dẫn chiếu cung liên quan, giải thích vì sao kết luận dựa trên chính tinh, phụ tinh, vô chính diệu, sao mượn và tam phương tứ chính.",
+    },
+    key_points: {
+      type: "array",
+      items: { type: "string" },
+      description: "3-5 ý chính ngắn gọn, dễ đọc, cô đọng các luận điểm mạnh nhất.",
     },
     karmic_interactions: {
       type: "array",
       items: { type: "string" },
-      description: "Danh sách 2-4 gạch đầu dòng phân tích sự tương tác từ Tam Phương Tứ Chính (Tam hợp, Xung chiếu) ảnh hưởng đến cung này.",
+      description: "Danh sách 2-4 gạch đầu dòng phân tích sự tương tác từ Tam Phương Tứ Chính, chỉ rõ cung nào đang nâng đỡ hoặc gây áp lực.",
+    },
+    referenced_palaces: {
+      type: "array",
+      items: { type: "string" },
+      description: "Tên các cung thực sự được dùng để lập luận. Chỉ liệt kê các cung đã nhắc đến trong suy luận.",
     },
     sihua_triggers: {
       type: "string",
-      description: "Phân tích sự kích hoạt của Tứ Hóa (Lộc, Quyền, Khoa, Kỵ) nếu có chiếu vào cung này, hoặc đánh giá Cục/Mệnh nếu xem tổng quát.",
+      description: "Phân tích sự kích hoạt của Tứ Hóa (Lộc, Quyền, Khoa, Kỵ) trong vùng trọng tâm hoặc trên các trục chính của lá số.",
     },
     modern_advice: {
       type: "string",
-      description: "Lời khuyên thực tế ứng dụng vào cuộc sống hiện đại (đầu tư, sự nghiệp, tình duyên, v.v.).",
+      description: "Lời khuyên thực tế, dễ áp dụng trong đời sống hiện đại, tránh mơ hồ và tránh hù dọa.",
+    },
+    follow_up_suggestions: {
+      type: "array",
+      items: { type: "string" },
+      description: "3-5 câu hỏi ngắn, tự nhiên, giúp người dùng hỏi tiếp sau khi đọc phần phân tích đầu tiên.",
     },
   },
-  required: ["palace_analysis", "karmic_interactions", "sihua_triggers", "modern_advice"],
+  required: [
+    "summary",
+    "palace_analysis",
+    "key_points",
+    "karmic_interactions",
+    "referenced_palaces",
+    "sihua_triggers",
+    "modern_advice",
+    "follow_up_suggestions",
+  ],
 };
 
 export class PromptBuilder {
   static buildSystemInstruction(): string {
-    return `Bạn là một Tôn sư Tử Vi Đẩu Số uyên bác, thông thái, am hiểu sâu sắc Tam Hợp phái và Bắc Phái Tứ Hóa.
-Bạn được cung cấp một **Mệnh Bàn Tử Vi hoàn chỉnh dạng JSON** chứa cấu trúc 12 cung, 14 chính tinh và thần sát.
+    return `Bạn là chuyên gia luận giải Tử Vi Đẩu Số, ưu tiên tính chính xác, tính giải thích được và ngôn ngữ tiếng Việt sáng rõ.
 
-QUY TẮC LUẬN GIẢI KIÊN QUYẾT:
-1. LUÔN BÁM SÁT MỆNH BÀN JSON. Không được phát minh, không tự bịa sao không có mặt trong cung.
-2. NẾU VÔ CHÍNH DIỆU (không có chính tinh): Bắt buộc mượn chính tinh ở cung đối diện (Xung Chiếu) để phân tích, ghi rõ là "Mượn sao... từ cung...".
-3. THÁI ĐỘ: Điềm tĩnh, khách quan, mang tính an ủi và định hướng hướng thiện. Không hù dọa tiêu cực.
-4. LUẬN ĐOÁN THEO TAM PHƯƠNG TỨ CHÍNH: Khi phân tích một cung, đồng thời phải xem rễ của nó từ 3 cung tam hợp và 1 cung xung chiếu. Đánh giá sự xuất hiện Lục Cát, Lục Sát Tinh.
-5. CẤU TRÚC ĐẦU RA: Bạn phải ép kiểu trả về ĐÚNG mô hình JSON Schema yêu cầu (palace_analysis, karmic_interactions, sihua_triggers, modern_advice). Không trả về Markdown thông thường bên ngoài vùng JSON.`;
+NGUYÊN TẮC BẮT BUỘC:
+1. Chỉ sử dụng dữ kiện có trong context JSON. Không tự phát minh sao, cung, hạn hoặc dữ kiện đời thực không được cung cấp.
+2. Luôn phân biệt dữ kiện với suy luận. Khi kết luận, phải nói ngắn gọn vì sao kết luận đó hợp lý.
+3. Nếu cung vô chính diệu, bắt buộc xét sao mượn từ cung xung chiếu và nêu rõ điều này trong phần phân tích.
+4. Nếu đang phân tích một cung cụ thể, bắt buộc xét tam phương tứ chính của cung đó trước khi cho lời khuyên.
+5. Nếu đang phân tích tổng quan, ưu tiên trục Mệnh, Thân, Quan Lộc, Tài Bạch và các tín hiệu nổi bật đã được tóm tắt trong context.
+6. Giọng điệu điềm tĩnh, có chiều sâu, không mê tín cực đoan, không hù dọa, không quyết định thay người dùng.
+7. Đầu ra phải là JSON hợp lệ, đúng schema, không bọc markdown, không thêm text ngoài JSON.
+8. Trong "referenced_palaces", chỉ liệt kê những cung thực sự đã dùng để lập luận.`;
   }
 
-  static buildAnalysisPrompt(chart: ZiweiChart, targetPalaceName?: string, userQuestion?: string): string {
-    const contextStr = chartToPromptContext(chart);
-    
-    let prompt = `Đây là dữ liệu Mệnh Bàn Tử Vi của đương số:\n\`\`\`json\n${contextStr}\n\`\`\`\n\n`;
-    
+  static buildFollowUpSystemInstruction(): string {
+    return `${this.buildSystemInstruction()}
+9. Với follow-up, hãy trả lời bằng văn xuôi tự nhiên bằng tiếng Việt, không cần JSON.
+10. Bám sát "threadMemory" và "recentTurns"; nếu câu hỏi vượt khỏi dữ kiện hiện có, nói rõ giới hạn thay vì suy diễn.
+11. Ưu tiên tính liên tục hội thoại: nối tiếp đúng mạch trao đổi trước đó, nhưng vẫn nhắc lại ngắn gọn bối cảnh nếu cần.
+12. Nếu có "conversationDigest", hãy dùng nó để nối mạch phần trao đổi cũ hơn, tránh bỏ quên ý quan trọng đã nói trước đó.`;
+  }
+
+  static buildAnalysisPrompt(
+    chart: ZiweiChart,
+    targetPalaceName?: PalaceName,
+    userQuestion?: string,
+    bridgeContext?: AnalysisBridgeContext,
+  ): string {
+    const context = AnalysisContextBuilder.buildInitialAnalysisContext(chart, targetPalaceName, userQuestion, bridgeContext);
+    const contextStr = AnalysisContextBuilder.stringifyContext(context);
+    const focusLabel = targetPalaceName ?? 'tổng quan mệnh bàn';
+
+    let prompt = `NHIỆM VỤ: initial_analysis\n`;
+    prompt += `TRỌNG TÂM: ${focusLabel}\n`;
+
     if (targetPalaceName) {
-      prompt += `Yêu cầu Tôn Sư tập trung CHUYÊN SÂU luận giải cung: **${targetPalaceName}**.\n`;
-      prompt += `Hãy áp dụng phương pháp nhìn "Tam Phương Tứ Chính" xung quanh cung ${targetPalaceName} để đưa ra đánh giá chính xác nhất.\n\n`;
+      prompt += `YÊU CẦU: Luận giải chuyên sâu cung ${targetPalaceName}, bám sát tam phương tứ chính, nêu rõ cung nào đang hỗ trợ hoặc gây áp lực.\n`;
     } else {
-      prompt += `Xin Tôn Sư hãy luận giải tổng quan cuộc đời, điểm mạnh, điểm yếu từ Cung Mệnh, Thân, Tài Bạch, Quan Lộc.\n\n`;
+      prompt += `YÊU CẦU: Luận giải tổng quan, ưu tiên trục Mệnh - Thân - Quan Lộc - Tài Bạch, làm nổi bật điểm mạnh, điểm yếu và hướng ứng dụng thực tế.\n`;
     }
 
     if (userQuestion) {
-      prompt += `Đương số có câu hỏi cụ thể sau: "${userQuestion}"\n\nXin hãy lồng ghép câu trả lời vào phần "modern_advice" hoặc "palace_analysis".`;
+      prompt += `CÂU HỎI RIÊNG CỦA ĐƯƠNG SỐ: "${userQuestion}"\n`;
     }
 
+    if (bridgeContext) {
+      const sourceLabel = bridgeContext.sourceFocusArea === 'overall'
+        ? 'tổng quan mệnh bàn'
+        : `cung ${bridgeContext.sourceFocusArea}`;
+      prompt += `NỐI MẠCH TỪ TRAO ĐỔI TRƯỚC: Người dùng vừa đi từ ${sourceLabel} sang ${focusLabel}. Hãy giữ liên hệ với mạch trước nhưng ưu tiên luận giải trọng tâm mới.\n`;
+    }
+
+    prompt += `\nYÊU CẦU TRIỂN KHAI NỘI DUNG:
+- "summary": 2-3 câu ngắn, giúp người đọc nắm ngay mấu chốt.
+- "key_points": 3-5 ý chính, mỗi ý một câu ngắn.
+- "palace_analysis": giải thích mạch luận chính, phải bám sát các snapshot và highlights đã cho.
+- "karmic_interactions": 2-4 ý nói rõ sự tác động qua tam hợp/xung chiếu hoặc trục chính.
+- "referenced_palaces": chỉ liệt kê cung thực sự dùng để suy luận.
+- "sihua_triggers": phân tích riêng lớp Tứ Hóa và các kích hoạt quan trọng.
+- "modern_advice": lời khuyên thực hành, cụ thể, không giáo điều.
+- "follow_up_suggestions": 3-5 câu hỏi tự nhiên để người dùng có thể hỏi tiếp ngay sau phần này.
+
+NGỮ CẢNH CÓ CẤU TRÚC:
+\`\`\`json
+${contextStr}
+\`\`\``;
+
     return prompt;
+  }
+
+  static buildFollowUpPrompt(thread: AnalysisThread, question: string): string {
+    const context: FollowUpPromptContext = {
+      userIntent: {
+        mode: 'follow_up',
+        focusArea: thread.focusArea,
+        userQuestion: question,
+      },
+      threadMemory: thread.memory,
+      conversationRecap: thread.memory.conversationRecap,
+      conversationDigest: AnalysisThreadService.getConversationDigest(thread),
+      recentTurns: AnalysisThreadService.getRecentTurns(thread),
+      totalTurns: thread.turns.length,
+      question,
+    };
+
+    const focusLabel = thread.focusArea === 'overall' ? 'tổng quan mệnh bàn' : `cung ${thread.focusArea}`;
+
+    return `NHIỆM VỤ: follow_up
+TRỌNG TÂM: ${focusLabel}
+
+YÊU CẦU TRẢ LỜI:
+- Trả lời trực tiếp câu hỏi mới của người dùng, không cần JSON.
+- Nếu cần, nhắc lại rất ngắn phần bối cảnh đang dùng để lập luận.
+- Nếu có conversationRecap, dùng nó như phần neo ngữ cảnh ưu tiên trước khi đọc recentTurns.
+- Ưu tiên nối mạch với phần phân tích ban đầu và các lượt hỏi gần đây.
+- Dùng conversationDigest để không quên các mốc trao đổi cũ hơn nếu thread đã dài.
+- Không lặp lại toàn bộ bài luận cũ nếu người dùng chỉ hỏi sâu thêm một ý.
+- Nếu câu hỏi chạm sang cung khác, vẫn có thể đối chiếu nhưng phải nói rõ đang liên hệ từ trọng tâm hiện tại.
+
+MEMORY HỘI THOẠI:
+\`\`\`json
+${JSON.stringify(context, null, 2)}
+\`\`\`
+
+CÂU HỎI MỚI:
+${question}`;
   }
 }

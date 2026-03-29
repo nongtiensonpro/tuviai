@@ -29,6 +29,14 @@ export type Gender = 'male' | 'female';
 /** Giao thoa Âm Dương */
 export type AmDuongLy = 'Âm dương thuận lý' | 'Âm dương nghịch lý';
 
+/** Quan hệ giữa Bản Mệnh và Cục */
+export type MenhCucRelation =
+  | 'Cục sinh Bản Mệnh'
+  | 'Cục hòa Bản Mệnh'
+  | 'Bản Mệnh sinh Cục'
+  | 'Bản Mệnh khắc Cục'
+  | 'Cục khắc Bản Mệnh';
+
 /** Độ sáng của sao trên mệnh bàn */
 export type StarBrightness =
   | 'M'  // Miếu (庙) — sáng nhất
@@ -87,6 +95,12 @@ export interface CanChi {
 /** Bộ 4 Can Chi (Tứ Trụ - chỉ dùng năm sinh) */
 export interface NamCanChi extends CanChi {
   displayName: string; // e.g. "Canh Tuất"
+}
+
+/** Thông tin Nạp Âm cho năm sinh */
+export interface NapAmInfo {
+  name: string;
+  nguHanh: NguHanh;
 }
 
 // ============================================================
@@ -188,7 +202,7 @@ export interface ZiweiChart {
   /** Thuộc tính Âm Dương Lý */
   amDuongLy: AmDuongLy;
   amDuongNamNu: string; // "Dương Nam", "Âm Nữ"...
-  menhCucSinhKhac: string; // "Cục hòa Bản Mệnh", "Mệnh sinh Cục"...
+  menhCucSinhKhac: MenhCucRelation;
 
   /** Chủ Tinh */
   menhChu: string;
@@ -209,12 +223,148 @@ export interface ZiweiChart {
   calculatedAt: number; // timestamp
 }
 
+/** Chế độ phân tích AI */
+export type AnalysisIntentMode =
+  | 'initial_analysis'
+  | 'palace_deep_dive'
+  | 'follow_up'
+  | 'compare_palaces'
+  | 'action_plan';
+
+/** Vùng trọng tâm đang được AI theo dõi */
+export type AnalysisFocusArea = PalaceName | 'overall';
+
+/** Tầng ý định người dùng để AI biết đang phải giải quyết việc gì */
+export interface AnalysisUserIntent {
+  mode: AnalysisIntentMode;
+  focusArea: AnalysisFocusArea;
+  userQuestion?: string;
+}
+
+/** Snapshot rút gọn của một cung để đưa vào prompt */
+export interface AiPalaceSnapshot {
+  palaceName: PalaceName;
+  diaChi: TwoelveChi;
+  mainStars: string[];
+  auxStars: string[];
+  borrowedMainStars: string[];
+  sihua: string[];
+  trangSinh: string;
+  daiHan: number;
+  isThanPalace: boolean;
+  hasTuanKhong: boolean;
+  hasTrietKhong: boolean;
+}
+
+/** Trọng tâm phân tích cho một cung đích */
+export interface AnalysisFocusContext {
+  targetPalaceName?: PalaceName;
+  targetPalace?: AiPalaceSnapshot;
+  tamHopPalaces: AiPalaceSnapshot[];
+  oppositePalace?: AiPalaceSnapshot;
+  focusHighlights: string[];
+  referencedPalaces: PalaceName[];
+}
+
+/** Payload context hoàn chỉnh để gửi cho AI */
+export interface AnalysisPromptContext {
+  userIntent: AnalysisUserIntent;
+  chartFacts: {
+    basicInfo: {
+      ngaySinhDuongLich: string;
+      ngaySinhAmLich: string;
+      gioDia: TwoelveChi;
+      namCanChi: string;
+      gioiTinh: 'Nam' | 'Nữ';
+      banMenh: string;
+      nguHanhCuc: TenCuc;
+      amDuongLy: AmDuongLy;
+      amDuongNamNu: string;
+      menhCucSinhKhac: MenhCucRelation;
+      menhChu: string;
+      thanChu: string;
+      cungMenh: TwoelveChi;
+      cungThan: TwoelveChi;
+      thanCuTaiCung: PalaceName;
+    };
+    keyPalaces: AiPalaceSnapshot[];
+    allPalaces: AiPalaceSnapshot[];
+  };
+  derivedSignals: {
+    chartHighlights: string[];
+    focusContext: AnalysisFocusContext;
+  };
+  bridgeContext?: AnalysisBridgeContext;
+}
+
+/** Vai trò trong hội thoại */
+export type ChatRole = 'user' | 'ai';
+
+/** Một lượt trao đổi trong thread hỏi đáp */
+export interface ChatTurn {
+  id: string;
+  role: ChatRole;
+  msg: string;
+  createdAt: number;
+}
+
+/** Bộ nhớ ngắn hạn dùng cho follow-up */
+export interface FollowUpMemory {
+  focusArea: AnalysisFocusArea;
+  analysisSummary: string;
+  keyPoints: string[];
+  referencedPalaces: PalaceName[];
+  relatedPalaces: PalaceName[];
+  focusHighlights: string[];
+  chartHighlights: string[];
+  suggestedQuestions: string[];
+  conversationRecap: string;
+  bridgeContext?: AnalysisBridgeContext;
+}
+
+/** Ngữ cảnh nối mạch khi người dùng chuyển từ một trọng tâm sang trọng tâm khác */
+export interface AnalysisBridgeContext {
+  sourceFocusArea: AnalysisFocusArea;
+  targetFocusArea: AnalysisFocusArea;
+  summary: string;
+  referencedPalaces: PalaceName[];
+  recentUserQuestions: string[];
+  transitionReason: string;
+}
+
+/** Thread hội thoại gắn với một lá số và một vùng trọng tâm */
+export interface AnalysisThread {
+  id: string;
+  chartFingerprint: string;
+  focusArea: AnalysisFocusArea;
+  analysis: PalaceAnalysis;
+  memory: FollowUpMemory;
+  turns: ChatTurn[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Payload gọn nhẹ cho lượt follow-up */
+export interface FollowUpPromptContext {
+  userIntent: AnalysisUserIntent;
+  threadMemory: FollowUpMemory;
+  conversationRecap: string;
+  conversationDigest: string[];
+  recentTurns: Array<Pick<ChatTurn, 'role' | 'msg'>>;
+  totalTurns: number;
+  question: string;
+}
+
 /** Kết quả phân tích từ Gemini AI — định nghĩa ở đây để dùng toàn app */
 export interface PalaceAnalysis {
+  summary: string;
   palace_analysis: string;
+  key_points: string[];
   karmic_interactions: string[];
+  referenced_palaces: PalaceName[];
   sihua_triggers: string;
   modern_advice: string;
+  follow_up_suggestions: string[];
 }
 
 export interface FullChartAnalysis {
@@ -223,6 +373,40 @@ export interface FullChartAnalysis {
   challenges: string[];
   life_phases: string;
   modern_advice: string;
+}
+
+/** Checkpoint tối thiểu để đối chiếu regression với lá số tham chiếu */
+export interface ReferencePalaceCheckpoint {
+  palaceName: PalaceName;
+  chi?: TwoelveChi;
+  daiHan: number;
+  trangSinh?: string;
+  isThanPalace?: boolean;
+  hasTuanKhong?: boolean;
+  hasTrietKhong?: boolean;
+}
+
+/** Fixture regression lấy từ lá số tham chiếu công khai */
+export interface ReferenceChartFixture {
+  label: string;
+  sourceUrl: string;
+  sourceNote: string;
+  input: {
+    solarDate: SolarDate;
+    gender: Gender;
+  };
+  expected: {
+    lunarDate: Pick<LunarDate, 'day' | 'month' | 'year' | 'hourChi'>;
+    namCanChi: string;
+    amDuongNamNu: string;
+    amDuongLy: AmDuongLy;
+    tenCuc: TenCuc;
+    banMenh: string;
+    cungMenhChi: TwoelveChi;
+    cungThanChi?: TwoelveChi;
+    thanCuTaiCung: PalaceName;
+    checkpoints: ReferencePalaceCheckpoint[];
+  };
 }
 
 // ============================================================

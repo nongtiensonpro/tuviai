@@ -83,7 +83,13 @@ export const AstroApp: React.FC = () => {
           />
 
           <div className="mt-8 w-full">
-            <AnalysisPanel chart={chart} targetPalaceName={activePalace} />
+            <AnalysisPanel
+              chart={chart}
+              targetPalaceName={activePalace}
+              onNavigateFocus={(focusArea) => {
+                setActivePalace(focusArea === 'overall' ? undefined : focusArea);
+              }}
+            />
           </div>
 
           <p className="text-center text-white/40 mt-10 text-xs">

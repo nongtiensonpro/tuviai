@@ -3,7 +3,103 @@
  * Tham chiếu: Đại Hạn, Vòng Tràng Sinh, Mệnh Chủ, Thân Chủ, Âm Dương Thuận/Nghịch lý.
  */
 
-import type { AmDuongLy, Gender, NguHanhCuc } from '../types/ZiweiTypes';
+import type {
+  AmDuongLy,
+  Gender,
+  MenhCucRelation,
+  NapAmInfo,
+  NguHanh,
+  NguHanhCuc,
+  TenCan,
+  TwoelveChi,
+} from '../types/ZiweiTypes';
+
+const NAP_AM_BY_YEAR: Record<string, NapAmInfo> = {
+  'Giáp-Tý': { name: 'Hải Trung Kim', nguHanh: 'Kim' },
+  'Ất-Sửu': { name: 'Hải Trung Kim', nguHanh: 'Kim' },
+  'Bính-Dần': { name: 'Lư Trung Hỏa', nguHanh: 'Hỏa' },
+  'Đinh-Mão': { name: 'Lư Trung Hỏa', nguHanh: 'Hỏa' },
+  'Mậu-Thìn': { name: 'Đại Lâm Mộc', nguHanh: 'Mộc' },
+  'Kỷ-Tỵ': { name: 'Đại Lâm Mộc', nguHanh: 'Mộc' },
+  'Canh-Ngọ': { name: 'Lộ Bàng Thổ', nguHanh: 'Thổ' },
+  'Tân-Mùi': { name: 'Lộ Bàng Thổ', nguHanh: 'Thổ' },
+  'Nhâm-Thân': { name: 'Kiếm Phong Kim', nguHanh: 'Kim' },
+  'Quý-Dậu': { name: 'Kiếm Phong Kim', nguHanh: 'Kim' },
+  'Giáp-Tuất': { name: 'Sơn Đầu Hỏa', nguHanh: 'Hỏa' },
+  'Ất-Hợi': { name: 'Sơn Đầu Hỏa', nguHanh: 'Hỏa' },
+  'Bính-Tý': { name: 'Giản Hạ Thủy', nguHanh: 'Thủy' },
+  'Đinh-Sửu': { name: 'Giản Hạ Thủy', nguHanh: 'Thủy' },
+  'Mậu-Dần': { name: 'Thành Đầu Thổ', nguHanh: 'Thổ' },
+  'Kỷ-Mão': { name: 'Thành Đầu Thổ', nguHanh: 'Thổ' },
+  'Canh-Thìn': { name: 'Bạch Lạp Kim', nguHanh: 'Kim' },
+  'Tân-Tỵ': { name: 'Bạch Lạp Kim', nguHanh: 'Kim' },
+  'Nhâm-Ngọ': { name: 'Dương Liễu Mộc', nguHanh: 'Mộc' },
+  'Quý-Mùi': { name: 'Dương Liễu Mộc', nguHanh: 'Mộc' },
+  'Giáp-Thân': { name: 'Tuyền Trung Thủy', nguHanh: 'Thủy' },
+  'Ất-Dậu': { name: 'Tuyền Trung Thủy', nguHanh: 'Thủy' },
+  'Bính-Tuất': { name: 'Ốc Thượng Thổ', nguHanh: 'Thổ' },
+  'Đinh-Hợi': { name: 'Ốc Thượng Thổ', nguHanh: 'Thổ' },
+  'Mậu-Tý': { name: 'Tích Lịch Hỏa', nguHanh: 'Hỏa' },
+  'Kỷ-Sửu': { name: 'Tích Lịch Hỏa', nguHanh: 'Hỏa' },
+  'Canh-Dần': { name: 'Tùng Bách Mộc', nguHanh: 'Mộc' },
+  'Tân-Mão': { name: 'Tùng Bách Mộc', nguHanh: 'Mộc' },
+  'Nhâm-Thìn': { name: 'Trường Lưu Thủy', nguHanh: 'Thủy' },
+  'Quý-Tỵ': { name: 'Trường Lưu Thủy', nguHanh: 'Thủy' },
+  'Giáp-Ngọ': { name: 'Sa Trung Kim', nguHanh: 'Kim' },
+  'Ất-Mùi': { name: 'Sa Trung Kim', nguHanh: 'Kim' },
+  'Bính-Thân': { name: 'Sơn Hạ Hỏa', nguHanh: 'Hỏa' },
+  'Đinh-Dậu': { name: 'Sơn Hạ Hỏa', nguHanh: 'Hỏa' },
+  'Mậu-Tuất': { name: 'Bình Địa Mộc', nguHanh: 'Mộc' },
+  'Kỷ-Hợi': { name: 'Bình Địa Mộc', nguHanh: 'Mộc' },
+  'Canh-Tý': { name: 'Bích Thượng Thổ', nguHanh: 'Thổ' },
+  'Tân-Sửu': { name: 'Bích Thượng Thổ', nguHanh: 'Thổ' },
+  'Nhâm-Dần': { name: 'Kim Bạch Kim', nguHanh: 'Kim' },
+  'Quý-Mão': { name: 'Kim Bạch Kim', nguHanh: 'Kim' },
+  'Giáp-Thìn': { name: 'Phú Đăng Hỏa', nguHanh: 'Hỏa' },
+  'Ất-Tỵ': { name: 'Phú Đăng Hỏa', nguHanh: 'Hỏa' },
+  'Bính-Ngọ': { name: 'Thiên Hà Thủy', nguHanh: 'Thủy' },
+  'Đinh-Mùi': { name: 'Thiên Hà Thủy', nguHanh: 'Thủy' },
+  'Mậu-Thân': { name: 'Đại Trạch Thổ', nguHanh: 'Thổ' },
+  'Kỷ-Dậu': { name: 'Đại Trạch Thổ', nguHanh: 'Thổ' },
+  'Canh-Tuất': { name: 'Thoa Xuyến Kim', nguHanh: 'Kim' },
+  'Tân-Hợi': { name: 'Thoa Xuyến Kim', nguHanh: 'Kim' },
+  'Nhâm-Tý': { name: 'Tang Đố Mộc', nguHanh: 'Mộc' },
+  'Quý-Sửu': { name: 'Tang Đố Mộc', nguHanh: 'Mộc' },
+  'Giáp-Dần': { name: 'Đại Khê Thủy', nguHanh: 'Thủy' },
+  'Ất-Mão': { name: 'Đại Khê Thủy', nguHanh: 'Thủy' },
+  'Bính-Thìn': { name: 'Sa Trung Thổ', nguHanh: 'Thổ' },
+  'Đinh-Tỵ': { name: 'Sa Trung Thổ', nguHanh: 'Thổ' },
+  'Mậu-Ngọ': { name: 'Thiên Thượng Hỏa', nguHanh: 'Hỏa' },
+  'Kỷ-Mùi': { name: 'Thiên Thượng Hỏa', nguHanh: 'Hỏa' },
+  'Canh-Thân': { name: 'Thạch Lựu Mộc', nguHanh: 'Mộc' },
+  'Tân-Dậu': { name: 'Thạch Lựu Mộc', nguHanh: 'Mộc' },
+  'Nhâm-Tuất': { name: 'Đại Hải Thủy', nguHanh: 'Thủy' },
+  'Quý-Hợi': { name: 'Đại Hải Thủy', nguHanh: 'Thủy' },
+};
+
+const CUC_NGU_HANH: Record<NguHanhCuc, NguHanh> = {
+  2: 'Thủy',
+  3: 'Mộc',
+  4: 'Kim',
+  5: 'Thổ',
+  6: 'Hỏa',
+};
+
+const NGU_HANH_TUONG_SINH: Record<NguHanh, NguHanh> = {
+  'Kim': 'Thủy',
+  'Thủy': 'Mộc',
+  'Mộc': 'Hỏa',
+  'Hỏa': 'Thổ',
+  'Thổ': 'Kim',
+};
+
+const NGU_HANH_TUONG_KHAC: Record<NguHanh, NguHanh> = {
+  'Kim': 'Mộc',
+  'Mộc': 'Thổ',
+  'Thổ': 'Thủy',
+  'Thủy': 'Hỏa',
+  'Hỏa': 'Kim',
+};
 
 /**
  * Tính Âm Dương Nam Nữ dựa vào Thiên Can năm sinh và Giới tính
@@ -46,36 +142,55 @@ export function calcAmDuongLy(menhChiIndex: number, yearCanIndex: number): AmDuo
 }
 
 /**
- * Suy đoán Mệnh Tương Sinh Tương Khắc với Cục
- * Bỏ qua vì cần thuật toán Ngũ Hành phức tạp, gán tạm "Mệnh Cục Bình Hòa" hoặc tính base:
+ * Lấy Nạp Âm Bản Mệnh từ Can Chi năm sinh
  */
-export function calcMenhCucSinhKhac(): string {
-  // Todo: Implement fully based on Menh vs Cuc Ngu Hanh
-  return 'Cục hòa Bản Mệnh'; // Default giản lược cho UI mẫu
+export function getNapAmInfo(yearCan: TenCan, yearChi: TwoelveChi): NapAmInfo {
+  return NAP_AM_BY_YEAR[`${yearCan}-${yearChi}`] ?? {
+    name: 'Không rõ',
+    nguHanh: 'Thổ',
+  };
+}
+
+/**
+ * Tính tương quan giữa Ngũ Hành bản mệnh và hành của Cục
+ */
+export function calcMenhCucSinhKhac(
+  banMenhNguHanh: NguHanh,
+  cuc: NguHanhCuc,
+): MenhCucRelation {
+  const cucNguHanh = CUC_NGU_HANH[cuc];
+
+  if (cucNguHanh === banMenhNguHanh) {
+    return 'Cục hòa Bản Mệnh';
+  }
+
+  if (NGU_HANH_TUONG_SINH[cucNguHanh] === banMenhNguHanh) {
+    return 'Cục sinh Bản Mệnh';
+  }
+
+  if (NGU_HANH_TUONG_SINH[banMenhNguHanh] === cucNguHanh) {
+    return 'Bản Mệnh sinh Cục';
+  }
+
+  if (NGU_HANH_TUONG_KHAC[banMenhNguHanh] === cucNguHanh) {
+    return 'Bản Mệnh khắc Cục';
+  }
+
+  return 'Cục khắc Bản Mệnh';
 }
 
 /**
  * Tính Mệnh Chủ dựa vào Địa Chi cung Mệnh
  */
 export function calcMenhChu(menhChiIndex: number): string {
-  const MENH_CHU: Record<number, string> = {
-    0: 'Tham Lang', 1: 'Cự Môn', 2: 'Lộc Tồn', 3: 'Văn Khúc',
-    4: 'Liêm Trinh', 5: 'Vũ Khúc', 6: 'Phá Quân', 7: 'Vũ Khúc',
-    8: 'Liêm Trinh', 9: 'Văn Khúc', 10: 'Lộc Tồn', 11: 'Cự Môn'
-  };
-  return MENH_CHU[menhChiIndex] || 'Không rõ';
+  return MENH_CHU_BY_MENH_CHI[menhChiIndex] ?? MENH_CHU_BY_MENH_CHI[0];
 }
 
 /**
  * Tính Thân Chủ dựa vào Địa Chi năm sinh
  */
 export function calcThanChu(yearChiIndex: number): string {
-  const THAN_CHU: Record<number, string> = {
-    0: 'Linh Tinh', 1: 'Thiên Tướng', 2: 'Thiên Lương', 3: 'Thiên Đồng',
-    4: 'Văn Xương', 5: 'Thiên Cơ', 6: 'Hỏa Tinh', 7: 'Thiên Tướng',
-    8: 'Thiên Lương', 9: 'Thiên Đồng', 10: 'Văn Xương', 11: 'Thiên Cơ'
-  };
-  return THAN_CHU[yearChiIndex] || 'Không rõ';
+  return THAN_CHU_BY_YEAR_CHI[yearChiIndex] ?? THAN_CHU_BY_YEAR_CHI[0];
 }
 
 /**
@@ -87,7 +202,7 @@ export function calcTrangSinh(
   targetChiIndex: number
 ): string {
   const TRANG_SINH_TABLE = [
-    'Tràng Sinh', 'Mộc Dục', 'Quan Đới', 'Lâm Quan', 'Đế Vượng', 'Suy',
+    'Trường Sinh', 'Mộc Dục', 'Quan Đới', 'Lâm Quan', 'Đế Vượng', 'Suy',
     'Bệnh', 'Tử', 'Mộ', 'Tuyệt', 'Thai', 'Dưỡng'
   ];
 
@@ -129,3 +244,14 @@ export function calcDaiHan(
   // Đại hạn bắt đầu bằng Cục số, cộng thêm (offset * 10)
   return cuc + (offset * 10);
 }
+const MENH_CHU_BY_MENH_CHI = [
+  'Tham Lang', 'Cự Môn', 'Lộc Tồn', 'Văn Khúc',
+  'Liêm Trinh', 'Vũ Khúc', 'Phá Quân', 'Vũ Khúc',
+  'Liêm Trinh', 'Văn Khúc', 'Lộc Tồn', 'Cự Môn',
+] as const;
+
+const THAN_CHU_BY_YEAR_CHI = [
+  'Linh Tinh', 'Thiên Tướng', 'Thiên Lương', 'Thiên Đồng',
+  'Văn Xương', 'Thiên Cơ', 'Hỏa Tinh', 'Thiên Tướng',
+  'Thiên Lương', 'Thiên Đồng', 'Văn Xương', 'Thiên Cơ',
+] as const;

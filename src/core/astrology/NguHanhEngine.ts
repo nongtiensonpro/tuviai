@@ -2,7 +2,7 @@
  * NguHanhEngine.ts — Engine phân loại Ngũ Hành (Kim, Mộc, Thủy, Hỏa, Thổ) cho 108 vì sao.
  * Dùng để hiển thị màu sắc khoa học trên lá số.
  */
-import type { NguHanh } from '../types/ZiweiTypes';
+import type { NguHanh, StarBrightness } from '../types/ZiweiTypes';
 
 // Từ điển Ngũ Hành của các Chính Tinh
 const MAIN_STARS_NGU_HANH: Record<string, NguHanh> = {
@@ -70,7 +70,7 @@ export function getStarNguHanh(starName: string): NguHanh {
 /**
  * Hàm dịch độ sáng từ ký tự Hán Việt cũ sang format mới (M, V, Đ, B, H)
  */
-export function translateBrightness(oldBright: string): any {
+export function translateBrightness(oldBright: string): StarBrightness {
   switch (oldBright) {
     case '庙': return 'M';
     case '旺': return 'V';

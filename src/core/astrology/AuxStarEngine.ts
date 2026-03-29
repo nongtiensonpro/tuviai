@@ -3,7 +3,7 @@
  * Source: .agents/skills/ziwei-algorithm/SKILL.md §9
  */
 
-import type { Palace, Star, TenCan, TwoelveChi } from '../types/ZiweiTypes';
+import type { Palace, Star, TenCan } from '../types/ZiweiTypes';
 import { getStarNguHanh } from './NguHanhEngine';
 
 // ============================================================
@@ -14,7 +14,7 @@ import { getStarNguHanh } from './NguHanhEngine';
  * Thiên Khôi theo Thiên Can năm sinh
  * Source: SKILL.md §9 Lục Cát
  */
-const THIEN_KHOI_BY_CAN: Record<string, number> = {
+const THIEN_KHOI_BY_CAN: Record<TenCan, number> = {
   'Giáp': 1, 'Mậu': 1,        // Sửu (index 1)
   'Ất': 0, 'Kỷ': 0,           // Tý (index 0)
   'Bính': 11, 'Đinh': 11,     // Hợi (index 11)
@@ -23,42 +23,81 @@ const THIEN_KHOI_BY_CAN: Record<string, number> = {
 };
 
 /**
+ * Lộc Tồn theo Thiên Can năm sinh
+ * Giáp→Dần, Ất→Mão, Bính/Mậu→Tỵ, Đinh/Kỷ→Ngọ,
+ * Canh→Thân, Tân→Dậu, Nhâm→Hợi, Quý→Tý
+ */
+const LOC_TON_BY_CAN: Record<TenCan, number> = {
+  'Giáp': 2,
+  'Ất': 3,
+  'Bính': 5,
+  'Đinh': 6,
+  'Mậu': 5,
+  'Kỷ': 6,
+  'Canh': 8,
+  'Tân': 9,
+  'Nhâm': 11,
+  'Quý': 0,
+};
+
+/**
  * Kình Dương theo Thiên Can năm sinh
  * Source: SKILL.md §9 Lục Sát
  */
-const KINH_DUONG_BY_CAN: Record<string, number> = {
-  'Giáp': 3,  // Mão (3)
-  'Ất': 4,    // Thìn (4)
-  'Bính': 6,  // Ngọ (6) — Bính/Mậu
+const KINH_DUONG_BY_CAN: Record<TenCan, number> = {
+  'Giáp': 3,
+  'Ất': 4,
+  'Bính': 6,
   'Mậu': 6,
-  'Đinh': 7,  // Mùi (7) — Đinh/Kỷ
+  'Đinh': 7,
   'Kỷ': 7,
-  'Canh': 9,  // Dậu (9)
-  'Tân': 10,  // Tuất (10)
-  'Nhâm': 0,  // Tý (0)
-  'Quý': 1,   // Sửu (1)
+  'Canh': 9,
+  'Tân': 10,
+  'Nhâm': 0,
+  'Quý': 1,
 };
 
 /**
  * Hỏa Tinh theo (Địa Chi năm, Địa Chi giờ)
- * Source: tham khảo truyền thống Tử Vi Đẩu Số
- * Bảng: HoaTinh[yearChiIndex][hourChiIndex] = chiIndex
  */
 const HOA_TINH_TABLE: Record<number, number[]> = {
-  // yearChi: [Tý,Sửu,Dần,Mão,Thìn,Tỵ,Ngọ,Mùi,Thân,Dậu,Tuất,Hợi] = chiIndex Hỏa Tinh theo giờ
-  2: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],    // Dần, Ngọ, Tuất năm (chiChi=2,6,10)
+  2: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
   6: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
   10: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-  3: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],    // Mão, Mùi, Hợi năm (chiChi=3,7,11)
+  3: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
   7: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
   11: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
-  0: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],    // Tý, Thìn, Thân năm (chiChi=0,4,8)
+  0: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   4: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   8: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  1: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],    // Sửu, Tỵ, Dậu năm (chiChi=1,5,9)
+  1: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
   5: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
   9: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
 };
+
+const YEAR_CAN_ORDER: TenCan[] = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
+
+const TRIET_KHONG_BY_CAN: Record<TenCan, [number, number]> = {
+  'Giáp': [8, 9],  // Thân, Dậu
+  'Ất': [6, 7],    // Ngọ, Mùi
+  'Bính': [4, 5],  // Thìn, Tỵ
+  'Đinh': [2, 3],  // Dần, Mão
+  'Mậu': [0, 1],   // Tý, Sửu
+  'Kỷ': [8, 9],
+  'Canh': [6, 7],
+  'Tân': [4, 5],
+  'Nhâm': [2, 3],
+  'Quý': [0, 1],
+};
+
+const TUAN_KHONG_BY_XUN_INDEX: Array<[number, number]> = [
+  [10, 11], // Giáp Tý tuần -> Tuất, Hợi không
+  [8, 9],   // Giáp Tuất tuần -> Thân, Dậu không
+  [6, 7],   // Giáp Thân tuần -> Ngọ, Mùi không
+  [4, 5],   // Giáp Ngọ tuần -> Thìn, Tỵ không
+  [2, 3],   // Giáp Thìn tuần -> Dần, Mão không
+  [0, 1],   // Giáp Dần tuần -> Tý, Sửu không
+];
 
 // ============================================================
 // HÀM TẠO SAO PHỤ
@@ -84,6 +123,16 @@ function placeAux(palaces: Palace[], starName: string, chiIndex: number, categor
   palaces[idx]!.auxStars.push(createAuxStar(starName, idx, category));
 }
 
+function resolveSexagenaryIndex(yearCanIndex: number, yearChiIndex: number): number {
+  for (let sexagenaryIndex = 0; sexagenaryIndex < 60; sexagenaryIndex += 1) {
+    if (sexagenaryIndex % 10 === yearCanIndex && sexagenaryIndex % 12 === yearChiIndex) {
+      return sexagenaryIndex;
+    }
+  }
+
+  return 0;
+}
+
 // ============================================================
 // AN LỤC CÁT TINH
 // ============================================================
@@ -99,7 +148,11 @@ export function placeLucCatTinh(
   hourChiIndex: number, // 0-11
 ): Palace[] {
   const result = palaces.map(p => ({ ...p, auxStars: [...p.auxStars] }));
-  const yearCan = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'][yearCanIndex]!;
+  const yearCan = YEAR_CAN_ORDER[yearCanIndex]!;
+
+  // Lộc Tồn: mốc neo cho vòng Bác Sĩ và nhiều sao phụ khác
+  const locTonIdx = LOC_TON_BY_CAN[yearCan];
+  placeAux(result, 'Lộc Tồn', locTonIdx, 'cat');
 
   // Tả Phù: Tháng 1 ở Dần(2), đếm thuận
   const taPhuIdx = (2 + lunarMonth - 1) % 12;
@@ -143,7 +196,7 @@ export function placeLucSatTinh(
   hourChiIndex: number, // 0-11
 ): Palace[] {
   const result = palaces.map(p => ({ ...p, auxStars: [...p.auxStars] }));
-  const yearCan = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'][yearCanIndex]!;
+  const yearCan = YEAR_CAN_ORDER[yearCanIndex]!;
 
   // Kình Dương
   const kinhIdx = KINH_DUONG_BY_CAN[yearCan] ?? 6;
@@ -153,13 +206,10 @@ export function placeLucSatTinh(
   const daLaIdx = (kinhIdx - 1 + 12) % 12;
   placeAux(result, 'Đà La', daLaIdx, 'sha');
 
-  // Hỏa Tinh: theo bảng (năm Chi × giờ Chi)
   const hoaTinhTable = HOA_TINH_TABLE[yearChiIndex];
   if (hoaTinhTable) {
     const hoaIdx = hoaTinhTable[hourChiIndex] ?? 0;
     placeAux(result, 'Hỏa Tinh', hoaIdx, 'sha');
-
-    // Linh Tinh: đối cung với Hỏa Tinh
     placeAux(result, 'Linh Tinh', (hoaIdx + 6) % 12, 'sha');
   }
 
@@ -211,7 +261,7 @@ export function placeFixedStars(palaces: Palace[]): Palace[] {
  * Tuần Không: 2 cung cuối trong vòng Tuần (60 hoa giáp)
  * Triệt Không: 2 cung theo Can năm
  *
- * Đây là tính năng nâng cao — implement cơ bản
+ * Tính Tuần Không và Triệt Không từ năm Can Chi
  */
 export function calcTuanTrietKhong(
   palaces: Palace[],
@@ -220,14 +270,16 @@ export function calcTuanTrietKhong(
 ): Palace[] {
   const result = palaces.map(p => ({ ...p }));
 
-  // Tuần = vị trí trong chu kỳ 60 = (canIndex * 12 + chiIndex) / 10 → bắt đầu Tuần
-  // Tuần Không = chiIndex của 2 cung bị bỏ qua trong Tuần đó
-  const tuanStart = yearCanIndex; // Simplified: từ Can năm
-  const tuan1 = ((10 - tuanStart) + yearChiIndex) % 12;
-  const tuan2 = (tuan1 + 1) % 12;
+  const sexagenaryIndex = resolveSexagenaryIndex(yearCanIndex, yearChiIndex);
+  const xunIndex = Math.floor(sexagenaryIndex / 10);
+  const [tuan1, tuan2] = TUAN_KHONG_BY_XUN_INDEX[xunIndex] ?? [10, 11];
+  const yearCan = YEAR_CAN_ORDER[yearCanIndex]!;
+  const [triet1, triet2] = TRIET_KHONG_BY_CAN[yearCan];
 
   if (result[tuan1]) result[tuan1]!.hasTuanKhong = true;
   if (result[tuan2]) result[tuan2]!.hasTuanKhong = true;
+  if (result[triet1]) result[triet1]!.hasTrinhKhong = true;
+  if (result[triet2]) result[triet2]!.hasTrinhKhong = true;
 
   return result;
 }
