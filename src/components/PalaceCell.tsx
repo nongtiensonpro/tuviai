@@ -7,6 +7,7 @@
 
 import React from 'react';
 import type { Palace, Star } from '../core/types/ZiweiTypes';
+import { getStarDescription } from '../data/StarDescriptions';
 
 // Màu sắc Ngũ Hành trên nền Dark Mode
 const getColorNguHanh = (nguHanh: string): string => {
@@ -20,46 +21,44 @@ const getColorNguHanh = (nguHanh: string): string => {
   }
 };
 
-const STAR_DESC: Record<string, string> = {
-  'Tử Vi': 'Đế tinh, Quyền uy lãnh đạo', 'Thiên Phủ': 'Kho tàng, Tài lộc ổn định',
-  'Thái Dương': 'Mặt trời, Sự nghiệp', 'Thái Âm': 'Mặt trăng, Nội tâm',
-  'Vũ Khúc': 'Hành động, Ý chí', 'Thiên Cơ': 'Trí tuệ, Biến động',
-  'Thiên Đồng': 'Phúc khí, An lạc', 'Liêm Trinh': 'Đam mê, Nghị lực',
-  'Tham Lang': 'Ham muốn, Khát vọng', 'Cự Môn': 'Ngôn ngữ, Tranh luận',
-  'Thiên Tướng': 'Bảo hộ, Quy tắc', 'Thiên Lương': 'Bác ái, Chính trực',
-  'Thất Sát': 'Quyết đoán, Biến cố', 'Phá Quân': 'Phá hủy, Tái tạo',
-  'Kình Dương': 'Tranh đấu quyết liệt', 'Đà La': 'Chướng ngại, Ngoan cố',
-  'Hỏa Tinh': 'Nổ bùng, Tai biến', 'Linh Tinh': 'Bí ẩn, Xung động',
-  'Địa Không': 'Mất mát, Trống rỗng', 'Địa Kiếp': 'Cướp đoạt, Tai họa',
-};
+const BAD_STARS = [
+  'Kình Dương', 'Đà La', 'Hỏa Tinh', 'Linh Tinh', 'Địa Không', 'Địa Kiếp',
+  'Thiên Khốc', 'Thiên Hư', 'Tang Môn', 'Bạch Hổ', 'Điếu Khách', 'Tuế Phá',
+  'Thiên Hình', 'Thiên Diêu', 'Phá Toái', 'Cô Thần', 'Quả Tú', 'Đẩu Quân',
+  'Âm Sát', 'Kiếp Sát', 'Đại Hao', 'Tiểu Hao', 'Tử Phù', 'Quan Phù', 'Quan Phủ',
+  'Trực Phù', 'Tai Sát', 'Thiên Sát', 'Đại Sát', 'Lưu Hà', 'Phi Liêm', 'Bệnh Phù',
+  'Hóa Kỵ', 'Mộc Dục', 'Suy', 'Bệnh', 'Tử', 'Mộ', 'Tuyệt', 'Thai', // Thêm Vòng Tràng Sinh xấu (Tuỳ chọn)
+];
 
 interface PalaceCellProps {
   palace: Palace;
   isActive?: boolean;
   onClick?: () => void;
+  onStarClick?: (name: string, desc: string) => void;
 }
 
-export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClick }) => {
+export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClick, onStarClick }) => {
   const mainStars = palace.mainStars;
+  const isVCD = mainStars.length === 0;
+
+  // Tách sao Có Ý Nghĩa: Tốt qua Trái, Xấu qua Phải
+  const filteredAux = palace.auxStars.filter(s => s.name !== 'Tuần Không' && s.name !== 'Triệt Không');
   
-  // Tách sao Cát / Sát
-  const leftStars = palace.auxStars.filter(s => s.category === 'cat' || s.category === 'support' || s.category === 'fixed');
-  const rightStars = palace.auxStars.filter(s => s.category === 'sha');
+  const leftStars = filteredAux.filter(s => !BAD_STARS.includes(s.name) && s.category !== 'sha');
+  const rightStars = filteredAux.filter(s => BAD_STARS.includes(s.name) || s.category === 'sha');
 
   const tuanTriet = [];
   if (palace.hasTuanKhong) tuanTriet.push('Tuần');
   if (palace.hasTrinhKhong) tuanTriet.push('Triệt');
 
-  const allStars = [...mainStars, ...palace.auxStars];
-  const isVCD = mainStars.length === 0;
-
   return (
     <div
       onClick={onClick}
-      className={`palace-cell relative flex flex-col p-3 overflow-visible transition-all duration-200 ${isActive ? 'bg-black/60 shadow-[inset_0_0_20px_rgba(240,192,64,0.1)] border-white/30' : 'bg-black/40'}`}
-      style={{ position: 'relative' }}
+      className={`palace-cell relative overflow-hidden transition-all duration-200 ${
+        isActive ? 'bg-black/60 shadow-[inset_0_0_20px_rgba(240,192,64,0.1)] border-white/30' : 'bg-black/40'
+      }`}
     >
-      {/* 1. Hiệu ứng SVG cho Vô Chính Diệu */}
+      {/* Hiệu ứng SVG nền cho VCD */}
       {isVCD && (
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none z-0">
            <svg width="80%" height="80%" viewBox="0 0 100 100" className="animate-spin-slow">
@@ -71,111 +70,128 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
         </div>
       )}
 
-      {/* 2. Ribbon Tuần/Triệt vắt sát góc viền (Thay vì trôi lội) */}
+      {/* Ruy-băng Tuần/Triệt */}
       {tuanTriet.length > 0 && (
         <div className="absolute -top-[1.5px] inset-x-0 mx-auto w-fit bg-[#1a1a1a] text-white text-[9px] font-bold px-2 py-[2px] border border-white/20 z-10 shadow-sm rounded-b-sm tracking-widest uppercase">
           {tuanTriet.join(' - ')}
         </div>
       )}
 
-      <div className="z-10 flex flex-col h-full w-full">
-        {/* 3. HEADER: Can Chi - TÊN CUNG - Đại Hạn */}
-        <div className="flex justify-between items-start w-full border-b border-white/10 pb-[3px] mb-[5px]">
-          <span className="text-[10px] text-white/50 font-medium tracking-tight">
-            {palace.can}.{palace.chi}
-          </span>
-          <div className="flex flex-col items-center">
-            <span className={`text-[11px] font-bold uppercase tracking-wide ${isActive ? 'text-gold' : 'text-white/90'}`}>
-              {palace.palaceName}
-            </span>
-            {palace.isThanPalace && (
-              <span className="bg-red-900/60 border border-red-500/40 text-red-100 text-[8px] px-1 rounded-sm -mt-[1px]">
-                Thân
+      {/* Cấu trúc Table tự động tính toán Size, chống đè chữ */}
+      <table className="w-full h-full table-auto border-collapse text-left z-10 relative">
+        <tbody>
+          {/* DÒNG 1: HEADER (Can Chi, Tên Cung, Đại Hạn) */}
+          <tr className="border-b border-white/10">
+            <td className="align-top py-0.5 whitespace-nowrap">
+              <span className="text-[10.5px] text-white/50 tracking-tight font-medium">
+                {palace.can}.{palace.chi}
               </span>
-            )}
-          </div>
-          <span className="text-[10px] font-bold text-white/40">
-            {palace.daiHan ?? ''}
-          </span>
-        </div>
-
-        {/* 4. CHÍNH TINH (Chính giữa trên cùng) */}
-        <div className="flex flex-col items-center mb-1.5 min-h-[46px] justify-start pt-1 z-10">
-          {mainStars.map((star, idx) => (
-            <div 
-              key={idx} 
-              title={`${star.name} - Ngũ hành: ${star.nguHanh}\nÝ nghĩa: ${STAR_DESC[star.name] || 'Chưa cập nhật'}`}
-              className={`text-center font-bold text-[13px] leading-snug tracking-wide cursor-help hover:scale-110 transition-transform ${getColorNguHanh(star.nguHanh)}`}
-            >
-              {star.name}
-              {star.brightness && <span className="text-[10px] ml-[2px] opacity-70 font-normal">({star.brightness})</span>}
-              {star.sihua && <span className="text-coral ml-[2px] font-bold tracking-normal">[{star.sihua}]</span>}
-            </div>
-          ))}
-
-          {/* HIỂN THỊ SAO MƯỢN CHO CUNG VCD */}
-          {isVCD && palace.borrowedStars && palace.borrowedStars.length > 0 && (
-            <div className="flex flex-col items-center opacity-40 italic scale-95 origin-top">
-              {palace.borrowedStars.map((star, idx) => (
-                <div 
-                  key={`borrowed-${idx}`} 
-                  title={`Sao mượn từ cung xung chiếu: ${star.name}`}
-                  className={`text-center font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}
-                >
-                  {star.name}
-                  {star.brightness && <span className="text-[9px] ml-[1px] font-normal">({star.brightness})</span>}
-                  <span className="text-[8px] ml-0.5 font-normal tracking-tighter opacity-80">(Chiếu)</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {isVCD && (mainStars.length === 0 && (!palace.borrowedStars || palace.borrowedStars.length === 0)) && (
-            <div className="text-[11px] text-white/30 italic mt-2 font-serif font-medium tracking-widest">
-              Vô chính diệu
-            </div>
-          )}
-        </div>
-
-        {/* 5. PHỤ TINH - 2 cột Trái Cát / Phải Sát rõ ràng */}
-        <div className="flex justify-between items-start flex-grow text-[10px] min-h-[4rem] w-full pt-1 z-10">
-          {/* Cột Trái Cát Tinh - thụt lề tí xíu khỏi biên trái */}
-          <div className="flex flex-col w-[48%] overflow-hidden items-start pl-0.5">
-            {leftStars.map((s, i) => (
-              <div 
-                key={i} 
-                title={`${s.name} - Ngũ hành: ${s.nguHanh}\nÝ nghĩa: ${STAR_DESC[s.name] || 'Thuộc tính sao tĩnh'}`}
-                className={`truncate w-full leading-tight font-medium cursor-help hover:opacity-80 ${getColorNguHanh(s.nguHanh)}`}
-              >
-                {s.name}
-                {s.sihua && <span className="font-bold ml-0.5 text-coral">[{s.sihua}]</span>}
+            </td>
+            <td className="align-top text-center py-0.5">
+              <div className="flex flex-col items-center leading-tight">
+                <span className={`text-[12px] font-bold uppercase ${isActive ? 'text-gold' : 'text-white/90'}`}>
+                  {palace.palaceName}
+                </span>
+                {palace.isThanPalace && (
+                  <span className="bg-red-900/60 border border-red-500/40 text-red-100 text-[8px] px-1 rounded-sm -mt-px w-fit uppercase scale-90">
+                    Thân
+                  </span>
+                )}
               </div>
-            ))}
-          </div>
-          {/* Cột Phải Sát Tinh - thụt lề tí xíu khỏi biên phải */}
-          <div className="flex flex-col w-[48%] overflow-hidden items-end pr-0.5">
-            {rightStars.map((s, i) => (
-              <div 
-                key={i} 
-                title={`${s.name} - Ngũ hành: ${s.nguHanh}\nÝ nghĩa: ${STAR_DESC[s.name] || 'Thuộc tính sao Sát/Bại'}`}
-                className={`truncate w-full text-right leading-tight font-semibold cursor-help hover:opacity-80 ${getColorNguHanh(s.nguHanh)}`}
-              >
-                {s.name}
-                {s.sihua && <span className="font-bold ml-0.5 text-coral">[{s.sihua}]</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+            </td>
+            <td className="align-top text-right py-0.5">
+              <span className="text-[10px] font-bold text-white/40">
+                {palace.daiHan ?? ''}
+              </span>
+            </td>
+          </tr>
 
-        {/* 6. FOOTER: Cung Địa Chi - Tràng Sinh */}
-        <div className="mt-1 pt-1 border-t border-white/10 flex justify-between items-end w-full z-10 relative">
-          <span className="text-[11px] font-medium text-white/30">{palace.chi}</span>
-          <span className={`text-[10px] uppercase tracking-wide font-semibold text-[#f1c40f]/70`}>
-            {palace.trangSinh ?? ''}
-          </span>
-          <span className="text-[9px] text-white/20"></span>
-        </div>
-      </div>
+          {/* DÒNG 2: CHÍNH TINH (Chiếm trọn 3 khối) */}
+          <tr>
+            <td colSpan={3} className="text-center pt-1.5 pb-1 align-top">
+              <div className="flex flex-col items-center justify-start min-h-[44px]">
+                {mainStars.map((star, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={(e) => { e.stopPropagation(); onStarClick?.(star.name, getStarDescription(star.name)); }}
+                    title={`${star.name} - Ngũ hành: ${star.nguHanh}\nÝ nghĩa: ${getStarDescription(star.name)}`}
+                    className={`font-bold text-[13.5px] leading-tight cursor-help transition-transform hover:scale-110 ${getColorNguHanh(star.nguHanh)}`}
+                  >
+                    {star.name}
+                    {star.brightness && <span className="text-[10px] ml-0.5 font-normal opacity-80">({star.brightness})</span>}
+                    {star.sihua && <span className="text-coral ml-0.5 font-bold tracking-normal opacity-100">[{star.sihua}]</span>}
+                  </div>
+                ))}
+
+                {isVCD && palace.borrowedStars && palace.borrowedStars.length > 0 && (
+                  <div className="flex flex-col items-center opacity-40 italic scale-95 origin-top mt-0.5">
+                    {palace.borrowedStars.map((star, idx) => (
+                      <div key={`borrowed-${idx}`} title={`Mượn: ${star.name}`} className={`font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}>
+                        {star.name}
+                        {star.brightness && <span className="text-[9px] ml-0.5 font-normal">({star.brightness})</span>}
+                        <span className="text-[8px] ml-0.5 font-normal opacity-80">(Chiếu)</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {isVCD && (mainStars.length === 0 && (!palace.borrowedStars || palace.borrowedStars.length === 0)) && (
+                  <div className="text-[11px] text-white/30 italic mt-1 font-serif font-medium tracking-widest">Vô chính diệu</div>
+                )}
+              </div>
+            </td>
+          </tr>
+
+          {/* DÒNG 3: PHỤ TINH TRÁI (Cát/Xương) & PHỤ TINH PHẢI (Sát/Ác) */}
+          <tr>
+            <td colSpan={3} className="align-top h-full">
+               <table className="w-full h-full table-fixed">
+                 <tbody>
+                    <tr>
+                       {/* Cột Tốt */}
+                       <td className="w-1/2 align-top text-left pr-1 leading-[1.15] border-r border-white/5 pb-1">
+                         {leftStars.map((s, i) => (
+                          <div 
+                            key={i} 
+                            onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
+                            title={`${s.name} - O:${getStarDescription(s.name)}`} 
+                            className={`text-[10px] break-words md:text-[10.5px] font-medium tracking-tight cursor-help hover:brightness-125 mb-[1px] ${getColorNguHanh(s.nguHanh)}`}
+                          >
+                            {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}
+                          </div>
+                         ))}
+                       </td>
+                       {/* Cột Xấu */}
+                       <td className="w-1/2 align-top text-right pl-1 leading-[1.15] pb-1">
+                         {rightStars.map((s, i) => (
+                          <div 
+                            key={i} 
+                            onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
+                            title={`${s.name} - X:${getStarDescription(s.name)}`} 
+                            className={`text-[10px] break-words md:text-[10.5px] font-semibold tracking-tight cursor-help hover:brightness-125 mb-[1px] ${getColorNguHanh(s.nguHanh)}`}
+                          >
+                            {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}
+                          </div>
+                         ))}
+                       </td>
+                    </tr>
+                 </tbody>
+               </table>
+            </td>
+          </tr>
+
+          {/* DÒNG 4: FOOTER (Địa Chi, Tràng Sinh) */}
+          <tr>
+            <td colSpan={3} className="align-bottom pt-1 border-t border-white/10 relative">
+               <div className="flex justify-between items-end w-full">
+                  <span className="text-[10.5px] font-medium text-white/30 leading-none">{palace.chi}</span>
+                  <span className="text-[9px] uppercase tracking-wide font-semibold text-[#f1c40f]/70 leading-none">
+                    {palace.trangSinh ?? ''}
+                  </span>
+               </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };

@@ -1,26 +1,9 @@
-/**
- * ZiWeiBoard.tsx
- * Thành phần cha quản lý Grid 4x4 hiển thị Tử Vi Đẩu Số.
- * Sắp xếp các PalaceCell theo đúng bảng Chi (Tý -> Hợi).
- */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ZiweiChart, PalaceName } from '../core/types/ZiweiTypes';
 import { PalaceCell } from './PalaceCell';
 import { CenterPanel } from './CenterPanel';
 
 // Mảng chứa thứ tự index Địa Chi (0..11) map vào Grid CSS.
-// Tý (0), Sửu (1), ..., Hợi (11).
-// Grid 4x4 sẽ được sắp xếp như sau:
-// [ Tỵ(5) ] [ Ngọ(6)  ] [ Mùi(7)  ] [ Thân(8) ]
-// [ Thìn(4)] [ CENTER ] [ CENTER ] [ Dậu(9)  ]
-// [ Mão(3) ] [ CENTER ] [ CENTER ] [ Tuất(10)]
-// [ Dần(2) ] [ Sửu(1)  ] [ Tý(0)   ] [ Hợi(11) ]
-
-// => Sắp xếp index vào mảng grid để render từ trên xuống dưới, trái qua phải.
-// Cột-1 (trên xuống): Tỵ(5), Thìn(4), Mão(3), Dần(2)
-// Hàng trên cùng: Ngọ(6), Mùi(7), Thân(8)
-// Cột phải: Dậu(9), Tuất(10), Hợi(11)
-// Hàng dưới cùng: Sửu(1), Tý(0)
 const GRID_CELLS_ORDER = [
   /* R1 */ 5, 6, 7, 8,
   /* R2 */ 4, 'CENTER', 'CENTER', 9,
@@ -35,6 +18,16 @@ interface ZiWeiBoardProps {
 }
 
 export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, activePalace }) => {
+  const [activeStar, setActiveStar] = useState<{name: string, desc: string} | null>(null);
+
+  // Tự động ẩn Tooltip của sao sau 6 giây
+  useEffect(() => {
+    if (activeStar) {
+      const timer = setTimeout(() => setActiveStar(null), 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeStar]);
+
   if (!chart || !chart.palaces) {
     return <div className="text-white text-center">Đang tải Mệnh Bàn...</div>;
   }
@@ -44,8 +37,8 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
       {/* Scroll hint — chỉ hiện trên mobile */}
       <p className="ziwei-scroll-hint">← Vuốt để xem toàn bộ Mệnh Bàn →</p>
 
-      <div className="ziwei-scroll-container">
-        <div className="ziwei-grid mx-auto max-w-[800px] w-full text-white">
+      <div className="ziwei-scroll-container pb-6">
+        <div className="ziwei-grid mx-auto max-w-[800px] w-full text-white relative">
           {GRID_CELLS_ORDER.map((item, index) => {
             // Render Center Panel
             if (item === 'CENTER') {
@@ -68,11 +61,27 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
                 palace={palace}
                 isActive={isActive}
                 onClick={() => onPalaceClick?.(palace.palaceName)}
+                onStarClick={(name: string, desc: string) => setActiveStar({name, desc})}
               />
             );
           })}
         </div>
       </div>
+
+      {/* Cửa sổ nổi hiển thị mô tả thông tin Sao (Hỗ trợ tốt Touch screen / Mobile) */}
+      {activeStar && (
+        <div 
+          className="fixed bottom-[10%] left-1/2 -translate-x-1/2 z-[9999] bg-[#1a1c29]/95 backdrop-blur-md border border-gold/40 rounded-xl p-3.5 shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex max-w-[90vw] md:max-w-md animate-fade-up items-start cursor-pointer transition-transform hover:scale-[1.02]"
+          onClick={() => setActiveStar(null)}
+        >
+          <div className="text-[1.3rem] mr-2 mt-0.5 opacity-90">✨</div>
+          <div className="flex-1">
+            <h4 className="text-gold font-bold text-[15px] mb-1">{activeStar.name}</h4>
+            <p className="text-white/80 text-[13px] whitespace-normal leading-relaxed">{activeStar.desc}</p>
+          </div>
+          <button className="ml-3 text-white/40 hover:text-white pt-0.5 text-xs">✕</button>
+        </div>
+      )}
     </div>
   );
 };

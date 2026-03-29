@@ -18,7 +18,7 @@ export const AstroApp: React.FC = () => {
   const handleGenerateChart = (info: BirthInfo) => {
     setIsLoading(true);
     setError('');
-    
+
     // Simulate slight delay for UX (có thể sau này dùng cho load AI)
     setTimeout(() => {
       try {
@@ -28,7 +28,7 @@ export const AstroApp: React.FC = () => {
           year: info.year,
           hour: info.hourIndex * 2, // approximation for solar hour
         };
-        
+
         // Cần truyền giờ 24h vào solar, converter đang lấy hourIndex tự động 
         // dựa trên hour. Để bảo đảm chính xác hourChiIndex truyền đúng:
         // Đã sửa bên Converter tự động mapping hour. Ta cần pass hour 24h tương ứng:
@@ -38,7 +38,7 @@ export const AstroApp: React.FC = () => {
 
         const newChart = buildZiweiChart(solarDate, info.gender);
         setChart(newChart);
-        
+
         // Scroll mượt xuống dưới biểu đồ
         setTimeout(() => {
           document.getElementById('section-board')?.scrollIntoView({ behavior: 'smooth' });
@@ -69,21 +69,22 @@ export const AstroApp: React.FC = () => {
           {/* Constrain width to match Grid for perfect alignment */}
           <div className="max-w-[800px] w-full flex justify-between items-end mb-4 border-b border-gold/20 pb-2 px-2">
             <h3 className="text-3xl font-serif-sc text-gold drop-shadow-[0_0_15px_rgba(240,192,64,0.5)]">Mệnh Bàn Tử Vi</h3>
-            <button 
+            <button
               onClick={() => setChart(null)}
               className="text-white/50 hover:text-white hover:bg-white/10 text-xs px-3 py-1.5 rounded transition-all border border-white/10"
             >
               ← Về trang nhập
             </button>
           </div>
-          
-          <ZiWeiBoard 
-            chart={chart} 
+          <br />
+          <ZiWeiBoard
+            chart={chart}
             activePalace={activePalace}
             onPalaceClick={handlePalaceClick}
           />
+          <br />
           <AnalysisPanel chart={chart} targetPalaceName={activePalace} />
-          
+
           <p className="text-center text-white/40 mt-10 text-xs">
             Mệnh bàn tính toán chính xác 100% offline. Phần luận giải do AI thực hiện.
           </p>
