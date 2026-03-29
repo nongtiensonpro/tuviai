@@ -76,14 +76,15 @@ export const AstroApp: React.FC = () => {
               ← Về trang nhập
             </button>
           </div>
-          <br />
           <ZiWeiBoard
             chart={chart}
             activePalace={activePalace}
             onPalaceClick={handlePalaceClick}
           />
-          <br />
-          <AnalysisPanel chart={chart} targetPalaceName={activePalace} />
+
+          <div className="mt-8 w-full">
+            <AnalysisPanel chart={chart} targetPalaceName={activePalace} />
+          </div>
 
           <p className="text-center text-white/40 mt-10 text-xs">
             Mệnh bàn tính toán chính xác 100% offline. Phần luận giải do AI thực hiện.
