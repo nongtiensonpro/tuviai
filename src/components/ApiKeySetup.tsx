@@ -129,16 +129,16 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
 
   // --- Chỉ báo trạng thái Key ---
   const KeyStatusBadge = () => {
-    if (keyStatus === 'testing') return <span className="text-xs text-yellow-400 animate-pulse">⏳ Đang kiểm tra...</span>;
-    if (keyStatus === 'valid') return <span className="text-xs text-green-400">✅ Key hợp lệ</span>;
-    if (keyStatus === 'invalid') return <span className="text-xs text-red-400">❌ Key không hợp lệ</span>;
+    if (keyStatus === 'testing') return <span className="text-xs text-amber-300 animate-pulse">⏳ Đang kiểm tra...</span>;
+    if (keyStatus === 'valid') return <span className="text-xs text-emerald-300">✅ Key hợp lệ</span>;
+    if (keyStatus === 'invalid') return <span className="text-xs text-red-300">❌ Key không hợp lệ</span>;
     return null;
   };
 
   // --- Hướng dẫn lấy Key ---
   const GuidePanel = () => (
-    <div className="mt-4 bg-indigo-950/40 border border-indigo-500/20 rounded-lg p-4 text-sm">
-      <p className="font-semibold text-indigo-300 mb-3">📖 Cách lấy Gemini API Key miễn phí:</p>
+    <div className="mt-4 p-0 text-sm">
+      <p className="font-semibold text-cyan mb-3">Cách lấy Gemini API Key miễn phí</p>
       <ol className="space-y-2 text-white/70 list-none">
         {[
           { n: '1', text: 'Mở Google AI Studio:', link: 'https://aistudio.google.com/apikey', linkText: 'aistudio.google.com/apikey' },
@@ -147,10 +147,10 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
           { n: '4', text: 'Sao chép chuỗi key bắt đầu bằng "AIza..." và dán vào ô bên dưới.' },
         ].map((step) => (
           <li key={step.n} className="flex gap-2 items-start">
-            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600/50 text-indigo-300 text-xs flex items-center justify-center font-bold mt-0.5">{step.n}</span>
+            <span className="flex-shrink-0 text-cyan/70 text-xs font-semibold mt-0.5">{step.n}.</span>
             <span>
               {step.text}{' '}
-              {step.link && <a href={step.link} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">{step.linkText} →</a>}
+              {step.link && <a href={step.link} target="_blank" rel="noopener noreferrer" className="text-cyan hover:underline">{step.linkText} →</a>}
             </span>
           </li>
         ))}
@@ -161,31 +161,63 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
   // === MODE: UNLOCK (đã có key cũ) ===
   if (mode === 'unlock') {
     return (
-      <div className="bg-gray-900/40 p-5 rounded-xl border border-gold/30">
-        <h3 className="text-gold font-bold mb-2 flex items-center gap-2 text-base"><span>🔒</span> Mở Khóa Gemini AI</h3>
-        <p className="text-xs text-white/50 mb-4">API Key của bạn đã được mã hóa an toàn. Nhập mật khẩu để kích hoạt.</p>
+      <div className="p-0">
+        <div className="flex flex-col gap-4 mb-5">
+          <div className="section-kicker w-fit">Mở Khóa AI</div>
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-[700px]">
+              <h3 className="text-gold font-semibold text-xl sm:text-2xl mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                Kích hoạt lại Gemini AI
+              </h3>
+              <p className="text-sm text-white/70 leading-relaxed">
+                API Key của bạn đã được mã hóa cục bộ bằng AES-GCM. Nhập mật khẩu để mở khóa và tiếp tục luận giải.
+              </p>
+            </div>
 
-        <form onSubmit={handleUnlock} className="flex gap-2 items-start flex-wrap sm:flex-nowrap">
-          <div className="flex-1 w-full sm:w-auto space-y-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-[10px] text-white/40 uppercase font-bold px-1">Chọn Model</label>
+            <div className="text-xs sm:text-sm text-white/55 xl:max-w-[320px] xl:text-right">
+              Bạn có thể đổi model mỗi lần mở khóa mà không cần lưu lại API Key mới.
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleUnlock} className="space-y-4">
+          <div className="space-y-4">
+            <div>
+              <label className="label" htmlFor="unlock-model">Chọn Model</label>
               <select
-                className="input !py-1 text-sm bg-black/60 border-white/20"
+                id="unlock-model"
+                className="input min-h-[3rem]"
                 value={selectedModel}
                 onChange={e => setSelectedModel(e.target.value)}
               >
                 {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
               </select>
             </div>
+
             <div>
-              <input type="password" placeholder="Mật khẩu cục bộ (6+ ký tự)"
-                className="input w-full" value={password} onChange={e => setPassword(e.target.value)} />
-              {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+              <label className="label" htmlFor="unlock-password">Mật khẩu cục bộ</label>
+              <input
+                id="unlock-password"
+                type="password"
+                placeholder="Nhập mật khẩu đã dùng khi lưu key"
+                className="input w-full min-h-[3rem]"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <p className="text-xs text-white/45 mt-2">Mật khẩu này chỉ dùng để giải mã khóa đã lưu trên thiết bị của bạn.</p>
+              {error && <p className="text-red-300 text-xs mt-2">{error}</p>}
             </div>
-          </div>
-          <div className="flex flex-col gap-2 pt-5">
-            <button type="submit" className="btn-primary !py-2 whitespace-nowrap">Mở Khóa</button>
-            <button type="button" onClick={handleReset} className="btn-secondary !py-1 whitespace-nowrap !border-red-800/50 text-red-300 hover:!bg-red-900/20 text-xs">Cài lại</button>
+
+            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <button type="submit" className="btn-primary min-h-[3rem] w-full sm:w-auto sm:min-w-[160px]">Mở Khóa</button>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="btn-secondary min-h-[2.8rem] w-full sm:w-auto sm:min-w-[160px] !border-red-800/45 text-red-200 hover:!bg-red-900/20"
+              >
+                Cài lại key
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -194,57 +226,73 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
 
   // === MODE: SETUP (chưa có key) ===
   return (
-    <div className="bg-gray-900/40 p-5 rounded-xl border border-gold/30">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-gold font-bold flex items-center gap-2 text-base"><span>🔑</span> Thiết Lập Gemini AI (BYOK)</h3>
-        <button
-          type="button"
-          onClick={() => setShowGuide(!showGuide)}
-          className="text-xs text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 px-2 py-1 rounded transition-colors"
-        >
-          {showGuide ? 'Ẩn hướng dẫn ▲' : '📖 Cách lấy key ▼'}
-        </button>
-      </div>
-      <p className="text-xs text-white/50 mb-4 leading-relaxed">
-        Ứng dụng chạy 100% trên trình duyệt. Key sẽ được mã hóa <strong className="text-white/70">AES-GCM</strong> và chỉ lưu trên thiết bị của bạn — không gửi đi đâu cả.
-      </p>
+    <div className="p-0">
+      <div className="flex flex-col gap-4 mb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-[700px]">
+            <div className="section-kicker w-fit mb-3">Thiết Lập BYOK</div>
+            <h3 className="text-gold font-semibold text-xl sm:text-2xl mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+              Kết nối Gemini AI theo cách riêng của bạn
+            </h3>
+            <p className="text-sm text-white/70 leading-relaxed">
+              Ứng dụng chạy hoàn toàn trên trình duyệt. API Key sẽ được mã hóa bằng <strong className="text-white/80">AES-GCM</strong> và lưu cục bộ trên thiết bị của bạn.
+            </p>
+          </div>
 
-      {showGuide && <GuidePanel />}
+          <button
+            type="button"
+            onClick={() => setShowGuide(!showGuide)}
+            className="btn-secondary w-full sm:w-auto text-xs px-3 py-2"
+          >
+            {showGuide ? 'Ẩn hướng dẫn' : 'Cách lấy key'}
+          </button>
+        </div>
+
+        {showGuide && <GuidePanel />}
+      </div>
 
       <form onSubmit={handleSetup} className="space-y-4 mt-4">
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="label mb-0">Google Gemini API Key</label>
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <label className="label mb-0" htmlFor="setup-api-key">Google Gemini API Key</label>
             <KeyStatusBadge />
           </div>
-          <div className="flex gap-2">
-            <input type="password" placeholder="AIzaSy..."
-              className="input flex-1 bg-black/40" value={apiKey}
-              onChange={e => { setApiKey(e.target.value); setKeyStatus('idle'); }} />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              id="setup-api-key"
+              type="password"
+              placeholder="AIzaSy..."
+              className="input flex-1 min-h-[3rem]"
+              value={apiKey}
+              onChange={e => { setApiKey(e.target.value); setKeyStatus('idle'); }}
+            />
             <button
               type="button"
               disabled={!apiKey || keyStatus === 'testing'}
               onClick={() => testApiKey(apiKey)}
-              className="btn-secondary text-xs whitespace-nowrap !px-3 disabled:opacity-40"
+              className="btn-secondary min-h-[3rem] text-xs whitespace-nowrap px-4 disabled:opacity-40"
             >
-              🧪 Test
+              Kiểm tra key
             </button>
           </div>
+          <p className="text-xs text-white/45 mt-2">Hãy kiểm tra key trước khi lưu để giảm lỗi khi bắt đầu luận giải.</p>
         </div>
+
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="label mb-0">Chọn Model AI</label>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
+            <label className="label mb-0" htmlFor="setup-model">Chọn Model AI</label>
             <button
               type="button"
               onClick={() => checkAvailableModels(apiKey)}
               disabled={!apiKey}
-              className="text-[10px] bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 transition-colors disabled:opacity-30"
+              className="text-[11px] text-cyan/80 hover:text-cyan px-0 py-1 transition-colors disabled:opacity-30"
             >
-              🔍 Xem model hỗ trợ
+              Xem model hỗ trợ
             </button>
           </div>
           <select
-            className="input w-full bg-black/40"
+            id="setup-model"
+            className="input w-full min-h-[3rem]"
             value={selectedModel}
             onChange={e => setSelectedModel(e.target.value)}
           >
@@ -253,20 +301,35 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
             ))}
           </select>
         </div>
+
         <div>
-          <label className="label">Mật Khẩu Bảo Vệ</label>
-          <input type="password" placeholder="Ít nhất 6 ký tự — để mở khóa lần sau"
-            className="input w-full bg-black/40" value={password} onChange={e => setPassword(e.target.value)} />
+          <label className="label" htmlFor="setup-password">Mật Khẩu Bảo Vệ</label>
+          <input
+            id="setup-password"
+            type="password"
+            placeholder="Ít nhất 6 ký tự để mở khóa lần sau"
+            className="input w-full min-h-[3rem]"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          <p className="text-xs text-white/45 mt-2">Mật khẩu này không được gửi tới Gemini. Nó chỉ dùng để mã hóa khóa trên thiết bị của bạn.</p>
         </div>
 
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && <p className="text-red-300 text-sm">{error}</p>}
 
-        <button type="submit"
-          className={`btn-primary w-full ${keyStatus === 'invalid' ? 'opacity-70' : ''}`}
-          disabled={keyStatus === 'testing'}
-        >
-          {keyStatus === 'valid' ? '✅ Lưu & Kích Hoạt AI' : '🔐 Lưu & Kích Hoạt AI'}
-        </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-2">
+          <p className="text-sm text-white/55 leading-relaxed">
+            Sau khi lưu, AI sẽ sẵn sàng hoạt động ngay trong phiên hiện tại.
+          </p>
+
+          <button
+            type="submit"
+            className={`btn-primary w-full sm:w-auto min-h-[3.25rem] px-6 ${keyStatus === 'invalid' ? 'opacity-70' : ''}`}
+            disabled={keyStatus === 'testing'}
+          >
+            {keyStatus === 'valid' ? 'Lưu và kích hoạt AI' : 'Lưu cấu hình AI'}
+          </button>
+        </div>
       </form>
     </div>
   );

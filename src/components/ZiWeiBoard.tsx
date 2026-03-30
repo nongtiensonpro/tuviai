@@ -18,7 +18,7 @@ interface ZiWeiBoardProps {
 }
 
 export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, activePalace }) => {
-  const [activeStar, setActiveStar] = useState<{name: string, desc: string} | null>(null);
+  const [activeStar, setActiveStar] = useState<{ name: string, desc: string } | null>(null);
 
   // Tự động ẩn Tooltip của sao sau 6 giây
   useEffect(() => {
@@ -37,7 +37,14 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
       {/* Scroll hint — chỉ hiện trên mobile */}
       <p className="ziwei-scroll-hint">← Vuốt để xem toàn bộ Mệnh Bàn →</p>
 
-      <div className="ziwei-scroll-container pb-6">
+      <div className="mb-4 flex flex-col gap-2 text-center sm:text-left">
+        <p className="text-sm uppercase tracking-[0.18em] text-white/45">Mệnh bàn tổng quan</p>
+        <p className="text-sm text-white/65">
+          Chạm vào từng cung để xem trọng tâm luận giải.
+        </p>
+      </div>
+
+      <div className="ziwei-scroll-container pb-6 pt-3">
         <div className="ziwei-grid mx-auto max-w-[800px] w-full text-white relative">
           {GRID_CELLS_ORDER.map((item, index) => {
             // Render Center Panel
@@ -61,7 +68,7 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
                 palace={palace}
                 isActive={isActive}
                 onClick={() => onPalaceClick?.(palace.palaceName)}
-                onStarClick={(name: string, desc: string) => setActiveStar({name, desc})}
+                onStarClick={(name: string, desc: string) => setActiveStar({ name, desc })}
               />
             );
           })}
@@ -70,8 +77,8 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
 
       {/* Cửa sổ nổi hiển thị mô tả thông tin Sao (Hỗ trợ tốt Touch screen / Mobile) */}
       {activeStar && (
-        <div 
-          className="fixed bottom-[10%] left-1/2 -translate-x-1/2 z-[9999] bg-[#1a1c29]/95 backdrop-blur-md border border-gold/40 rounded-xl p-3.5 shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex max-w-[90vw] md:max-w-md animate-fade-up items-start cursor-pointer transition-transform hover:scale-[1.02]"
+        <div
+          className="fixed bottom-[10%] left-1/2 -translate-x-1/2 z-[9999] bg-[#111922]/88 rounded-sm p-3.5 flex max-w-[90vw] md:max-w-md animate-fade-up items-start cursor-pointer"
           onClick={() => setActiveStar(null)}
         >
           <div className="text-[1.3rem] mr-2 mt-0.5 opacity-90">✨</div>

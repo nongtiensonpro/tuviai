@@ -76,122 +76,206 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
   };
 
   return (
-    <div id="birth-form-container" className="max-w-3xl mx-auto w-full px-4 sm:px-0">
-      <div className="card p-6 md:p-8">
-        {/* Title */}
-        <h3 className="text-xl font-bold text-gold mb-2 font-serif-sc flex items-center gap-2">
-          <span>📅</span> Nhập Thông Tin Bản Mệnh
-        </h3>
-        <p className="text-white/50 text-sm mb-6">Điền thông tin ngày sinh để hệ thống an sao lập mệnh bàn chính xác.</p>
+    <div id="birth-form-container" className="max-w-[1200px] mx-auto w-full px-0">
+      <div className="relative overflow-hidden p-3 sm:p-4 md:p-5">
+        <div className="relative z-10">
+          <div className="mb-6 sm:mb-8 flex flex-col gap-4">
+            <div className="section-kicker w-fit">Sổ Khai Mệnh</div>
 
-        {/* Quick Fill */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          <span className="text-xs text-white/40 self-center mr-1">Thử nhanh:</span>
-          {QUICK_FILLS.map((q) => (
-            <button
-              key={q.label}
-              type="button"
-              onClick={() => handleQuickFill(q)}
-              className="text-xs px-3 py-1 rounded-full border border-white/15 text-white/60 hover:border-gold/40 hover:text-gold transition-colors"
-            >
-              {q.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Form layout 2 cột trên md+ */}
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Cột trái: Ngày tháng năm */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="label" htmlFor="input-day">Ngày</label>
-                  <input
-                    id="input-day" type="number" min="1" max="31" placeholder="DD"
-                    className="input" value={day} onChange={e => setDay(e.target.value)} required
-                  />
-                </div>
-                <div>
-                  <label className="label" htmlFor="input-month">Tháng</label>
-                  <input
-                    id="input-month" type="number" min="1" max="12" placeholder="MM"
-                    className="input" value={month} onChange={e => setMonth(e.target.value)} required
-                  />
-                </div>
-                <div>
-                  <label className="label" htmlFor="input-year">Năm</label>
-                  <input
-                    id="input-year" type="number" min="1900" max="2100" placeholder="YYYY"
-                    className="input" value={year} onChange={e => setYear(e.target.value)} required
-                  />
-                </div>
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div className="max-w-[700px]">
+                <h3 className="text-2xl sm:text-3xl font-semibold text-gold mb-2" style={{ fontFamily: 'var(--font-serif)' }}>
+                  Nhập thông tin bản mệnh
+                </h3>
+                <p className="text-sm sm:text-base text-white/70 leading-relaxed">
+                  Bắt đầu bằng ngày sinh dương lịch, giờ sinh và giới tính để hệ thống an sao lập mệnh bàn chính xác trên chính thiết bị của bạn.
+                </p>
               </div>
 
-              <div>
-                <label className="label" htmlFor="input-hour">Giờ Sinh</label>
-                <select
-                  id="input-hour" className="input"
-                  value={hourIndex} onChange={e => setHourIndex(parseInt(e.target.value))}
-                >
-                  {HOUR_OPTIONS.map(h => (
-                    <option key={h.value} value={h.value}>{h.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Cột phải: Giới tính + Gợi ý */}
-            <div className="space-y-4">
-              <div>
-                <label className="label">Giới Tính</label>
-                <div className="flex gap-3">
-                  <label className={`flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-lg border transition-all ${gender === 'male' ? 'border-gold/60 bg-gold/5 shadow-[0_0_12px_rgba(240,192,64,0.1)]' : 'border-white/10 hover:border-white/25'}`}>
-                    <input type="radio" name="gender" value="male" className="accent-gold h-4 w-4"
-                      checked={gender === 'male'} onChange={() => setGender('male')} />
-                    <div>
-                      <div className="font-semibold text-sm">Nam ♂</div>
-                      <div className="text-xs text-white/40">Dương</div>
-                    </div>
-                  </label>
-                  <label className={`flex-1 flex items-center gap-3 cursor-pointer p-4 rounded-lg border transition-all ${gender === 'female' ? 'border-coral/60 bg-coral/5 shadow-[0_0_12px_rgba(255,107,107,0.1)]' : 'border-white/10 hover:border-white/25'}`}>
-                    <input type="radio" name="gender" value="female" className="h-4 w-4"
-                      checked={gender === 'female'} onChange={() => setGender('female')} />
-                    <div>
-                      <div className="font-semibold text-sm">Nữ ♀</div>
-                      <div className="text-xs text-white/40">Âm</div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Tip box */}
-              <div className="bg-white/3 border border-white/8 rounded-lg p-4 text-xs text-white/50 leading-relaxed">
-                <p className="text-white/70 font-semibold mb-1">💡 Lưu ý giờ sinh</p>
-                <p>Giờ Tý bắt đầu lúc 23:00 đêm hôm trước. Nếu sinh lúc 23h thì chọn giờ <strong className="text-white/80">Tý</strong>, không phải giờ ngày hôm đó.</p>
+              <div className="text-sm text-white/60 xl:max-w-[320px] xl:text-right">
+                Dữ liệu dùng cục bộ để lập lá số, không gửi lên máy chủ riêng.
               </div>
             </div>
           </div>
 
-          {error && <div className="text-red-400 text-sm mt-4 bg-red-900/20 px-4 py-2 rounded">{error}</div>}
+          <div className="mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-white/78">Điền thử bằng mẫu có sẵn</p>
+                <p className="text-xs text-white/45 mt-1">Phù hợp khi bạn muốn khám phá nhanh giao diện trước khi nhập dữ liệu thật.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {QUICK_FILLS.map((q) => (
+                  <button
+                    key={q.label}
+                    type="button"
+                    onClick={() => handleQuickFill(q)}
+                    className="text-xs px-0 py-1 text-white/55 hover:text-gold transition-colors"
+                  >
+                    {q.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            className="btn-primary w-full mt-6 h-13 text-base relative overflow-hidden"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="w-5 h-5 rounded-full border-2 border-white/20 border-t-white animate-spin"></span>
-                Đang an sao tính toán...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <span>✨</span> An Sao Lập Mệnh Bàn
-              </span>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.95fr] gap-5 md:gap-6">
+              <section className="py-1">
+                <div className="mb-5">
+                  <p className="text-base sm:text-lg font-medium text-white/90">Ngày sinh dương lịch</p>
+                  <p className="text-sm text-white/50 mt-1">Nhập đúng ngày tháng năm trên giấy tờ hoặc theo lịch dương bạn đang dùng.</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="label" htmlFor="input-day">Ngày</label>
+                    <input
+                      id="input-day"
+                      type="number"
+                      min="1"
+                      max="31"
+                      placeholder="DD"
+                      className="input min-h-[3rem]"
+                      value={day}
+                      onChange={e => setDay(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="label" htmlFor="input-month">Tháng</label>
+                    <input
+                      id="input-month"
+                      type="number"
+                      min="1"
+                      max="12"
+                      placeholder="MM"
+                      className="input min-h-[3rem]"
+                      value={month}
+                      onChange={e => setMonth(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <label className="label" htmlFor="input-year">Năm</label>
+                    <input
+                      id="input-year"
+                      type="number"
+                      min="1900"
+                      max="2100"
+                      placeholder="YYYY"
+                      className="input min-h-[3rem]"
+                      value={year}
+                      onChange={e => setYear(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 text-xs sm:text-sm text-white/46 leading-relaxed">
+                  Năm sinh hiện được hỗ trợ trong khoảng <strong className="text-white/80">1900-2100</strong>. Nếu bạn cần thử nghiệm giao diện, có thể dùng các mẫu nhanh phía trên.
+                </div>
+              </section>
+
+              <section className="py-1">
+                <div className="mb-5">
+                  <p className="text-base sm:text-lg font-medium text-white/90">Giờ sinh và âm dương</p>
+                  <p className="text-sm text-white/50 mt-1">Phần này ảnh hưởng trực tiếp tới vị trí sao và cách luận giải trọng tâm.</p>
+                </div>
+
+                <div className="space-y-5">
+                  <div>
+                    <label className="label" htmlFor="input-hour">Giờ Sinh</label>
+                    <select
+                      id="input-hour"
+                      className="input min-h-[3rem]"
+                      value={hourIndex}
+                      onChange={e => setHourIndex(parseInt(e.target.value))}
+                    >
+                      {HOUR_OPTIONS.map(h => (
+                        <option key={h.value} value={h.value}>{h.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="label">Giới Tính</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <label className={`flex items-center gap-3 cursor-pointer py-3 transition-colors ${gender === 'male' ? 'text-gold' : 'text-white/72 hover:text-white/92'}`}>
+                        <input
+                          type="radio"
+                          name="gender"
+                          value="male"
+                          className="accent-gold h-4 w-4"
+                          checked={gender === 'male'}
+                          onChange={() => setGender('male')}
+                        />
+                        <div>
+                          <div className={`font-semibold text-sm ${gender === 'male' ? 'text-gold' : 'text-white/90'}`}>Nam ♂</div>
+                          <div className={`text-xs ${gender === 'male' ? 'text-gold/70' : 'text-white/45'}`}>Thiên hướng dương</div>
+                        </div>
+                      </label>
+
+                      <label className={`flex items-center gap-3 cursor-pointer py-3 transition-colors ${gender === 'female' ? 'text-coral' : 'text-white/72 hover:text-white/92'}`}>
+                        <input
+                          type="radio"
+                          name="gender"
+                          value="female"
+                          className="h-4 w-4"
+                          checked={gender === 'female'}
+                          onChange={() => setGender('female')}
+                        />
+                        <div>
+                          <div className={`font-semibold text-sm ${gender === 'female' ? 'text-coral' : 'text-white/90'}`}>Nữ ♀</div>
+                          <div className={`text-xs ${gender === 'female' ? 'text-coral/70' : 'text-white/45'}`}>Thiên hướng âm</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 text-sm text-white/68 leading-relaxed">
+                    <p className="text-white/86 font-medium mb-1">Lưu ý về giờ Tý</p>
+                    <p>
+                      Giờ Tý bắt đầu từ <strong className="text-gold">23:00</strong> đêm hôm trước. Nếu sinh lúc 23h, hãy chọn giờ <strong className="text-white/90">Tý</strong> thay vì tính sang ngày mới.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {error && (
+              <div className="text-sm text-red-300">
+                {error}
+              </div>
             )}
-          </button>
-        </form>
+
+            <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-white/56 leading-relaxed">
+                Khi sẵn sàng, hệ thống sẽ lập mệnh bàn ngay và cuộn xuống khu vực kết quả.
+              </div>
+
+              <button
+                type="submit"
+                className="btn-primary w-full sm:w-auto min-h-[3.5rem] px-6 text-base relative overflow-hidden"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="w-5 h-5 rounded-full border-2 border-black/15 border-t-black/60 animate-spin"></span>
+                    Đang an sao tính toán...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <span>✨</span>
+                    An Sao Lập Mệnh Bàn
+                  </span>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -8,44 +8,49 @@
 /* ---------- CSS Custom Properties ---------- */
 :root {
   /* Color Palette */
-  --color-bg-deep:     #0a0c1a;
-  --color-bg-surface:  #0f1225;
-  --color-bg-card:     #151830;
-  --color-bg-elevated: #1c2040;
+  --color-bg-deep:     #0f1e29;
+  --color-bg-surface:  #182b37;
+  --color-bg-card:     #203441;
+  --color-bg-elevated: #2b4251;
 
-  --color-gold:        #f0c040;
-  --color-gold-dim:    #c89820;
-  --color-gold-glow:   rgba(240, 192, 64, 0.15);
+  --color-paper:       #efe2cb;
+  --color-paper-soft:  rgba(239, 226, 203, 0.14);
 
-  --color-accent:      #7c6ff7;
-  --color-accent-dim:  #5a54c7;
-  --color-cyan:        #4ecdc4;
-  --color-coral:       #ff6b6b;
+  --color-gold:        #d6a85c;
+  --color-gold-dim:    #b8863f;
+  --color-gold-glow:   rgba(214, 168, 92, 0.18);
 
-  --color-border:      rgba(255, 255, 255, 0.08);
-  --color-border-gold: rgba(240, 192, 64, 0.25);
+  --color-accent:      #7f9a86;
+  --color-accent-dim:  #637864;
+  --color-cyan:        #8fb3be;
+  --color-coral:       #b96e5a;
+  --color-ink:         #2d241d;
+
+  --color-border:      rgba(239, 226, 203, 0.1);
+  --color-border-gold: rgba(214, 168, 92, 0.3);
 
   /* Typography */
-  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif:   'Noto Serif SC', 'Noto Serif', serif;
+  --font-sans:    'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif:   'Cormorant Garamond', 'Times New Roman', serif;
+  --font-han:     'Noto Serif SC', 'Noto Serif', serif;
 
   /* Radii */
-  --radius-sm:    6px;
-  --radius-md:    10px;
-  --radius-lg:    16px;
+  --radius-sm:    2px;
+  --radius-md:    3px;
+  --radius-lg:    6px;
 
   /* Shadows */
-  --shadow-card:  0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-gold:  0 0 20px rgba(240, 192, 64, 0.2);
+  --shadow-card:  0 18px 40px rgba(6, 16, 25, 0.32);
+  --shadow-gold:  0 0 28px rgba(214, 168, 92, 0.18);
 }
 
 /* ---------- Tailwind v4 Theme Overrides ---------- */
 @theme {
-  --color-gold: #f0c040;
-  --color-accent: #7c6ff7;
-  --color-cyan: #4ecdc4;
-  --color-coral: #ff6b6b;
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-gold: #d6a85c;
+  --color-accent: #7f9a86;
+  --color-cyan: #8fb3be;
+  --color-coral: #b96e5a;
+  --font-family-sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-family-serif-sc: 'Noto Serif SC', 'Noto Serif', serif;
 }
 
@@ -65,8 +70,10 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg-deep);
-  background: linear-gradient(135deg, #0a0c1a 0%, #0d1028 50%, #080a18 100%);
-  color: #e8eaf0;
+  background:
+    radial-gradient(circle at top, rgba(143, 179, 190, 0.12), transparent 26%),
+    linear-gradient(180deg, #173143 0%, #162836 36%, #12222e 68%, #0f1b24 100%);
+  color: #f7f0e4;
   line-height: 1.6;
   min-height: 100vh;
 }
@@ -77,8 +84,28 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(124, 111, 247, 0.1) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(78, 205, 196, 0.05) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(214, 168, 92, 0.1) 0%, transparent 72%),
+    radial-gradient(ellipse 40% 26% at 20% 24%, rgba(127, 154, 134, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 34% at 82% 86%, rgba(143, 179, 190, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 16%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.01) 0,
+      rgba(255, 255, 255, 0.01) 1px,
+      transparent 1px,
+      transparent 16px
+    );
+  mix-blend-mode: soft-light;
+  opacity: 0.28;
   pointer-events: none;
   z-index: 0;
 }
@@ -88,29 +115,32 @@ main, header, footer {
   z-index: 1;
 }
 
+::selection {
+  background: rgba(214, 168, 92, 0.28);
+  color: #fff8ed;
+}
+
 /* ---------- Component Classes ---------- */
 
 /* Card */
 .card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: transparent;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: none;
 }
 
 .card-hover {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
+  background: transparent;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: transform 0.2s ease;
 }
 
 .card-hover:hover {
-  border-color: var(--color-border-gold);
-  box-shadow: var(--shadow-card), var(--shadow-gold);
-  transform: translateY(-1px);
+  transform: none;
 }
 
 /* Buttons */
@@ -120,25 +150,33 @@ main, header, footer {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, #7c6ff7 0%, #5a54c7 100%);
-  color: white;
+  background: linear-gradient(135deg, #ead4a0 0%, #d6a85c 55%, #b8863f 100%);
+  color: var(--color-ink);
   font-weight: 600;
   font-size: 0.9rem;
-  border: none;
+  border: 1px solid rgba(45, 36, 29, 0.08);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 15px rgba(124, 111, 247, 0.3);
+  box-shadow: 0 6px 16px rgba(184, 134, 63, 0.18);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(124, 111, 247, 0.4);
-  filter: brightness(1.1);
+  transform: none;
+  box-shadow: 0 8px 18px rgba(184, 134, 63, 0.22);
+  filter: brightness(1.02);
 }
 
 .btn-primary:active {
   transform: translateY(0);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
 }
 
 .btn-secondary {
@@ -148,40 +186,40 @@ main, header, footer {
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
   background: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(247, 240, 228, 0.78);
   font-weight: 500;
   font-size: 0.9rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(239, 226, 203, 0.16);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(214, 168, 92, 0.24);
+  color: #fff8eb;
+  background: transparent;
 }
 
 /* Form elements */
 .input {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  background: var(--color-bg-deep);
-  color: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  background: transparent;
+  color: #fff7ee;
+  border: none;
+  border-radius: 0;
   font-size: 0.9rem;
   font-family: var(--font-sans);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 -1px 0 rgba(239, 226, 203, 0.14);
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
   appearance: none;
   -webkit-appearance: none;
 }
 
 .input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(124, 111, 247, 0.15);
+  box-shadow: inset 0 -1px 0 rgba(214, 168, 92, 0.55);
 }
 
 select.input option {
@@ -193,9 +231,9 @@ select.input option {
   display: block;
   font-size: 0.8rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(239, 226, 203, 0.72);
   margin-bottom: 0.375rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -206,7 +244,87 @@ select.input option {
 
 /* Font serif SC */
 .font-serif-sc {
-  font-family: var(--font-serif);
+  font-family: var(--font-han);
+}
+
+.site-header {
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.site-shell {
+  position: relative;
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.hero-panel::before {
+  content: '';
+  position: absolute;
+  inset: -30% auto auto -10%;
+  width: min(36rem, 70vw);
+  height: min(36rem, 70vw);
+  background: radial-gradient(circle, rgba(239, 226, 203, 0.08), transparent 72%);
+  pointer-events: none;
+}
+
+.hero-panel::after {
+  content: '';
+  position: absolute;
+  inset: auto -10% -34% auto;
+  width: min(28rem, 64vw);
+  height: min(28rem, 64vw);
+  background: radial-gradient(circle, rgba(127, 154, 134, 0.1), transparent 72%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(255, 248, 235, 0.82);
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 248, 235, 0.76);
+}
+
+.footer-panel {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.quote-panel {
+  border-radius: 0;
+  background: transparent;
+}
+
+.section-kicker {
+  display: inline-block;
+  padding: 0;
+  color: rgba(255, 239, 210, 0.88);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
 
 /* ---------- Scrollbar ---------- */
@@ -285,7 +403,7 @@ select.input option {
   position: absolute;
   width: 2px;
   height: 2px;
-  background: white;
+  background: rgba(255, 245, 227, 0.95);
   border-radius: 50%;
   animation: starTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite;
   opacity: 0;
@@ -294,7 +412,7 @@ select.input option {
 /* SVG Bát Quái decorative element */
 .bagua-deco {
   position: absolute;
-  opacity: 0.04;
+  opacity: 0.055;
   pointer-events: none;
   z-index: 0;
   animation: cosmicRotate 120s linear infinite;
@@ -312,7 +430,7 @@ select.input option {
 .cosmic-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(240, 192, 64, 0.08);
+  background: radial-gradient(circle, transparent 63%, rgba(214, 168, 92, 0.06) 64%, transparent 65%);
   pointer-events: none;
   animation: cosmicRotate 60s linear infinite;
 }
@@ -322,7 +440,7 @@ select.input option {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 2px;
+  gap: 6px;
   aspect-ratio: 1;
   width: 100%;
   max-width: 800px;
@@ -331,9 +449,8 @@ select.input option {
 }
 
 .palace-cell {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  padding: 8px;
+  background: rgba(22, 38, 48, 0.78);
+  padding: 10px;
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -341,21 +458,19 @@ select.input option {
 }
 
 .palace-cell:hover {
-  border-color: var(--color-border-gold);
-  background: var(--color-bg-elevated);
-  box-shadow: inset 0 0 20px var(--color-gold-glow);
+  background: rgba(25, 43, 54, 0.86);
+  box-shadow: none;
 }
 
 .palace-cell.active {
-  border-color: var(--color-gold);
-  box-shadow: inset 0 0 20px var(--color-gold-glow), 0 0 15px var(--color-gold-glow);
+  background: rgba(28, 48, 60, 0.92);
+  box-shadow: none;
 }
 
 .palace-center {
   grid-column: 2 / span 2;
   grid-row: 2 / span 2;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border-gold);
+  background: rgba(18, 31, 39, 0.9);
 }
 
 /* Star badge colors */
@@ -384,7 +499,7 @@ select.input option {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
-  padding-bottom: 4px;
+  padding: 8px 0 4px;
 }
 
 .ziwei-scroll-container::-webkit-scrollbar {
@@ -404,12 +519,6 @@ select.input option {
   color: rgba(255,255,255,0.35);
   padding: 6px 0 2px;
   letter-spacing: 0.1em;
-  animation: hintPulse 2s ease infinite;
-}
-
-@keyframes hintPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.9; }
 }
 
 @media (max-width: 768px) {
@@ -417,7 +526,7 @@ select.input option {
 
   .ziwei-grid {
     /* Trên mobile, mỗi ô thu nhỏ lại một chút */
-    gap: 1px;
+    gap: 4px;
   }
 
   .palace-cell {
@@ -428,4 +537,20 @@ select.input option {
 
   /* Bảo toàn layout grid 4x4, KHÔNG thay đổi thành 3 cột */
   /* (Người dùng cuộn ngang để xem toàn bộ Mệnh Bàn) */
+}
+
+@media (max-width: 640px) {
+  .hero-panel {
+    border-radius: 0;
+  }
+
+  .hero-badge,
+  .feature-pill {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-kicker {
+    letter-spacing: 0.16em;
+  }
 }

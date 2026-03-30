@@ -51,7 +51,7 @@ import { AstroApp } from "../components/AstroApp";
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -94,7 +94,7 @@ import { AstroApp } from "../components/AstroApp";
     <!-- Bát Quái SVG decorative (fixed, rất mờ) -->
     <svg
       class="bagua-deco"
-      style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg);"
+      style="width:min(72vw,600px);height:min(72vw,600px);top:50%;left:50%;transform:translate(-50%,-50%) rotate(0deg);"
       viewBox="0 0 200 200"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -158,29 +158,39 @@ import { AstroApp } from "../components/AstroApp";
     <!-- Vòng trang trí cộng củng thêm -->
     <div
       class="cosmic-ring"
-      style="width:800px;height:800px;top:50%;left:50%;margin:-400px 0 0 -400px;"
+      style="width:min(90vw,820px);height:min(90vw,820px);top:50%;left:50%;transform:translate(-50%,-50%);"
       aria-hidden="true"
     >
     </div>
     <!-- Header -->
-    <header
-      class="border-b border-white/10 bg-black/20 backdrop-blur-sm sticky top-0 z-50"
-    >
+    <header class="site-header sticky top-0 z-50">
       <div
-        class="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-3 flex items-center justify-between"
+        class="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-14 py-3 flex items-center justify-between gap-4"
       >
-        <div class="flex items-center gap-4">
-          <img src="/tuviai/ziwei_icon.png" alt="Logo" class="w-10 h-10 rounded-xl shadow-lg border border-gold/30 object-cover" />
-          <div>
-            <h1 class="text-lg font-bold text-gold leading-none tracking-tight">紫微斗數</h1>
-            <p class="text-[10px] text-white/40 uppercase tracking-widest mt-1">Tử Vi Đẩu Số AI</p>
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="/tuviai/ziwei_icon.png"
+            alt="Logo"
+            class="w-10 h-10 sm:w-11 sm:h-11 object-cover"
+          />
+          <div class="min-w-0">
+            <h1
+              class="text-lg sm:text-xl font-bold text-gold leading-none tracking-[0.14em] font-serif-sc"
+            >
+              紫微斗數
+            </h1>
+            <p
+              class="text-[10px] sm:text-[11px] text-white/45 uppercase tracking-[0.36em] mt-1 truncate"
+            >
+              Tử Vi Đẩu Số AI
+            </p>
           </div>
         </div>
 
-        <nav class="flex items-center gap-4">
+        <nav class="flex items-center gap-2 sm:gap-4">
           <button
             id="btn-api-settings"
-            class="text-xs font-medium text-white/70 hover:text-white transition-all flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-gold/30 hover:bg-gold/5"
+            class="text-xs font-medium text-white/80 hover:text-gold transition-colors flex items-center gap-2 px-3 sm:px-4 py-2 rounded-md border border-white/12 hover:border-gold/30"
             aria-label="Cài đặt API Key"
           >
             <span>✨</span>
@@ -190,7 +200,7 @@ import { AstroApp } from "../components/AstroApp";
             href="https://aistudio.google.com/apikey"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs text-gold/60 hover:text-gold transition-colors hidden md:block border-l border-white/10 pl-4 h-4 leading-4"
+            class="text-xs text-gold/75 hover:text-gold transition-colors hidden md:block"
           >
             Lấy API Key →
           </a>
@@ -200,85 +210,90 @@ import { AstroApp } from "../components/AstroApp";
 
     <!-- Main Content -->
     <main
-      class="w-full flex-1 flex flex-col items-center px-6 sm:px-10 md:px-16 lg:px-20 py-8 relative z-10"
+      class="site-shell w-full flex-1 flex flex-col items-center px-4 sm:px-6 md:px-10 lg:px-16 py-6 sm:py-8 md:py-10 relative z-10"
     >
       <!-- Hero Section -->
       <section
         id="section-hero"
-        class="w-full max-w-7xl flex flex-col items-center py-6 md:py-10"
+        class="w-full max-w-7xl flex flex-col items-center py-4 md:py-8"
       >
-        <!-- Badge -->
-        <div class="flex justify-center mb-10">
-          <div
-            class="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 hover:bg-white/10 transition-colors"
-          >
-            <span
-              class="w-2 h-2 bg-gold rounded-full animate-pulse shadow-[0_0_8px_rgba(240,192,64,0.6)]"
-            ></span>
+        <div
+          class="hero-panel w-full px-5 sm:px-8 md:px-12 lg:px-16 py-8 sm:py-10 md:py-14 mb-10"
+        >
+          <div class="relative z-10 flex flex-col items-center">
+            <div class="flex justify-center mb-6 w-full">
+              <div class="hero-badge">
+                <span class="w-1.5 h-1.5 bg-gold rounded-full"></span>
+                <span class="text-sm font-medium"
+                  >Tinh thần thủ công, luận giải bằng Gemini AI</span
+                >
+              </div>
+            </div>
 
-            <span class="text-sm text-white/70 font-medium"
-              >Powered by Gemini AI</span
-            >
+            <div class="text-center mb-8 px-0 sm:px-4 max-w-4xl">
+              <div class="section-kicker mb-5">Sương Mây Thiên Cơ</div>
+              <h2
+                class="text-[clamp(3.2rem,10vw,6.6rem)] font-bold mb-4 leading-none"
+              >
+                <span
+                  class="text-gold font-serif-sc"
+                  style="text-shadow: 0 0 26px rgba(214,168,92,0.18)"
+                  >紫微斗數</span
+                >
+              </h2>
+              <p
+                class="text-sm sm:text-base md:text-lg text-white/75 font-light tracking-[0.22em] mb-6 uppercase"
+              >
+                TỬ VI ĐẨU SỐ AI
+              </p>
+              <div class="max-w-3xl mx-auto space-y-4">
+                <p
+                  class="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed text-balance"
+                >
+                  Một không gian tra cứu Tử Vi lấy cảm hứng từ tranh vẽ tay,
+                  trời chiều và những lớp sương mỏng. Lá số vẫn tính toán hoàn
+                  toàn bằng TypeScript, còn phần luận giải được nâng đỡ bởi
+                  Gemini theo mô thức BYOK bảo mật.
+                </p>
+                <p class="text-gold/75 text-[11px] sm:text-xs uppercase tracking-[0.18em]">
+                  Made with love by a Yellow Cat
+                </p>
+              </div>
+            </div>
+
+            <!-- Feature badges -->
+            <div class="flex flex-wrap justify-center gap-3 w-full max-w-4xl">
+              <span class="feature-pill text-xs"
+                >🔒 Key chỉ lưu trên thiết bị của bạn</span
+              >
+              <span class="feature-pill text-xs"
+                >🌿 100% Static, không backend</span
+              >
+              <span class="feature-pill text-xs">🪶 Miễn phí hoàn toàn</span>
+            </div>
           </div>
         </div>
-        <div class="text-center mb-12 px-4">
-          <h2
-            class="text-5xl sm:text-7xl lg:text-8xl font-bold mb-6 tracking-tight"
-          >
-            <span
-              class="text-gold font-serif-sc"
-              style="text-shadow: 0 0 50px rgba(240,192,64,0.35)">紫微斗數</span
-            >
-          </h2>
-          <p
-            class="text-xl sm:text-2xl text-white/80 font-light tracking-[0.3em] mb-10 uppercase"
-          >
-            TỬ VI ĐẨU SỐ AI
-          </p>
-          <div class="max-w-2xl mx-auto">
-            <p class="text-white/50 text-base leading-relaxed text-balance">
-              Hệ thống chiêm tinh học đỉnh cao Á Đông — 108 vì sao được an định
-              chính xác tuyệt đối bằng thuật toán TypeScript, kết hợp AI Gemini
-              3.1 Pro luận giải sâu sắc.
-            </p>
-          </div>
-        </div>
-        <!-- Feature badges -->
-        <div class="flex flex-wrap justify-center gap-3 mb-16">
-          <span
-            class="text-xs px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 backdrop-blur-md"
-            >🔒 Bảo mật — Key chỉ lưu máy bạn</span
-          >
-          <span
-            class="text-xs px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 backdrop-blur-md"
-            >⚡ Không Backend — 100% Static</span
-          >
-          <span
-            class="text-xs px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/60 backdrop-blur-md"
-            >🌐 Miễn phí hoàn toàn</span
-          >
-        </div>
-        <!-- Removed Steps Indicator -->
 
         <!-- App Container -->
-        <div id="ziwei-board-container" class="w-full flex justify-center px-4 mb-20">
+        <div
+          id="ziwei-board-container"
+          class="w-full flex justify-center px-0 sm:px-2 mb-16 sm:mb-20"
+        >
           <AstroApp client:load />
         </div>
       </section>
     </main>
     <!-- Footer -->
     <footer
-      class="border-t border-white/10 mt-20 pt-12 pb-24 px-6 w-full relative z-10 flex justify-center"
+      class="mt-8 sm:mt-12 pb-20 px-4 sm:px-6 w-full relative z-10 flex justify-center"
     >
-      <div class="max-w-3xl mx-auto flex flex-col items-center text-center">
+      <div
+        class="footer-panel max-w-5xl w-full mx-auto flex flex-col items-center text-center px-5 sm:px-8 md:px-12 py-10 sm:py-12"
+      >
         <div
-          class="text-white/60 leading-relaxed mb-12 font-light text-[15px] sm:text-[16px]"
+          class="text-white/70 leading-relaxed mb-10 sm:mb-12 font-light text-[15px] sm:text-[16px]"
         >
-          <div
-            class="inline-block p-1 px-3 rounded-full bg-gold/10 border border-gold/20 text-gold/90 text-xs font-semibold uppercase tracking-widest mb-8"
-          >
-            Lời Nhắn Gửi
-          </div>
+          <div class="section-kicker mb-8">Lời Nhắn Gửi</div>
           <div class="flex flex-col items-center w-full mb-12 px-4 sm:px-6">
             <ul class="space-y-6 text-left w-full max-w-2xl list-none">
               <li class="flex gap-4">
@@ -325,9 +340,7 @@ import { AstroApp } from "../components/AstroApp";
           </div>
         </div>
 
-        <div
-          class="mb-12 py-6 px-10 rounded-2xl bg-gradient-to-b from-gold/5 to-transparent border border-gold/10 max-w-xl"
-        >
+        <div class="quote-panel mb-12 py-4 px-2 sm:px-6 max-w-xl">
           <p class="text-gold/90 font-serif-sc text-lg mb-2 italic">
             "Vạn dặm hành trình, tâm tĩnh là bình an."
           </p>
@@ -339,7 +352,7 @@ import { AstroApp } from "../components/AstroApp";
           <div class="mt-4 text-gold/40 text-xl font-light">☸</div>
         </div>
         <div
-          class="flex flex-col items-center gap-2 pt-8 border-t border-white/5 w-full max-w-md"
+          class="flex flex-col items-center gap-2 pt-6 w-full max-w-md"
         >
           <p class="text-white/40 text-xs font-medium tracking-wide">
             TỬ VI ĐẨU SỐ AI
