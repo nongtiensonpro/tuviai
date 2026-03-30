@@ -6,7 +6,7 @@ export const STAR_DESC: Record<string, string> = {
   // ==========================================
   'Tử Vi': 'Đế tinh chí tôn của Mệnh Bàn (Thổ). Chủ về quyền uy, uy nghi, tài lãnh đạo và khả năng chế hóa, giải trừ tai ương thành điềm lành. Không sợ hung tinh, ưa đi cùng cung quần thần.',
   'Thiên Cơ': 'Trí tuệ chi tinh (Mộc). Chủ về tư duy, logic, mưu lược và sự biến động không ngừng. Tượng trưng cho sự xoay chuyển, máy móc, anh em và đôi khi là sự nhạy cảm, dễ suy nghĩ nhiều.',
-  'Thái Dương': 'Mặt trời quang minh (Hỏa). Đại diện cho danh danh, quyền lực, sự cho đi và phái nam (Tổ phụ, Cha, Chồng). Tính chất quang minh lỗi lạc, thích hợp hoạt động bầy đàn, dễ tổn hao tâm sức vì người khác.',
+  'Thái Dương': 'Mặt trời quang minh (Hỏa). Chủ về danh tiếng, uy tín, khí khái, tinh thần hướng ngoại và nam thân như cha, chồng, cấp trên. Sáng sủa thì hào sảng, thích giúp người; hãm địa dễ lao tâm, cô độc hoặc tự hao vì trách nhiệm.',
   'Vũ Khúc': 'Tài tinh và Tướng tinh (Kim). Chủ về hành động dứt khoát, nghị lực phi thường và khả năng thu hút tài lộc qua nỗ lực thực tế. Tính hơi cô độc, khắt khe và hợp võ nghiệp, kinh thương.',
   'Thiên Đồng': 'Phúc đức chi tinh (Thủy). Tượng trưng cho sự an nhàn, hưởng thụ, trẻ con và tuổi thọ. Tính chất ôn hòa, hay thay đổi nhưng rất dễ gặp quý nhân trợ giúp, lười biếng nếu thiếu động lực.',
   'Liêm Trinh': 'Đào hoa thứ tinh và Tù tinh (Hỏa). Ở trạng thái tốt thì thanh liêm, chính trực, ngoại giao sắc bén. Ở trạng thái xấu dễ trở ngại pháp lý, hình ngục, máu huyết hoặc đào hoa sát.',
@@ -22,15 +22,15 @@ export const STAR_DESC: Record<string, string> = {
   // ==========================================
   // LỤC CÁT & LỤC SÁT
   // ==========================================
-  'Tả Phù': 'Phụ tá đắc lực (Thổ). Chủ về sự trợ giúp bằng hành động thiết thực, sức lực, tăng cường tài lãnh đạo và mang lại những mối qua hệ bạn bè, đồng nghiệp đông đảo tích cực.',
+  'Tả Phù': 'Phụ tá đắc lực (Thổ). Chủ về sự trợ giúp bằng hành động thiết thực, năng lực tổ chức, tinh thần gánh vác và khả năng đứng cạnh người cầm quyền. Đi với cát tinh làm mạnh tính lãnh đạo và mở rộng quan hệ đồng sự.',
   'Hữu Bật': 'Bề tôi trung thành (Thủy). Chủ về sự giúp đỡ thông qua trí tuệ, tình cảm, sự mưu trí ngầm. Thường tăng thêm tính chất nhân duyên và sự hòa giải cho các cung vị.',
   'Thiên Khôi': 'Đệ nhất quý nhân (Hỏa) [Quý Nhân Dương]. Đại diện cho cơ hội lớn lao, sự giúp đỡ từ người bề trên, sự anh minh, tài năng đứng đầu và cơ hội bứt phá thành công.',
   'Thiên Việt': 'Đệ nhị quý nhân (Hỏa) [Quý Nhân Âm]. Cơ hội bất ngờ, sự giác ngộ, che chở ngầm hoặc quý nhân là nữ giới. Cũng chủ về nhan sắc, sự duyên dáng, tài hoa rạng rỡ.',
   'Văn Xương': 'Thuần văn tinh (Kim). Làm tăng sự thông minh, logic, thi cử đỗ đạt, tài ăn nói lưu loát và nền tảng kiến thức sách vở uyên thâm.',
   'Văn Khúc': 'Nghệ thuật chi tinh (Thủy). Thiên về sự tài hoa bẩm sinh, nghệ thuật, óc lãng mạn, sự khéo léo trong hành vi và khả năng hùng biện xuất chúng.',
-  
+
   'Kình Dương': 'Hung tinh chủ hình thương (Kim). Sức phá hoại mạnh mẽ, quyết liệt như dao sắc. Là động lực thúc đẩy nhưng cũng là nguy cơ tai nạn, mổ xẻ, tranh cường hiếu thắng.',
-  'Đà La': 'Ảm đạm sát tinh (Kim). Đại diện cho sự dai dẳng, kéo dài, âm mưu ngầm, chướng ngại bực bội lặp đi lặp lại không dứt điểm. Gây hao mòn tâm trí.',
+  'Đà La': 'Ám sát tinh (Kim). Đại diện cho sự dai dẳng, kéo dài, dây dưa, âm mưu ngầm và những chướng ngại lặp đi lặp lại khó dứt điểm. Tác động chậm mà sâu, dễ gây hao mòn tâm trí.',
   'Hỏa Tinh': 'Sát tinh bạo phát (Hỏa). Nóng nảy, nổ bùng tột đỉnh, hành động quá khích, thiếu kiên nhẫn. Có thể đem tới thành công đột ngột nhưng cũng lụi tàn rất nhanh.',
   'Linh Tinh': 'Sát tinh thâm trầm (Hỏa). Gây ra sự hậm hực, uẩn khúc không phát tiết được. Tính chớp nhoáng, sắc sảo nhưng ác liệt ẩn sâu bên trong.',
   'Địa Không': 'Cựu không tinh (Hỏa). Chủ về sự trống rỗng, ảo tưởng, hành sự thiếu thực tế dẫn đến sụp đổ. Mặt tích cực giúp tư duy Triết học, tu tập, giải thoát.',
@@ -39,13 +39,14 @@ export const STAR_DESC: Record<string, string> = {
   // ==========================================
   // VÒNG LỘC TỒN & TỨ HÓA
   // ==========================================
-  'Lộc Tồn': 'Đệ nhất Dưỡng tinh (Thổ). Tài lộc do trời ban, mang ý nghĩa tàng trữ, tích lũy vững bền. Đi một mình thì cô độc, cẩn trọng quá mức sinh ra ki bo.',
-  'Hóa Lộc': 'Tứ Hóa - Khởi nguồn (Mộc). Tượng trưng cho Mùa Xuân. Chủ về nhân duyên, sự bắt đầu, tiền tài chảy đến, ý tưởng nở rộ và sự thu hút.',
-  'Hóa Quyền': 'Tứ Hóa - Biến động (Hỏa). Tượng trưng cho Mùa Hạ. Chủ về sự tranh thị, thăng quyền đoạt chức, kiểm soát thế cục và ý chí nỗ lực phi thường.',
-  'Hóa Khoa': 'Tứ Hóa - Đỉnh cao (Thủy). Tượng trưng cho Mùa Thu. Chủ về thanh danh, học vấn, khoa bảng, sự điềm tĩnh và có tác dụng giải trừ tai nạn mạnh nhất.',
-  'Hóa Kỵ': 'Tứ Hóa - Cất giữ (Thủy). Tượng trưng cho Mùa Đông. Phức tạp, cản trở, thị phi, phiền não, sự cố chấp nhưng cũng là điểm đích tận cùng của sự đeo đuổi nợ nghiệp.',
+  'Lộc Tồn': 'Tài tinh chủ tích lũy và giữ của (Thổ). Tượng trưng cho nguồn lộc ổn định, bền chắc, biết dè sẻn và bảo toàn thành quả. Đi với sát tinh dễ thành tâm lý giữ chặt, chậm xoay xở hoặc cô độc vì lợi lộc.',
+  'Hóa Lộc': 'Một trong Tứ Hóa, chủ sự sinh sôi, tăng trưởng, tài lộc, nhân duyên và cơ hội khai mở. Khi nhập vào sao nào thì khuếch đại mặt hấp dẫn, nhu cầu hưởng thụ và khả năng hút nguồn lực của sao đó.',
+  'Hóa Quyền': 'Một trong Tứ Hóa, chủ quyền hành, sức bật, năng lực điều phối và ý chí nắm thế chủ động. Khi nhập sao nào thì làm mạnh tính quyết đoán, cạnh tranh và khả năng ảnh hưởng của sao đó.',
+  'Hóa Khoa': 'Một trong Tứ Hóa, chủ danh tiếng, học thức, chuẩn mực, sự thanh nhã và khả năng che chở, giải ách. Khi nhập sao nào thì nâng tính chính danh, độ tín nhiệm và sự văn minh của sao đó.',
+  'Hóa Kỵ': 'Một trong Tứ Hóa, chủ trở lực, phiền não, thị phi, ràng buộc và những điều khó nói thành lời. Khi nhập sao nào thì làm lộ mặt vướng mắc, chấp niệm hoặc bài học nghiệp quả của sao đó; đắc cách lại tăng chiều sâu và sức chịu đựng.',
 
-  'Lực Sĩ': 'Sức mạnh, quy quyền. Tăng cường uy lực nhưng nếu đi với Kình Dương thì dễ làm mồi cho kẻ khác.',
+  'Bác Sĩ': 'Sao đầu vòng Bác Sĩ. Chủ sự thông tuệ, hiểu biết, phong thái nho nhã và khả năng giải quyết việc bằng kiến thức. Hội cát tinh tăng danh giá, đi với hung tinh dễ thành nói hay hơn làm.',
+  'Lực Sĩ': 'Sức mạnh, uy quyền. Tăng cường uy lực, sức bật và khả năng gánh vác; nhưng nếu đi với Kình Dương hay sát tinh nặng thì dễ hóa thành hiếu thắng, va chạm.',
   'Thanh Long': 'Vui vẻ, hỷ khánh, thi cử may mắn. Khi gặp Hóa Kỵ (Thanh Long nhả ngọc) thì gặp điều lành bất ngờ.',
   'Tiểu Hao': 'Sự thất thoát nhỏ dọt, mua sắm lặt vặt. Nhưng có ý tốt về sự lưu thông, thay cũ đổi mới hoặc cho đi.',
   'Tướng Quân': 'Oai phong, làm tướng, cái tôi cao, thích điều binh khiển tướng nhưng dễ nóng nảy.',
@@ -60,7 +61,7 @@ export const STAR_DESC: Record<string, string> = {
   // ==========================================
   // VÒNG THÁI TUẾ (Thần Sát)
   // ==========================================
-  'Thái Tuế': 'Vua của 1 năm (Mộc). Tư chất chính nhân, quang minh chính đại. Lắm lý sự, thích ăn nói, tranh biện, dễ vướng vòng pháp lý.',
+  'Thái Tuế': 'Vua của một năm (Hỏa). Tư chất chính nhân, quang minh chính đại, thích nói lý và tranh biện. Đi tốt thì có uy danh, đi xấu dễ vướng pháp lý, khẩu thiệt và va chạm với quyền thế.',
   'Thiếu Dương': 'Tri thức mở, sự rạng rỡ, tốt bụng, thông tuệ, đôi lúc hơi thiếu đề phòng vì ánh sáng chói lọi.',
   'Tang Môn': 'Sự u sầu, tiếng thở dài. Gắn với huyết quang, bệnh tật hoặc tâm hồn chuyên mang ưu tư tang tóc.',
   'Thiếu Âm': 'Khúc chiết, nhẹ nhàng, nhưng dễ bị lợi dụng do bản tính khờ dại, tin người thái quá.',
@@ -86,29 +87,46 @@ export const STAR_DESC: Record<string, string> = {
   'Thiên Giải': 'Tai ương gặp Thiên Giải hóa cát, giúp trừ tà, thoát chốn nguy nan.',
   'Địa Giải': 'Hóa giải hung tinh ở mức độ nhẹ, giúp tiêu tai tan bệnh, chủ về sự che chở.',
   'Giải Thần': 'Sự hanh thông, giải thoát mọi ràng buộc, nhưng nếu đi cùng Hôn nhân / Ký kết thì lại là tan rã.',
+  'Thiên Không': 'Không tinh mang tính đột biến, hư không và phá chấp. Dễ làm việc đang thành hóa dang dở, nghĩ nhiều thành ít; nhưng gặp cách tốt lại hợp nghiên cứu, triết lý và những con đường thoát khuôn.',
   'Phong Cáo': 'Sao chủ về thăng tiến, bằng khen, được vua ban tước lộc.',
-  'Đài Phụ': 'Vị trí bệ rồng, nâng đỡ vị thế, làm tăng sự quý hiển của các sao tốt đi kèm.',
+  'Thai Phụ': 'Sao phụ quý hiển, chủ nâng đỡ địa vị, nghi lễ, danh dự và phong thái đĩnh đạc. Hội cát tinh tăng sự sang trọng, được đề bạt và giữ vai trò xứng danh.',
+  'Đài Phụ': 'Cách gọi thay cho Thai Phụ. Chủ nâng đỡ địa vị, nghi lễ, danh dự và làm tăng vẻ quý hiển của bộ sao đi kèm.',
   'Bát Tọa': 'Ghế kiệu bát tú, tạo nên sự trang nghiêm, bệ vệ và ổn định vị thế.',
   'Tam Thai': 'Mang lại sự quang minh, thông tuệ, phong thái nhẹ nhàng thư thái.',
   'Đường Phù': 'Nhà cửa đẹp đẽ khang trang, gia thế quyền uy, nhưng cũng là sao hay tự làm cao.',
   'Quốc Ấn': 'Con dấu quyền lực. Tượng trưng cho nắm chức thực quyền, vị trí then chốt nhưng tính tình khắt khe.',
   'Long Trì': 'Cái ao rồng. Sự thanh cao, sang trọng, nam giới dễ đạt được sự trang nhã quý phái.',
-  'Phượng Các': 'Lầu phượng. Nữ tính, nhang sắc, đồ hiệu xa xỉ trang sức đẹp đẽ.',
+  'Phượng Các': 'Lầu phượng. Nữ tính, nhan sắc, sự trau chuốt và gu thẩm mỹ thanh quý; cũng chủ về trang sức, lễ nghi và vẻ đẹp có khí chất.',
   'Thiên Quan': 'Bách thần, làm việc liên quan đến giới tâm linh, cứu giải tai ách mạnh mẽ.',
   'Thiên Phúc': 'May mắn bất ngờ, phước lành do sống tu tâm tích đức.',
+  'Thiên Đức': 'Đức tinh cứu giải, chủ sự nhân hậu, biết nhường nhịn và làm phúc. Có tác dụng làm mềm hung tính, giảm va chạm và tăng lòng thiện.',
+  'Nguyệt Đức': 'Phúc tinh âm nhu, chủ lòng trắc ẩn, sự kín đáo giúp người và khả năng cứu giải nhẹ nhàng. Đi với cát tinh làm dày phúc khí, đi với hung tinh giúp giảm bớt gay gắt.',
   'Ân Quang': 'Được đặc ân, sự sủng ái của người trên, vẻ vang rạng rỡ.',
   'Thiên Quý': 'Quý khí, tài năng xuất chúng, tấm lòng thủy chung trân trọng ân nghĩa.',
   'Cô Thần': 'Sự cô đơn lẻ bóng của Nam giới, tính bảo thủ, tự lực cánh sinh.',
   'Quả Tú': 'Sự sầu muộn, câm lặng của Nữ giới, luôn vương vấn ôm giữ quá khứ, không chia sẻ được.',
-  'Đẩu Quân': 'Cái đấu đong gạo. Người quá tỷ mỉ, chi ly, quản lý sát sao, giữ vững thành quả nhưng dễ khắt khe.',
-  'Lưu Hà': 'Giòng nước chảy siết. Chủ sự lưu loát, nhưng cũng mang nguy cơ sông nước hoặc xuất huyết đứt vỡ tay chân.',
+  'Đẩu Quân': 'Cái đấu đong gạo. Người quá tỉ mỉ, chi ly, quản lý sát sao, giữ vững thành quả nhưng dễ khắt khe và khó buông lỏng.',
+  'Lưu Hà': 'Dòng nước chảy siết. Chủ sự lưu loát, phản ứng nhanh, nhưng cũng mang nguy cơ sông nước hoặc xuất huyết, đứt vỡ tay chân.',
+  'Thiên Khốc': 'Tiếng khóc than, nỗi ưu sầu lộ ra ngoài. Chủ bi cảm, dễ xúc động, buồn vì người thân hay vì thế sự; đi với cát tinh lại tăng chiều sâu cảm xúc và lòng trắc ẩn.',
+  'Thiên Hư': 'Hư hao, hụt hẫng, chuyện không như kỳ vọng. Chủ sự thất vọng, lo âu ngầm, lời hứa khó thành; hội cát tinh thì thành tính biết nghi ngờ và nhìn ra phần rỗng của vấn đề.',
   'Thiên Sứ': 'Tượng trưng cho sự mất mát, tổn thương đau khổ vì người thân.',
   'Thiên Thương': 'Đi kèm với Thiên Sứ tạo thành cặp Tang Tóc, thương tích, buồn rầu.',
+  'Thiên Tài': 'Tài trí ứng biến, nhanh nhạy, biết xoay xở theo thời thế. Chủ năng khiếu tìm cách giải quyết việc khó và tận dụng nguồn lực đúng lúc.',
+  'Thiên Thọ': 'Phúc tinh về thọ nguyên và sức bền. Chủ sự che chở, khả năng hồi phục, giữ thân và kéo dài sức chịu đựng trước nghịch cảnh.',
+  'Thiên Trù': 'Phúc tinh chủ lộc ăn uống, bếp núc, sự no đủ và khả năng nuôi dưỡng người khác. Hội cát tinh tăng khẩu phúc và sự tinh tế, đi xấu dễ thành ham hưởng thụ.',
   'Hoa Cái': 'Lọng che vi hành. Chủ về tôn giáo, sự cô độc trong tâm linh, tính làm đỏm hoặc kiêu hãnh bề ngoài.',
   'Phá Toái': 'Cản trở nửa đường, làm hỏng việc trước mắt. Tượng trưng cho sự tiêu tán, khản tiếng hay sự nứt vỡ.',
   'Âm Sát': 'Tà khí ám lén. Người ngầm hại mình sau lưng hoặc bị thế lực siêu nhiên, linh cảm đen đủi bủa vây.',
-  'Tuần Không': '(Tuần Trung Không Vong). Hạn chế, chặn đứng cát lợi hoặc hung ách. Có tác dụng mãnh liệt trước 30 tuổi, phá hủy sự trọn vẹn của Cung.',
-  'Triệt Không': '(Triệt Lộ Không Vong). Chặt đứt nhanh gọn, trắc trở bạo liệt lúc lập nghiệp. Có tác dụng mạnh trước 30 độ, cản trở sao đồng cung.',
+  'Tai Sát': 'Hung sát tinh chủ tai họa bất ngờ, dễ gặp va chạm, rủi ro hoặc sự cố ngoài dự liệu. Đi với sát tinh nặng làm tăng tính nguy hiểm, đi với cát tinh thì giảm bớt mức độ phát tác.',
+  'Thiên Sát': 'Sát khí từ bên ngoài giáng xuống, chủ sự đè nén, áp lực, dễ gặp chuyện trái ý hoặc bị hoàn cảnh ép buộc. Khi hội hung tinh thường báo hiệu giai đoạn căng thẳng, khó yên.',
+  'Đại Sát': 'Hung tinh có tính chất mạnh, chủ sự ngăn trở lớn, hao tổn, tai ách hoặc một đợt biến động gay gắt. Nếu được nhiều cát tinh cứu giải thì bớt hung, chuyển thành thử thách lớn để vượt qua.',
+  'Kiếp Sát': 'Hung tinh chủ sự va chạm, tranh đoạt, tai nạn và tổn hại bất ngờ. Đi với sát tinh tăng hiểm họa, đi đúng cách có thể thành tinh thần liều lĩnh, dám xông pha.',
+  'Thiên La': 'Lưới trời, chủ sự ràng buộc, lo nghĩ, mắc kẹt trong vòng nghi kỵ hoặc luật lệ vô hình. Gặp nhiều sát tinh dễ sinh bức bối tinh thần, bị dây dưa không dứt.',
+  'Địa Võng': 'Lưới đất, chủ sự mắc mứu, thủ tục, oan trái, lo âu và hoàn cảnh chằng chịt khó thoát. Đi với hung tinh dễ thành cảnh bị trói chân tay, đi với cát tinh thì giảm bớt độ bế tắc.',
+  'Tuần Không': 'Tuần Trung Không Vong. Tính chất là làm chậm, làm hụt và khiến sự việc phải qua một lớp "rỗng" rồi mới thành; vừa ngăn cát quá sớm vừa giảm hung trực diện. Thường ứng mạnh ở tiền vận và những việc khởi đầu.',
+  'Tuần': 'Cách gọi rút gọn của Tuần Không. Chủ sự trì hoãn, hụt hẫng, làm suy bớt lực cát hung và buộc sự việc phải qua thử thách ban đầu.',
+  'Triệt Không': 'Triệt Lộ Không Vong. Tính chất là chặn ngang, cắt mạnh, phá đà và buộc đổi hướng đột ngột; có thể bẻ gãy cả cát lẫn hung của cung bị án. Thường ứng rõ ở giai đoạn đầu đời và lúc lập nghiệp.',
+  'Triệt': 'Cách gọi rút gọn của Triệt Không. Chủ sự cắt đứt, bẻ hướng, chặn lối và làm sự việc khó đi theo quỹ đạo ban đầu.',
 
   // VÒNG TRÀNG SINH
   'Trường Sinh': 'Khởi nguồn vạn vật. Sức sống mãnh liệt, khỏe mạnh thọ trường, sự nghiệp thăng tiến dài lâu.',
@@ -131,8 +149,6 @@ export const STAR_DESC: Record<string, string> = {
 export const getStarDescription = (name: string): string => {
   // Lọc lấy gốc (VD: loại bỏ các suffix "[" hay "(" do parse sinh ra)
   const cleanName = name.replace(/\[.*?\]|\(.*?\)/g, "").trim();
-  
-  if (STAR_DESC[cleanName]) return STAR_DESC[cleanName];
 
   // Fallbacks thông minh
   if (cleanName.includes('Lộc Tồn')) return STAR_DESC['Lộc Tồn'];
@@ -140,6 +156,10 @@ export const getStarDescription = (name: string): string => {
   if (cleanName.includes('Tuần')) return STAR_DESC['Tuần Không'];
   if (cleanName.includes('Hóa Kỵ')) return STAR_DESC['Hóa Kỵ'];
   if (cleanName.includes('Hóa Lộc')) return STAR_DESC['Hóa Lộc'];
+  if (cleanName.includes('Hóa Quyền')) return STAR_DESC['Hóa Quyền'];
+  if (cleanName.includes('Hóa Khoa')) return STAR_DESC['Hóa Khoa'];
+  if (cleanName.includes('Thai Phụ') || cleanName.includes('Đài Phụ')) return STAR_DESC['Thai Phụ'];
+  if (STAR_DESC[cleanName]) return STAR_DESC[cleanName];
 
-  return `Một trong hàng trăm phụ tinh của Tử Vi, tương tác sức mạnh với các sao trong vị trí Cung hiện tại. Tạm thời chưa có hồ sơ.`;
+  return `"${cleanName}" Một trong hàng trăm phụ tinh của Tử Vi, tương tác sức mạnh với các sao trong vị trí Cung hiện tại. Tạm thời chưa có hồ sơ.`;
 };
