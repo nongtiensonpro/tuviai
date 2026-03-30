@@ -30,9 +30,9 @@
   --color-border-gold: rgba(214, 168, 92, 0.3);
 
   /* Typography */
-  --font-sans:    'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-serif:   'Cormorant Garamond', 'Times New Roman', serif;
-  --font-han:     'Noto Serif SC', 'Noto Serif', serif;
+  --font-sans:    'Segoe UI Variable Text', 'Aptos', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-serif:   'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --font-han:     'Iowan Old Style', 'Palatino Linotype', 'Songti SC', 'STSong', 'KaiTi', 'SimSun', serif;
 
   /* Radii */
   --radius-sm:    2px;
@@ -50,8 +50,8 @@
   --color-accent: #7f9a86;
   --color-cyan: #8fb3be;
   --color-coral: #b96e5a;
-  --font-family-sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-serif-sc: 'Noto Serif SC', 'Noto Serif', serif;
+  --font-family-sans: 'Segoe UI Variable Text', 'Aptos', 'Segoe UI', 'Noto Sans', sans-serif;
+  --font-family-serif-sc: 'Iowan Old Style', 'Palatino Linotype', 'Songti SC', 'STSong', 'KaiTi', 'SimSun', serif;
 }
 
 /* ---------- Base Reset & Body ---------- */
@@ -251,6 +251,7 @@ select.input option {
   background: transparent;
   box-shadow: none;
   backdrop-filter: none;
+  contain: layout paint;
 }
 
 .site-shell {
@@ -263,6 +264,7 @@ select.input option {
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+  contain: layout paint;
 }
 
 .hero-panel::before {
@@ -310,6 +312,8 @@ select.input option {
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+  content-visibility: auto;
+  contain-intrinsic-size: 640px;
 }
 
 .quote-panel {
@@ -344,11 +348,6 @@ select.input option {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .animate-fade-up {
   animation: fadeUp 0.5s ease forwards;
 }
@@ -365,21 +364,9 @@ select.input option {
     var(--color-bg-card) 50%,
     var(--color-bg-elevated) 75%
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
 }
 
-/* ---- Star Particle Effects ---- */
-@keyframes starTwinkle {
-  0%, 100% { opacity: 0; transform: scale(0.5); }
-  50%       { opacity: 1; transform: scale(1.2); }
-}
-
-@keyframes starFloat {
-  0%   { transform: translateY(0) rotate(0deg); }
-  100% { transform: translateY(-8px) rotate(180deg); }
-}
-
+/* ---- Ambient Decorative Motion ---- */
 @keyframes cosmicRotate {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
@@ -397,6 +384,7 @@ select.input option {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  contain: strict;
 }
 
 .star-field span {
@@ -405,8 +393,8 @@ select.input option {
   height: 2px;
   background: rgba(255, 245, 227, 0.95);
   border-radius: 50%;
-  animation: starTwinkle var(--dur, 3s) ease-in-out var(--delay, 0s) infinite;
-  opacity: 0;
+  opacity: 0.5;
+  box-shadow: 0 0 8px rgba(255, 245, 227, 0.14);
 }
 
 /* SVG Bát Quái decorative element */
@@ -415,7 +403,7 @@ select.input option {
   opacity: 0.055;
   pointer-events: none;
   z-index: 0;
-  animation: cosmicRotate 120s linear infinite;
+  contain: strict;
 }
 
 .bagua-deco-reverse {
@@ -423,7 +411,7 @@ select.input option {
   opacity: 0.03;
   pointer-events: none;
   z-index: 0;
-  animation: cosmicRotateReverse 80s linear infinite;
+  contain: strict;
 }
 
 /* Ambient glow ring */
@@ -432,7 +420,8 @@ select.input option {
   border-radius: 50%;
   background: radial-gradient(circle, transparent 63%, rgba(214, 168, 92, 0.06) 64%, transparent 65%);
   pointer-events: none;
-  animation: cosmicRotate 60s linear infinite;
+  opacity: 0.9;
+  contain: strict;
 }
 
 /* ---------- Mệnh Bàn Grid ---------- */
@@ -500,7 +489,17 @@ select.input option {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
+  scrollbar-gutter: stable both-edges;
   padding: 8px 0 4px;
+}
+
+.custom-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+.analysis-chat-log {
+  contain: layout paint;
+  overflow-anchor: none;
 }
 
 .ziwei-scroll-container::-webkit-scrollbar {
@@ -523,6 +522,10 @@ select.input option {
 }
 
 @media (max-width: 768px) {
+  .star-field {
+    display: none;
+  }
+
   .ziwei-scroll-hint { display: block; }
 
   .ziwei-grid {
@@ -553,5 +556,32 @@ select.input option {
 
   .section-kicker {
     letter-spacing: 0.16em;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+  .bagua-deco {
+    animation: cosmicRotate 240s linear infinite;
+    will-change: transform;
+  }
+
+  .cosmic-ring {
+    animation: cosmicRotate 180s linear infinite;
+    will-change: transform;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up,
+  .animate-pulse,
+  .skeleton,
+  .bagua-deco,
+  .cosmic-ring {
+    animation: none !important;
+    transition: none !important;
   }
 }

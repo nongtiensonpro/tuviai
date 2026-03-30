@@ -34,8 +34,19 @@ interface PalaceCellProps {
   palace: Palace;
   isActive?: boolean;
   onClick?: () => void;
-  onStarClick?: (name: string, desc: string) => void;
+  onStarClick?: (name: string) => void;
 }
+
+const buildStarTooltip = (name: string, nguHanh?: string, borrowed = false): string => {
+  const segments = [`${borrowed ? 'Mượn sao' : 'Sao'}: ${name}`];
+
+  if (nguHanh) {
+    segments.push(`Ngũ hành: ${nguHanh}`);
+  }
+
+  segments.push(getStarDescription(name));
+  return segments.join('\n');
+};
 
 export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClick, onStarClick }) => {
   const mainStars = palace.mainStars;
@@ -99,8 +110,8 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
           {mainStars.map((star, idx) => (
             <div
               key={idx}
-              onClick={(e) => { e.stopPropagation(); onStarClick?.(star.name, getStarDescription(star.name)); }}
-              title={`${star.name} - Ngũ hành: ${star.nguHanh}\nÝ nghĩa: ${getStarDescription(star.name)}`}
+              onClick={(e) => { e.stopPropagation(); onStarClick?.(star.name); }}
+              title={buildStarTooltip(star.name, star.nguHanh)}
               className={`cursor-help break-words text-[13px] font-bold leading-[1.15] sm:text-[13.5px] ${getColorNguHanh(star.nguHanh)}`}
             >
               {star.name}
@@ -112,7 +123,11 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
           {isVCD && palace.borrowedStars && palace.borrowedStars.length > 0 && (
             <div className="mt-1 flex flex-col items-center opacity-42 italic">
               {palace.borrowedStars.map((star, idx) => (
-                <div key={`borrowed-${idx}`} title={`Mượn: ${star.name}`} className={`font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}>
+                <div
+                  key={`borrowed-${idx}`}
+                  title={buildStarTooltip(star.name, star.nguHanh, true)}
+                  className={`font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}
+                >
                   {star.name}
                   {star.brightness && <span className="text-[9px] ml-0.5 font-normal">({star.brightness})</span>}
                   <span className="text-[8px] ml-0.5 font-normal opacity-80">(Chiếu)</span>
@@ -131,8 +146,8 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
             {leftStars.map((s, i) => (
               <div
                 key={i}
-                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
-                title={`${s.name} - O:${getStarDescription(s.name)}`}
+                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name); }}
+                title={buildStarTooltip(s.name, s.nguHanh)}
                 className={`mb-0.5 cursor-help break-words text-[10px] font-medium leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
                 {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}
@@ -144,8 +159,8 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
             {rightStars.map((s, i) => (
               <div
                 key={i}
-                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
-                title={`${s.name} - X:${getStarDescription(s.name)}`}
+                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name); }}
+                title={buildStarTooltip(s.name, s.nguHanh)}
                 className={`mb-0.5 cursor-help break-words text-[10px] font-semibold leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
                 {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}

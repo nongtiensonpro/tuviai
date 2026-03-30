@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { ZiweiChart, PalaceName } from '../core/types/ZiweiTypes';
 import { PalaceCell } from './PalaceCell';
 import { CenterPanel } from './CenterPanel';
+import { getStarDescription } from '../data/StarDescriptions';
 
 // Mảng chứa thứ tự index Địa Chi (0..11) map vào Grid CSS.
 const GRID_CELLS_ORDER = [
@@ -31,6 +32,13 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
   if (!chart || !chart.palaces) {
     return <div className="text-white text-center">Đang tải Mệnh Bàn...</div>;
   }
+
+  const handleStarClick = (name: string) => {
+    setActiveStar({
+      name,
+      desc: getStarDescription(name),
+    });
+  };
 
   return (
     <div className="ziwei-board-wrapper">
@@ -68,7 +76,7 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
                 palace={palace}
                 isActive={isActive}
                 onClick={() => onPalaceClick?.(palace.palaceName)}
-                onStarClick={(name: string, desc: string) => setActiveStar({ name, desc })}
+                onStarClick={handleStarClick}
               />
             );
           })}

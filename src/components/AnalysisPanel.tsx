@@ -2,17 +2,65 @@
  * AnalysisPanel.tsx
  * Hiển thị khung luận giải Tử Vi bằng AI (Structured UI Cards) và thread hỏi đáp có memory ngắn hạn
  */
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import type { AnalysisFocusArea, AnalysisThread, PalaceName, ZiweiChart } from '../core/types/ZiweiTypes';
-import { GeminiService, type GeminiChatSession } from '../services/GeminiService';
+import type { GeminiChatSession } from '../services/GeminiService';
 import type { StructuredAiResponse } from '../services/PromptBuilder';
 import { AnalysisThreadService } from '../services/AnalysisThreadService';
-import { ApiKeySetup } from './ApiKeySetup';
 
 export interface AnalysisPanelProps {
   chart: ZiweiChart;
   targetPalaceName?: PalaceName;
   onNavigateFocus?: (focusArea: AnalysisFocusArea) => void;
+}
+
+type AnalysisStreamPhase = 'idle' | 'requesting' | 'receiving';
+
+interface AnalysisStreamStatus {
+  phase: AnalysisStreamPhase;
+  focusArea: AnalysisFocusArea | null;
+  receivedChars: number;
+  receivedChunks: number;
+}
+
+const IDLE_STREAM_STATUS: AnalysisStreamStatus = {
+  phase: 'idle',
+  focusArea: null,
+  receivedChars: 0,
+  receivedChunks: 0,
+};
+
+const STREAM_STATUS_UPDATE_INTERVAL_MS = 500;
+
+const ApiKeySetup = lazy(async () => {
+  const module = await import('./ApiKeySetup');
+  return { default: module.ApiKeySetup };
+});
+
+let geminiServiceModulePromise: Promise<typeof import('../services/GeminiService')> | null = null;
+
+function loadGeminiServiceModule(): Promise<typeof import('../services/GeminiService')> {
+  if (!geminiServiceModulePromise) {
+    geminiServiceModulePromise = import('../services/GeminiService');
+  }
+
+  return geminiServiceModulePromise;
+}
+
+function formatFocusAreaLabel(focusArea: AnalysisFocusArea): string {
+  return focusArea === 'overall' ? 'tổng quan mệnh bàn' : `cung ${focusArea}`;
+}
+
+function formatStreamSize(receivedChars: number): string {
+  if (receivedChars < 1024) {
+    return `${receivedChars} ký tự`;
+  }
+
+  return `${(receivedChars / 1024).toFixed(1)} KB`;
+}
+
+function isThinkingHeavyModel(modelName: string): boolean {
+  return modelName.includes('2.5');
 }
 
 export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalaceName, onNavigateFocus }) => {
@@ -25,8 +73,14 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
   const [currentChatSession, setCurrentChatSession] = useState<GeminiChatSession | null>(null);
   const [error, setError] = useState<string>('');
   const [question, setQuestion] = useState<string>('');
+  const [streamStatus, setStreamStatus] = useState<AnalysisStreamStatus>(IDLE_STREAM_STATUS);
+  const analyzeRequestIdRef = useRef(0);
+  const pendingStreamStatusRef = useRef<AnalysisStreamStatus | null>(null);
+  const streamStatusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastStreamStatusCommitAtRef = useRef(0);
 
   const currentFocus: AnalysisFocusArea = targetPalaceName ?? 'overall';
+  const hasAnalysisResult = !!analysisResult;
   const visiblePalaceFocus = currentThread && currentThread.focusArea !== 'overall'
     ? currentThread.focusArea
     : targetPalaceName;
@@ -36,14 +90,89 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     setAnalysisResult(thread?.analysis ?? null);
   };
 
+  const cancelActiveAnalysis = () => {
+    analyzeRequestIdRef.current += 1;
+    pendingStreamStatusRef.current = null;
+    if (streamStatusTimerRef.current) {
+      clearTimeout(streamStatusTimerRef.current);
+      streamStatusTimerRef.current = null;
+    }
+    setIsLoading(false);
+    setStreamStatus(IDLE_STREAM_STATUS);
+  };
+
+  const commitStreamStatus = (status: AnalysisStreamStatus) => {
+    pendingStreamStatusRef.current = null;
+
+    if (streamStatusTimerRef.current) {
+      clearTimeout(streamStatusTimerRef.current);
+      streamStatusTimerRef.current = null;
+    }
+
+    lastStreamStatusCommitAtRef.current = Date.now();
+    setStreamStatus(status);
+  };
+
+  const scheduleStreamStatus = (status: AnalysisStreamStatus) => {
+    pendingStreamStatusRef.current = status;
+
+    const now = Date.now();
+    const elapsed = now - lastStreamStatusCommitAtRef.current;
+    const shouldCommitNow = status.receivedChunks <= 1 || elapsed >= STREAM_STATUS_UPDATE_INTERVAL_MS;
+
+    if (shouldCommitNow) {
+      commitStreamStatus(status);
+      return;
+    }
+
+    if (streamStatusTimerRef.current) {
+      return;
+    }
+
+    streamStatusTimerRef.current = setTimeout(() => {
+      streamStatusTimerRef.current = null;
+      if (pendingStreamStatusRef.current) {
+        commitStreamStatus(pendingStreamStatusRef.current);
+      }
+    }, STREAM_STATUS_UPDATE_INTERVAL_MS - elapsed);
+  };
+
   useEffect(() => {
-    if (!apiKey) {
+    if (!apiKey || !hasAnalysisResult) {
       setCurrentChatSession(null);
       return;
     }
 
-    setCurrentChatSession(GeminiService.createChatSession(apiKey, selectedModel));
-  }, [apiKey, selectedModel]);
+    let cancelled = false;
+    setCurrentChatSession(null);
+
+    void loadGeminiServiceModule()
+      .then(({ GeminiService }) => {
+        if (cancelled) {
+          return;
+        }
+
+        setCurrentChatSession(GeminiService.createChatSession(apiKey, selectedModel));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCurrentChatSession(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiKey, selectedModel, hasAnalysisResult]);
+
+  useEffect(() => () => {
+    analyzeRequestIdRef.current += 1;
+    pendingStreamStatusRef.current = null;
+    if (streamStatusTimerRef.current) {
+      clearTimeout(streamStatusTimerRef.current);
+      streamStatusTimerRef.current = null;
+    }
+  }, []);
 
   const handleAnalyze = async (specificPalace?: PalaceName) => {
     if (!apiKey) {
@@ -54,12 +183,20 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     const sourceThread = currentThread;
     const focusArea: AnalysisFocusArea = specificPalace ?? 'overall';
     const bridgeContext = AnalysisThreadService.buildBridgeContext(sourceThread, focusArea);
+    const requestId = analyzeRequestIdRef.current + 1;
+    analyzeRequestIdRef.current = requestId;
 
     setIsLoading(true);
     setError('');
-    syncThreadState(null);
+    setStreamStatus({
+      phase: 'requesting',
+      focusArea,
+      receivedChars: 0,
+      receivedChunks: 0,
+    });
 
     try {
+      const { GeminiService } = await loadGeminiServiceModule();
       const result = await GeminiService.analyzeChartJSON(
         apiKey,
         chart,
@@ -67,15 +204,45 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
         undefined,
         selectedModel,
         bridgeContext,
+        {
+          onStreamEvent: (event) => {
+            if (analyzeRequestIdRef.current !== requestId) {
+              return;
+            }
+
+            scheduleStreamStatus({
+              phase: 'receiving',
+              focusArea,
+              receivedChars: event.receivedChars,
+              receivedChunks: event.receivedChunks,
+            });
+          },
+        },
       );
+      if (analyzeRequestIdRef.current !== requestId) {
+        return;
+      }
+
       const thread = AnalysisThreadService.createThread(chart, focusArea, result, bridgeContext);
       AnalysisThreadService.saveThread(thread);
       syncThreadState(thread);
     } catch (err: unknown) {
+      if (analyzeRequestIdRef.current !== requestId) {
+        return;
+      }
+
       const message = err instanceof Error ? err.message : 'Lỗi khi gọi AI.';
       setError(message);
     } finally {
-      setIsLoading(false);
+      if (analyzeRequestIdRef.current === requestId) {
+        pendingStreamStatusRef.current = null;
+        if (streamStatusTimerRef.current) {
+          clearTimeout(streamStatusTimerRef.current);
+          streamStatusTimerRef.current = null;
+        }
+        setIsLoading(false);
+        setStreamStatus(IDLE_STREAM_STATUS);
+      }
     }
   };
 
@@ -257,6 +424,14 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     </div>
   );
 
+  const loadingFocusArea = streamStatus.focusArea ?? currentFocus;
+  const loadingMessage = streamStatus.phase === 'receiving'
+    ? `Gemini đã bắt đầu trả dữ liệu cho ${formatFocusAreaLabel(loadingFocusArea)}. Đã nhận ${streamStatus.receivedChunks} đợt, khoảng ${formatStreamSize(streamStatus.receivedChars)}.`
+    : `Đang gửi dữ kiện ${formatFocusAreaLabel(loadingFocusArea)} tới Gemini để tạo luận giải.`;
+  const loadingHint = streamStatus.phase === 'requesting' && isThinkingHeavyModel(selectedModel)
+    ? 'Model hiện tại đang suy luận sâu để tăng độ chính xác, nên có thể mất vài giây trước khi phản hồi đầu tiên xuất hiện.'
+    : 'Khi có chunk đầu tiên, trạng thái này sẽ tự chuyển sang chế độ streaming.';
+
   return (
     <div className="w-full mt-10 max-w-[1200px] mx-auto animate-fade-up">
       <div className="p-0">
@@ -284,6 +459,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
                   <button
                     onClick={() => {
                       if (confirm('Khóa tạm thời hoặc đổi API Key khác?')) {
+                         cancelActiveAnalysis();
                          setApiKey('');
                          syncThreadState(null);
                          setCurrentChatSession(null);
@@ -300,10 +476,12 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
         </div>
 
         {!apiKey ? (
-          <ApiKeySetup onKeyReady={(key, model) => {
-            setApiKey(key);
-            setSelectedModel(model);
-          }} />
+          <Suspense fallback={<div className="py-8 text-center text-white/45 text-sm">Đang chuẩn bị cấu hình BYOK...</div>}>
+            <ApiKeySetup onKeyReady={(key, model) => {
+              setApiKey(key);
+              setSelectedModel(model);
+            }} />
+          </Suspense>
         ) : (
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-2">
@@ -322,11 +500,31 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
 
             {error && <div className="text-red-300 text-sm">{error}</div>}
 
-            {isLoading && !analysisResult && (
+            {isLoading && streamStatus.phase !== 'idle' && !analysisResult && (
                 <div className="flex flex-col items-center justify-center p-10 mt-6">
                    <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-gold animate-spin mb-4"></div>
-                   <span className="text-gold/90 text-sm">Đang phân tích mệnh bàn và tổng hợp luận giải...</span>
+                   <span className="text-gold/90 text-sm text-center max-w-xl">{loadingMessage}</span>
+                   <span className="text-white/46 text-xs text-center max-w-xl mt-3">{loadingHint}</span>
                 </div>
+            )}
+
+            {isLoading && streamStatus.phase !== 'idle' && analysisResult && (
+              <div className="mt-4 rounded-sm border border-gold/20 bg-white/[0.03] px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 h-4 w-4 rounded-full border-2 border-white/20 border-t-gold animate-spin shrink-0"></div>
+                  <div className="space-y-1">
+                    <p className="text-sm text-gold/90">
+                      Đang làm mới luận giải cho {formatFocusAreaLabel(loadingFocusArea)}.
+                    </p>
+                    <p className="text-xs text-white/58">
+                      {loadingMessage} Kết quả hiện tại vẫn được giữ trên màn hình để tránh trống giao diện.
+                    </p>
+                    <p className="text-[11px] text-white/40">
+                      {loadingHint}
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
 
             {analysisResult && renderAnalysisCards(analysisResult)}
@@ -345,7 +543,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
                    </p>
                  )}
 
-                 <div className="flex flex-col gap-3 mb-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                 <div className="analysis-chat-log flex flex-col gap-3 mb-4 max-h-60 overflow-y-scroll pr-2 custom-scrollbar">
                    {currentThread.turns.map(turn => (
                     <div key={turn.id} className={`py-2 text-sm max-w-[85%] ${turn.role === 'user' ? 'text-blue-100 self-end ml-auto' : 'text-white/90 self-start mr-auto'}`}>
                        {turn.role === 'ai' && <strong className="block text-gold mb-1 text-xs">Đại Sư AI</strong>}

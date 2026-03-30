@@ -219,6 +219,20 @@ function buildKeyPalaces(chart: ZiweiChart): AiPalaceSnapshot[] {
     .map(buildPalaceSnapshot);
 }
 
+function buildFocusPalaces(
+  chart: ZiweiChart,
+  focusContext: AnalysisFocusContext,
+): AiPalaceSnapshot[] | undefined {
+  if (!focusContext.targetPalaceName) {
+    return undefined;
+  }
+
+  return uniquePalaceNames(focusContext.referencedPalaces)
+    .map(name => chart.palaces.find(palace => palace.palaceName === name))
+    .filter((palace): palace is Palace => !!palace)
+    .map(buildPalaceSnapshot);
+}
+
 export class AnalysisContextBuilder {
   static buildInitialAnalysisContext(
     chart: ZiweiChart,
@@ -227,6 +241,8 @@ export class AnalysisContextBuilder {
     bridgeContext?: AnalysisBridgeContext,
   ): AnalysisPromptContext {
     const thanPalace = chart.palaces.find(palace => palace.isThanPalace);
+    const focusContext = buildFocusContext(chart, targetPalaceName);
+    const focusPalaces = buildFocusPalaces(chart, focusContext);
 
     return {
       userIntent: {
@@ -253,11 +269,11 @@ export class AnalysisContextBuilder {
           thanCuTaiCung: thanPalace?.palaceName ?? 'Mệnh',
         },
         keyPalaces: buildKeyPalaces(chart),
-        allPalaces: chart.palaces.map(buildPalaceSnapshot),
+        ...(focusPalaces ? { focusPalaces } : {}),
       },
       derivedSignals: {
         chartHighlights: buildChartHighlights(chart),
-        focusContext: buildFocusContext(chart, targetPalaceName),
+        focusContext,
       },
       bridgeContext,
     };

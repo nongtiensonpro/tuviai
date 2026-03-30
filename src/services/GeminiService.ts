@@ -10,6 +10,17 @@ export interface GeminiChatSession {
   sendMessage: (thread: AnalysisThread, msg: string) => Promise<string>;
 }
 
+export interface GeminiAnalysisStreamEvent {
+  chunkText: string;
+  fullText: string;
+  receivedChars: number;
+  receivedChunks: number;
+}
+
+export interface GeminiAnalyzeOptions {
+  onStreamEvent?: (event: GeminiAnalysisStreamEvent) => void;
+}
+
 const PALACE_NAMES = new Set<PalaceName>([
   'Mệnh',
   'Phụ Mẫu',
@@ -60,6 +71,18 @@ function normalizeAnalysisResponse(payload: unknown): PalaceAnalysis {
   };
 }
 
+function extractJsonPayload(responseText: string): string {
+  const trimmed = responseText.trim();
+  const firstBrace = trimmed.indexOf('{');
+  const lastBrace = trimmed.lastIndexOf('}');
+
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return trimmed.slice(firstBrace, lastBrace + 1);
+  }
+
+  return trimmed;
+}
+
 export class GeminiService {
   /**
    * Gọi AI phân tích Mệnh Bàn trả về Structured JSON Output
@@ -75,6 +98,7 @@ export class GeminiService {
     userQuestion?: string,
     modelName: string = 'gemini-3.1-pro-preview',
     bridgeContext?: AnalysisBridgeContext,
+    options?: GeminiAnalyzeOptions,
   ): Promise<StructuredAiResponse> {
     
     if (!apiKey) throw new Error("API Key không hợp lệ.");
@@ -83,8 +107,7 @@ export class GeminiService {
       const ai = new GoogleGenAI({ apiKey });
       const systemInstruction = PromptBuilder.buildSystemInstruction();
       const prompt = PromptBuilder.buildAnalysisPrompt(chart, targetPalaceName, userQuestion, bridgeContext);
-
-      const response = await ai.models.generateContent({
+      const response = await ai.models.generateContentStream({
         model: modelName,
         contents: prompt,
         config: {
@@ -95,10 +118,28 @@ export class GeminiService {
         }
       });
 
-      const responseText = response.text;
+      let responseText = '';
+      let receivedChunks = 0;
+
+      for await (const chunk of response) {
+        const chunkText = chunk.text ?? '';
+        if (!chunkText) {
+          continue;
+        }
+
+        responseText += chunkText;
+        receivedChunks += 1;
+        options?.onStreamEvent?.({
+          chunkText,
+          fullText: responseText,
+          receivedChars: responseText.length,
+          receivedChunks,
+        });
+      }
+
       if (!responseText) throw new Error("Không có dữ liệu trả về.");
 
-      return normalizeAnalysisResponse(JSON.parse(responseText));
+      return normalizeAnalysisResponse(JSON.parse(extractJsonPayload(responseText)));
 
     } catch (error: unknown) {
       console.error("Gemini API Error:", error);

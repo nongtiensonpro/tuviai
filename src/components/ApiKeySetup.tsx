@@ -2,14 +2,33 @@
  * ApiKeySetup.tsx — BYOK với hướng dẫn step-by-step và nút Test Key
  */
 import React, { useState, useEffect } from 'react';
-import { CryptoService } from '../services/CryptoService';
-import { GoogleGenAI } from '@google/genai';
 
 interface ApiKeySetupProps {
   onKeyReady: (decryptedKey: string, modelName: string) => void;
 }
 
 type KeyStatus = 'idle' | 'testing' | 'valid' | 'invalid';
+
+const STORED_API_KEY = 'tuviai_encrypted_apikey';
+
+let googleGenAiModulePromise: Promise<typeof import('@google/genai')> | null = null;
+let cryptoServiceModulePromise: Promise<typeof import('../services/CryptoService')> | null = null;
+
+function loadGoogleGenAiModule(): Promise<typeof import('@google/genai')> {
+  if (!googleGenAiModulePromise) {
+    googleGenAiModulePromise = import('@google/genai');
+  }
+
+  return googleGenAiModulePromise;
+}
+
+function loadCryptoServiceModule(): Promise<typeof import('../services/CryptoService')> {
+  if (!cryptoServiceModulePromise) {
+    cryptoServiceModulePromise = import('../services/CryptoService');
+  }
+
+  return cryptoServiceModulePromise;
+}
 
 export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
   const [apiKey, setApiKey] = useState('');
@@ -32,7 +51,7 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
   ];
 
   useEffect(() => {
-    const checkKey = CryptoService.hasStoredKey();
+    const checkKey = typeof window !== 'undefined' && !!localStorage.getItem(STORED_API_KEY);
     setHasEncryptedKey(checkKey);
     setMode(checkKey ? 'unlock' : 'setup');
 
@@ -45,6 +64,7 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
     if (!keyToTest || keyToTest.length < 10) return;
     setKeyStatus('testing');
     try {
+      const { GoogleGenAI } = await loadGoogleGenAiModule();
       const ai = new GoogleGenAI({ apiKey: keyToTest });
       await ai.models.generateContent({
         model: 'gemini-2.0-flash',
@@ -64,6 +84,7 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
         return;
       }
       console.log("Đang lấy danh sách model từ Google...");
+      const { GoogleGenAI } = await loadGoogleGenAiModule();
       const ai = new GoogleGenAI({ apiKey: keyToTest });
 
       // Gọi API ListModels
@@ -93,8 +114,9 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
     if (!apiKey || !password) { setError('Vui lòng nhập đủ API Key và Mật khẩu.'); return; }
     if (password.length < 6) { setError('Mật khẩu bảo vệ cần ít nhất 6 ký tự.'); return; }
     try {
+      const { CryptoService } = await loadCryptoServiceModule();
       const encrypted = await CryptoService.encrypt(apiKey, password);
-      CryptoService.saveEncryptedKey(encrypted);
+      localStorage.setItem(STORED_API_KEY, encrypted);
       localStorage.setItem('gemini_model_preference', selectedModel);
       setHasEncryptedKey(true);
       setError('');
@@ -108,8 +130,9 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
     e.preventDefault();
     setError('');
     try {
-      const encrypted = CryptoService.getStoredKey();
+      const encrypted = typeof window !== 'undefined' ? localStorage.getItem(STORED_API_KEY) : null;
       if (!encrypted) throw new Error('Không tìm thấy khóa.');
+      const { CryptoService } = await loadCryptoServiceModule();
       const decryptedKey = await CryptoService.decrypt(encrypted, password);
       localStorage.setItem('gemini_model_preference', selectedModel); // Cập nhật lại nếu người dùng đổi model lúc unlock
       onKeyReady(decryptedKey, selectedModel);
@@ -120,7 +143,9 @@ export const ApiKeySetup: React.FC<ApiKeySetupProps> = ({ onKeyReady }) => {
 
   const handleReset = () => {
     if (confirm('Bạn có chắc muốn xóa cấu hình API cũ không?')) {
-      CryptoService.clearStoredKey();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORED_API_KEY);
+      }
       setHasEncryptedKey(false);
       setMode('setup');
       setApiKey(''); setPassword(''); setError(''); setKeyStatus('idle');

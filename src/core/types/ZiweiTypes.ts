@@ -288,7 +288,7 @@ export interface AnalysisPromptContext {
       thanCuTaiCung: PalaceName;
     };
     keyPalaces: AiPalaceSnapshot[];
-    allPalaces: AiPalaceSnapshot[];
+    focusPalaces?: AiPalaceSnapshot[];
   };
   derivedSignals: {
     chartHighlights: string[];
@@ -374,6 +374,40 @@ export interface FullChartAnalysis {
   life_phases: string;
   modern_advice: string;
 }
+
+/** Payload tối thiểu để yêu cầu worker lập mệnh bàn */
+export interface ChartWorkerInput {
+  day: number;
+  month: number;
+  year: number;
+  hourIndex: number;
+  gender: Gender;
+}
+
+/** Message gửi vào worker lập mệnh bàn */
+export interface ChartWorkerRequest {
+  requestId: string;
+  input: ChartWorkerInput;
+}
+
+/** Worker trả về chart thành công */
+export interface ChartWorkerSuccessResponse {
+  requestId: string;
+  ok: true;
+  chart: ZiweiChart;
+}
+
+/** Worker trả về lỗi tính toán */
+export interface ChartWorkerErrorResponse {
+  requestId: string;
+  ok: false;
+  error: string;
+}
+
+/** Kết quả trả về từ worker lập mệnh bàn */
+export type ChartWorkerResponse =
+  | ChartWorkerSuccessResponse
+  | ChartWorkerErrorResponse;
 
 /** Checkpoint tối thiểu để đối chiếu regression với lá số tham chiếu */
 export interface ReferencePalaceCheckpoint {
