@@ -5,18 +5,25 @@
  */
 import React from 'react';
 import type { ZiweiChart } from '../core/types/ZiweiTypes';
+import { getGlossaryDescription } from '../data/GlossaryDescriptions';
+import { getStarDescription } from '../data/StarDescriptions';
 
 interface CenterPanelProps {
   chart: ZiweiChart;
+  onGlossaryClick?: (name: string) => void;
+  onStarClick?: (name: string) => void;
 }
 
-export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
+export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick, onStarClick }) => {
   const { 
     solarDate, lunarDate, 
     namCanChi, tenCuc, banMenh,
     amDuongNamNu, amDuongLy, menhCucSinhKhac,
     menhChu, thanChu 
   } = chart;
+
+  const metaButtonClass = 'transition-colors hover:text-gold';
+  const starButtonClass = 'font-semibold text-white/90 transition-colors hover:text-gold';
 
   return (
     <div className="palace-center relative flex flex-col items-center justify-start overflow-hidden p-3.5 sm:p-4">
@@ -81,8 +88,22 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
             <div className="grid grid-cols-[60px_1fr] gap-2.5 items-start text-white/90 sm:grid-cols-[72px_1fr]">
               <span className="text-white/40 tracking-[0.08em] mt-0.5">Âm dương</span>
               <div className="flex flex-col">
-                <span className="font-bold text-blue-300 leading-snug">{amDuongNamNu}</span>
-                <span className="text-white/50 text-[11px] leading-snug sm:text-xs">{amDuongLy}</span>
+                <button
+                  type="button"
+                  title={getGlossaryDescription(amDuongNamNu)}
+                  onClick={() => onGlossaryClick?.(amDuongNamNu)}
+                  className={`w-fit text-left font-bold text-blue-300 leading-snug ${metaButtonClass}`}
+                >
+                  {amDuongNamNu}
+                </button>
+                <button
+                  type="button"
+                  title={getGlossaryDescription(amDuongLy)}
+                  onClick={() => onGlossaryClick?.(amDuongLy)}
+                  className={`w-fit text-left text-white/50 text-[11px] leading-snug sm:text-xs ${metaButtonClass}`}
+                >
+                  {amDuongLy}
+                </button>
               </div>
             </div>
           </div>
@@ -90,7 +111,14 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
           <div className="px-1 py-1">
             <div className="grid grid-cols-[60px_1fr] gap-2.5 items-center text-white/90 sm:grid-cols-[72px_1fr]">
               <span className="text-white/40 tracking-[0.08em]">Bản Mệnh</span>
-              <span className="font-bold text-emerald-400 capitalize leading-snug">{banMenh}</span>
+              <button
+                type="button"
+                title={getGlossaryDescription('Bản Mệnh')}
+                onClick={() => onGlossaryClick?.('Bản Mệnh')}
+                className={`w-fit text-left font-bold text-emerald-400 capitalize leading-snug ${metaButtonClass}`}
+              >
+                {banMenh}
+              </button>
             </div>
           </div>
 
@@ -98,8 +126,22 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
             <div className="grid grid-cols-[60px_1fr] gap-2.5 items-start text-white/90 sm:grid-cols-[72px_1fr]">
               <span className="text-white/40 tracking-[0.08em] mt-0.5">Mệnh Cục</span>
               <div className="flex flex-col">
-                <span className="font-bold text-amber-500 capitalize leading-snug">{tenCuc}</span>
-                <span className="text-white/50 text-[11px] leading-snug sm:text-xs">{menhCucSinhKhac}</span>
+                <button
+                  type="button"
+                  title={getGlossaryDescription(tenCuc)}
+                  onClick={() => onGlossaryClick?.(tenCuc)}
+                  className={`w-fit text-left font-bold text-amber-500 capitalize leading-snug ${metaButtonClass}`}
+                >
+                  {tenCuc}
+                </button>
+                <button
+                  type="button"
+                  title={getGlossaryDescription(menhCucSinhKhac)}
+                  onClick={() => onGlossaryClick?.(menhCucSinhKhac)}
+                  className={`w-fit text-left text-white/50 text-[11px] leading-snug sm:text-xs ${metaButtonClass}`}
+                >
+                  {menhCucSinhKhac}
+                </button>
               </div>
             </div>
           </div>
@@ -109,8 +151,42 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart }) => {
           <div className="grid grid-cols-[60px_1fr] gap-2.5 items-start text-white/90 sm:grid-cols-[72px_1fr]">
             <span className="pt-0.5 text-white/40 tracking-[0.08em]">Chủ tinh</span>
             <div className="grid gap-1 leading-snug sm:grid-cols-2 sm:gap-x-3">
-              <span>Mệnh: <span className="font-semibold text-white/90">{menhChu}</span></span>
-              <span>Thân: <span className="font-semibold text-white/90">{thanChu}</span></span>
+              <span>
+                <button
+                  type="button"
+                  title={getGlossaryDescription('Mệnh Chủ')}
+                  onClick={() => onGlossaryClick?.('Mệnh Chủ')}
+                  className={`text-left ${metaButtonClass}`}
+                >
+                  Mệnh:
+                </button>{' '}
+                <button
+                  type="button"
+                  title={getStarDescription(menhChu)}
+                  onClick={() => onStarClick?.(menhChu)}
+                  className={starButtonClass}
+                >
+                  {menhChu}
+                </button>
+              </span>
+              <span>
+                <button
+                  type="button"
+                  title={getGlossaryDescription('Thân Chủ')}
+                  onClick={() => onGlossaryClick?.('Thân Chủ')}
+                  className={`text-left ${metaButtonClass}`}
+                >
+                  Thân:
+                </button>{' '}
+                <button
+                  type="button"
+                  title={getStarDescription(thanChu)}
+                  onClick={() => onStarClick?.(thanChu)}
+                  className={starButtonClass}
+                >
+                  {thanChu}
+                </button>
+              </span>
             </div>
           </div>
         </div>

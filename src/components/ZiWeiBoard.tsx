@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { ZiweiChart, PalaceName } from '../core/types/ZiweiTypes';
 import { PalaceCell } from './PalaceCell';
 import { CenterPanel } from './CenterPanel';
+import { getGlossaryDescription } from '../data/GlossaryDescriptions';
 import { getStarDescription } from '../data/StarDescriptions';
 
 // Mảng chứa thứ tự index Địa Chi (0..11) map vào Grid CSS.
@@ -19,24 +20,31 @@ interface ZiWeiBoardProps {
 }
 
 export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, activePalace }) => {
-  const [activeStar, setActiveStar] = useState<{ name: string, desc: string } | null>(null);
+  const [activeInsight, setActiveInsight] = useState<{ name: string, desc: string } | null>(null);
 
-  // Tự động ẩn Tooltip của sao sau 6 giây
+  // Tự động ẩn popup tra cứu sau 6 giây
   useEffect(() => {
-    if (activeStar) {
-      const timer = setTimeout(() => setActiveStar(null), 6000);
+    if (activeInsight) {
+      const timer = setTimeout(() => setActiveInsight(null), 6000);
       return () => clearTimeout(timer);
     }
-  }, [activeStar]);
+  }, [activeInsight]);
 
   if (!chart || !chart.palaces) {
     return <div className="text-white text-center">Đang tải Mệnh Bàn...</div>;
   }
 
   const handleStarClick = (name: string) => {
-    setActiveStar({
+    setActiveInsight({
       name,
       desc: getStarDescription(name),
+    });
+  };
+
+  const handleGlossaryClick = (name: string) => {
+    setActiveInsight({
+      name,
+      desc: getGlossaryDescription(name),
     });
   };
 
@@ -58,7 +66,14 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
             // Render Center Panel
             if (item === 'CENTER') {
               if (index === 5) {
-                return <CenterPanel key="center" chart={chart} />;
+                return (
+                  <CenterPanel
+                    key="center"
+                    chart={chart}
+                    onGlossaryClick={handleGlossaryClick}
+                    onStarClick={handleStarClick}
+                  />
+                );
               }
               return null;
             }
@@ -77,22 +92,23 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
                 isActive={isActive}
                 onClick={() => onPalaceClick?.(palace.palaceName)}
                 onStarClick={handleStarClick}
+                onGlossaryClick={handleGlossaryClick}
               />
             );
           })}
         </div>
       </div>
 
-      {/* Cửa sổ nổi hiển thị mô tả thông tin Sao (Hỗ trợ tốt Touch screen / Mobile) */}
-      {activeStar && (
+      {/* Cửa sổ nổi hiển thị mô tả sao hoặc thuật ngữ trên lá số */}
+      {activeInsight && (
         <div
           className="fixed bottom-[10%] left-1/2 -translate-x-1/2 z-[9999] bg-[#111922]/88 rounded-sm p-3.5 flex max-w-[90vw] md:max-w-md animate-fade-up items-start cursor-pointer"
-          onClick={() => setActiveStar(null)}
+          onClick={() => setActiveInsight(null)}
         >
           <div className="text-[1.3rem] mr-2 mt-0.5 opacity-90">✨</div>
           <div className="flex-1">
-            <h4 className="text-gold font-bold text-[15px] mb-1">{activeStar.name}</h4>
-            <p className="text-white/80 text-[13px] whitespace-normal leading-relaxed">{activeStar.desc}</p>
+            <h4 className="text-gold font-bold text-[15px] mb-1">{activeInsight.name}</h4>
+            <p className="text-white/80 text-[13px] whitespace-normal leading-relaxed">{activeInsight.desc}</p>
           </div>
           <button className="ml-3 text-white/40 hover:text-white pt-0.5 text-xs">✕</button>
         </div>

@@ -7,6 +7,7 @@
 
 import React from 'react';
 import type { Palace } from '../core/types/ZiweiTypes';
+import { getGlossaryDescription } from '../data/GlossaryDescriptions';
 import { getStarDescription } from '../data/StarDescriptions';
 
 // Màu sắc Ngũ Hành trên nền Dark Mode
@@ -35,6 +36,7 @@ interface PalaceCellProps {
   isActive?: boolean;
   onClick?: () => void;
   onStarClick?: (name: string) => void;
+  onGlossaryClick?: (name: string) => void;
 }
 
 const buildStarTooltip = (name: string, nguHanh?: string, borrowed = false): string => {
@@ -48,9 +50,19 @@ const buildStarTooltip = (name: string, nguHanh?: string, borrowed = false): str
   return segments.join('\n');
 };
 
-export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClick, onStarClick }) => {
+export const PalaceCell: React.FC<PalaceCellProps> = ({
+  palace,
+  isActive,
+  onClick,
+  onStarClick,
+  onGlossaryClick,
+}) => {
   const mainStars = palace.mainStars;
   const isVCD = mainStars.length === 0;
+  const palaceTitle = getGlossaryDescription(palace.palaceName);
+  const thanTitle = getGlossaryDescription('Cung Thân');
+  const daiHanTitle = getGlossaryDescription('Đại Hạn');
+  const trangSinhTitle = palace.trangSinh ? getGlossaryDescription(palace.trangSinh) : '';
 
   // Tách sao Có Ý Nghĩa: Tốt qua Trái, Xấu qua Phải
   const filteredAux = palace.auxStars.filter(s => s.name !== 'Tuần Không' && s.name !== 'Triệt Không');
@@ -86,24 +98,61 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
           </span>
 
           <div className="min-w-0 flex flex-col items-center gap-1 leading-tight text-center">
-            <span className={`text-[12px] font-bold uppercase tracking-[0.04em] ${isActive ? 'text-gold' : 'text-white/90'}`}>
+            <button
+              type="button"
+              title={palaceTitle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onGlossaryClick?.(palace.palaceName);
+              }}
+              className={`text-[12px] font-bold uppercase tracking-[0.04em] transition-colors ${isActive ? 'text-gold' : 'text-white/90 hover:text-gold'}`}
+            >
               {palace.palaceName}
-            </span>
+            </button>
             {palace.isThanPalace && (
-              <span className="text-red-200/80 text-[8px] uppercase tracking-[0.14em]">
+              <button
+                type="button"
+                title={thanTitle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGlossaryClick?.('Cung Thân');
+                }}
+                className="text-red-200/80 text-[8px] uppercase tracking-[0.14em] transition-colors hover:text-red-100"
+              >
                 Thân
-              </span>
+              </button>
             )}
             {tuanTriet.length > 0 && (
-              <span className="inline-flex max-w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-white/55">
-                {tuanTriet.join(' / ')}
-              </span>
+              <div className="flex max-w-full flex-wrap items-center justify-center gap-1">
+                {tuanTriet.map((marker) => (
+                  <button
+                    key={marker}
+                    type="button"
+                    title={getGlossaryDescription(marker)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onGlossaryClick?.(marker);
+                    }}
+                    className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-white/55 transition-colors hover:text-white/78"
+                  >
+                    {marker}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
-          <span className="text-[10px] font-bold text-white/35 text-right">
+          <button
+            type="button"
+            title={daiHanTitle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onGlossaryClick?.('Đại Hạn');
+            }}
+            className="text-[10px] font-bold text-white/35 text-right transition-colors hover:text-gold/80"
+          >
             {palace.daiHan ?? ''}
-          </span>
+          </button>
         </div>
 
         <div className="flex min-h-[52px] flex-col items-center justify-start text-center pt-1">
@@ -171,9 +220,17 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
 
         <div className="mt-auto flex justify-between items-end pt-1">
           <span className="text-[10.5px] font-medium text-white/28 leading-none">{palace.chi}</span>
-          <span className="text-[9px] uppercase tracking-[0.12em] font-semibold text-[#f1c40f]/70 leading-none">
+          <button
+            type="button"
+            title={trangSinhTitle}
+            onClick={(e) => {
+              e.stopPropagation();
+              onGlossaryClick?.(palace.trangSinh);
+            }}
+            className="text-[9px] uppercase tracking-[0.12em] font-semibold text-[#f1c40f]/70 leading-none transition-colors hover:text-[#f1c40f]"
+          >
             {palace.trangSinh ?? ''}
-          </span>
+          </button>
         </div>
       </div>
     </div>
