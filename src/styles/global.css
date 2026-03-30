@@ -438,23 +438,24 @@ select.input option {
 /* ---------- Mệnh Bàn Grid ---------- */
 .ziwei-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 6px;
-  aspect-ratio: 1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(156px, auto));
+  gap: clamp(4px, 0.75vw, 6px);
   width: 100%;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  align-items: stretch;
 }
 
 .palace-cell {
+  display: flex;
   background: rgba(22, 38, 48, 0.78);
-  padding: 10px;
+  padding: clamp(6px, 1vw, 10px);
   position: relative;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 120px;
+  min-height: 156px;
 }
 
 .palace-cell:hover {
@@ -525,13 +526,13 @@ select.input option {
   .ziwei-scroll-hint { display: block; }
 
   .ziwei-grid {
-    /* Trên mobile, mỗi ô thu nhỏ lại một chút */
+    grid-template-rows: repeat(4, minmax(132px, auto));
     gap: 4px;
   }
 
   .palace-cell {
-    min-height: 95px;
-    padding: 5px;
+    min-height: 132px;
+    padding: 6px;
     font-size: 0.75rem;
   }
 

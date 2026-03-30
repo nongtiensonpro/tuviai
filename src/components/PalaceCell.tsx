@@ -68,26 +68,24 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
         </div>
       )}
 
-      {/* Ruy-băng Tuần/Triệt */}
-      {tuanTriet.length > 0 && (
-        <div className="absolute top-2 right-2 text-white/48 text-[9px] font-bold z-10 tracking-[0.1em] uppercase">
-          {tuanTriet.join(' - ')}
-        </div>
-      )}
-
-      <div className="relative z-10 flex h-full flex-col gap-2">
+      <div className="relative z-10 flex flex-1 flex-col gap-2">
         <div className="grid grid-cols-[auto_1fr_auto] items-start gap-2">
           <span className="text-[10.5px] text-white/45 tracking-tight font-medium whitespace-nowrap">
             {palace.can}.{palace.chi}
           </span>
 
-          <div className="flex flex-col items-center leading-tight text-center">
+          <div className="min-w-0 flex flex-col items-center gap-1 leading-tight text-center">
             <span className={`text-[12px] font-bold uppercase tracking-[0.04em] ${isActive ? 'text-gold' : 'text-white/90'}`}>
               {palace.palaceName}
             </span>
             {palace.isThanPalace && (
-              <span className="mt-1 text-red-200/80 text-[8px] uppercase tracking-[0.14em]">
+              <span className="text-red-200/80 text-[8px] uppercase tracking-[0.14em]">
                 Thân
+              </span>
+            )}
+            {tuanTriet.length > 0 && (
+              <span className="inline-flex max-w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-white/55">
+                {tuanTriet.join(' / ')}
               </span>
             )}
           </div>
@@ -97,13 +95,13 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
           </span>
         </div>
 
-        <div className="flex min-h-[48px] flex-col items-center justify-start text-center pt-1">
+        <div className="flex min-h-[52px] flex-col items-center justify-start text-center pt-1">
           {mainStars.map((star, idx) => (
             <div
               key={idx}
               onClick={(e) => { e.stopPropagation(); onStarClick?.(star.name, getStarDescription(star.name)); }}
               title={`${star.name} - Ngũ hành: ${star.nguHanh}\nÝ nghĩa: ${getStarDescription(star.name)}`}
-              className={`font-bold text-[13.5px] leading-tight cursor-help ${getColorNguHanh(star.nguHanh)}`}
+              className={`cursor-help break-words text-[13px] font-bold leading-[1.15] sm:text-[13.5px] ${getColorNguHanh(star.nguHanh)}`}
             >
               {star.name}
               {star.brightness && <span className="text-[10px] ml-0.5 font-normal opacity-80">({star.brightness})</span>}
@@ -135,7 +133,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
                 key={i}
                 onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
                 title={`${s.name} - O:${getStarDescription(s.name)}`}
-                className={`text-[10px] break-words md:text-[10.5px] font-medium tracking-tight cursor-help mb-[1px] ${getColorNguHanh(s.nguHanh)}`}
+                className={`mb-0.5 cursor-help break-words text-[10px] font-medium leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
                 {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}
               </div>
@@ -148,7 +146,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({ palace, isActive, onClic
                 key={i}
                 onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name, getStarDescription(s.name)); }}
                 title={`${s.name} - X:${getStarDescription(s.name)}`}
-                className={`text-[10px] break-words md:text-[10.5px] font-semibold tracking-tight cursor-help mb-[1px] ${getColorNguHanh(s.nguHanh)}`}
+                className={`mb-0.5 cursor-help break-words text-[10px] font-semibold leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
                 {s.name}{s.sihua && <span className="font-bold text-coral ml-0.5">[{s.sihua}]</span>}
               </div>
