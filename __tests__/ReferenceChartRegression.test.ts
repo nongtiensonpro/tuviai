@@ -24,12 +24,22 @@ function assertReferenceChart(fixture: ReferenceChartFixture) {
   expect(chart.banMenh).toBe(fixture.expected.banMenh);
   expect(chart.cungMenhChi).toBe(fixture.expected.cungMenhChi);
 
+  if (fixture.expected.menhChu) {
+    expect(chart.menhChu).toBe(fixture.expected.menhChu);
+  }
+
+  if (fixture.expected.thanChu) {
+    expect(chart.thanChu).toBe(fixture.expected.thanChu);
+  }
+
   if (fixture.expected.cungThanChi) {
     expect(chart.cungThanChi).toBe(fixture.expected.cungThanChi);
   }
 
-  const thanPalace = chart.palaces.find(palace => palace.isThanPalace);
-  expect(thanPalace?.palaceName).toBe(fixture.expected.thanCuTaiCung);
+  if (fixture.expected.thanCuTaiCung) {
+    const thanPalace = chart.palaces.find(palace => palace.isThanPalace);
+    expect(thanPalace?.palaceName).toBe(fixture.expected.thanCuTaiCung);
+  }
 
   fixture.expected.checkpoints.forEach(checkpoint => {
     const palace = getPalaceByName(chart.palaces, checkpoint.palaceName);
@@ -54,6 +64,20 @@ function assertReferenceChart(fixture: ReferenceChartFixture) {
 
     if (checkpoint.hasTrietKhong !== undefined) {
       expect(palace.hasTrinhKhong).toBe(checkpoint.hasTrietKhong);
+    }
+
+    if (checkpoint.mainStars) {
+      expect(palace.mainStars.map(star => star.name)).toEqual(checkpoint.mainStars);
+    }
+
+    if (checkpoint.borrowedMainStars) {
+      expect(palace.borrowedStars.map(star => star.name)).toEqual(checkpoint.borrowedMainStars);
+    }
+
+    if (checkpoint.auxStarsIncludes) {
+      expect(palace.auxStars.map(star => star.name)).toEqual(
+        expect.arrayContaining(checkpoint.auxStarsIncludes)
+      );
     }
   });
 }

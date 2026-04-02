@@ -418,6 +418,9 @@ export interface ReferencePalaceCheckpoint {
   isThanPalace?: boolean;
   hasTuanKhong?: boolean;
   hasTrietKhong?: boolean;
+  mainStars?: string[];
+  borrowedMainStars?: string[];
+  auxStarsIncludes?: string[];
 }
 
 /** Fixture regression lấy từ lá số tham chiếu công khai */
@@ -436,9 +439,11 @@ export interface ReferenceChartFixture {
     amDuongLy: AmDuongLy;
     tenCuc: TenCuc;
     banMenh: string;
+    menhChu?: string;
+    thanChu?: string;
     cungMenhChi: TwoelveChi;
     cungThanChi?: TwoelveChi;
-    thanCuTaiCung: PalaceName;
+    thanCuTaiCung?: PalaceName;
     checkpoints: ReferencePalaceCheckpoint[];
   };
 }

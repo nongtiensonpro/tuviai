@@ -12,20 +12,49 @@ import { getStarNguHanh } from './NguHanhEngine';
 // AN SAO TỬ VI (BƯỚC 1)
 // ============================================================
 
-const ZIWEI_LOOKUP: Record<NguHanhCuc, Record<number, number>> = {
-  2: { 0: 6, 1: 2 },              // Thủy Nhị Cục
-  3: { 0: 9, 1: 3, 2: 6 },        // Mộc Tam Cục
-  4: { 0: 10, 1: 0, 2: 3, 3: 6 }, // Kim Tứ Cục
-  5: { 0: 11, 1: 1, 2: 4, 3: 7, 4: 10 }, // Thổ Ngũ Cục
-  6: { 0: 6, 1: 9, 2: 0, 3: 3, 4: 6, 5: 9 }, // Hỏa Lục Cục
+const DAN_CHI_INDEX = 2;
+
+/**
+ * Vị trí sao Tử Vi ở chu kỳ đầu tiên của từng Cục.
+ *
+ * Quy tắc cổ điển:
+ * - Lấy ngày âm chia cho số cục
+ * - Nếu còn dư, dùng vị trí của "ngày dư" trong chu kỳ đầu rồi tiến thêm số chu kỳ
+ * - Nếu chia hết, lấy cung Dần làm mốc và tiến thêm (số chu kỳ - 1)
+ *
+ * Bảng chu kỳ đầu:
+ * - Thủy Nhị: Sửu, Dần
+ * - Mộc Tam: Thìn, Sửu, Dần
+ * - Kim Tứ: Hợi, Ngọ, Sửu, Dần
+ * - Thổ Ngũ: Ngọ, Hợi, Thìn, Sửu, Dần
+ * - Hỏa Lục: Dậu, Ngọ, Hợi, Thìn, Sửu, Dần
+ */
+const ZIWEI_CYCLE_ONE: Record<NguHanhCuc, number[]> = {
+  2: [1, 2],
+  3: [4, 1, 2],
+  4: [11, 6, 1, 2],
+  5: [6, 11, 4, 1, 2],
+  6: [9, 6, 11, 4, 1, 2],
 };
 
 /**
  * Tìm vị trí sao Tử Vi (chiIndex) theo bảng canonical trong SKILL.md
  */
 export function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
+  const quotient = Math.floor(ngayAm / cuc);
   const remainder = ngayAm % cuc;
-  return ZIWEI_LOOKUP[cuc]?.[remainder] ?? 2;
+
+  if (remainder === 0) {
+    return (DAN_CHI_INDEX + Math.max(quotient - 1, 0)) % 12;
+  }
+
+  const cycleOne = ZIWEI_CYCLE_ONE[cuc];
+  const basePos = cycleOne?.[remainder - 1];
+  if (basePos === undefined) {
+    return DAN_CHI_INDEX;
+  }
+
+  return (basePos + quotient) % 12;
 }
 
 // ============================================================
@@ -97,7 +126,8 @@ function createMainStar(hanName: string, chiIndex: number): Star {
  * Source: SKILL.md §7
  *
  * Chòm Tử Vi: Z
- * Chòm Thiên Phủ: P = (14 - Z) % 12 (theo SKILL.md)
+ * Chòm Thiên Phủ: P = (4 - Z) mod 12
+ * Đây là vị trí đối xứng đúng với bố cục 14 chính tinh thực tế.
  */
 export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
   // Clone palaces để không mutate original
@@ -120,7 +150,7 @@ export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
   place('廉貞', (Z - 8 + 12) % 12);
 
   // --- Chòm Thiên Phủ (THUẬN chiều kim đồng hồ từ Thiên Phủ) ---
-  const P = (14 - Z) % 12;
+  const P = (4 - Z + 12) % 12;
   place('天府', P);
   place('太陰', (P + 1) % 12);
   place('貪狼', (P + 2) % 12);

@@ -59,8 +59,8 @@ const NAP_AM_BY_YEAR: Record<string, NapAmInfo> = {
   'Ất-Tỵ': { name: 'Phú Đăng Hỏa', nguHanh: 'Hỏa' },
   'Bính-Ngọ': { name: 'Thiên Hà Thủy', nguHanh: 'Thủy' },
   'Đinh-Mùi': { name: 'Thiên Hà Thủy', nguHanh: 'Thủy' },
-  'Mậu-Thân': { name: 'Đại Trạch Thổ', nguHanh: 'Thổ' },
-  'Kỷ-Dậu': { name: 'Đại Trạch Thổ', nguHanh: 'Thổ' },
+  'Mậu-Thân': { name: 'Đại Dịch Thổ', nguHanh: 'Thổ' },
+  'Kỷ-Dậu': { name: 'Đại Dịch Thổ', nguHanh: 'Thổ' },
   'Canh-Tuất': { name: 'Thoa Xuyến Kim', nguHanh: 'Kim' },
   'Tân-Hợi': { name: 'Thoa Xuyến Kim', nguHanh: 'Kim' },
   'Nhâm-Tý': { name: 'Tang Đố Mộc', nguHanh: 'Mộc' },
@@ -250,6 +250,10 @@ const MENH_CHU_BY_MENH_CHI = [
   'Liêm Trinh', 'Văn Khúc', 'Lộc Tồn', 'Cự Môn',
 ] as const;
 
+// Theo các bảng công khai được dùng phổ biến (ví dụ Quản Xuân Thịnh / Học viện Lý số),
+// Thân chủ theo chi năm là:
+// Tý=Linh Tinh, Sửu=Mùi=Thiên Tướng, Dần=Thân=Thiên Lương,
+// Mão=Dậu=Thiên Đồng, Thìn=Tuất=Văn Xương, Tỵ=Hợi=Thiên Cơ, Ngọ=Hỏa Tinh.
 const THAN_CHU_BY_YEAR_CHI = [
   'Linh Tinh', 'Thiên Tướng', 'Thiên Lương', 'Thiên Đồng',
   'Văn Xương', 'Thiên Cơ', 'Hỏa Tinh', 'Thiên Tướng',

@@ -58,21 +58,20 @@ const KINH_DUONG_BY_CAN: Record<TenCan, number> = {
 };
 
 /**
- * Hỏa Tinh theo (Địa Chi năm, Địa Chi giờ)
+ * Hỏa Tinh / Linh Tinh theo chi năm sinh.
+ * Mỗi nhóm tam hợp có 2 cung khởi giờ Tý, sau đó đều đếm thuận đến giờ sinh.
+ *
+ * Theo khẩu quyết công khai:
+ * - Thân Tý Thìn -> Dần, Tuất
+ * - Dần Ngọ Tuất -> Sửu, Mão
+ * - Tỵ Dậu Sửu -> Mão, Tuất
+ * - Hợi Mão Mùi -> Dậu, Tuất
  */
-const HOA_TINH_TABLE: Record<number, number[]> = {
-  2: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-  6: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-  10: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1],
-  3: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
-  7: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
-  11: [3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 1, 2],
-  0: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  4: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  8: [11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  1: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-  5: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-  9: [10, 11, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+const HOA_LINH_START_BY_YEAR_CHI: Record<number, { hoa: number; linh: number }> = {
+  0: { hoa: 2, linh: 10 }, 4: { hoa: 2, linh: 10 }, 8: { hoa: 2, linh: 10 },
+  2: { hoa: 1, linh: 3 }, 6: { hoa: 1, linh: 3 }, 10: { hoa: 1, linh: 3 },
+  1: { hoa: 3, linh: 10 }, 5: { hoa: 3, linh: 10 }, 9: { hoa: 3, linh: 10 },
+  3: { hoa: 9, linh: 10 }, 7: { hoa: 9, linh: 10 }, 11: { hoa: 9, linh: 10 },
 };
 
 const YEAR_CAN_ORDER: TenCan[] = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
@@ -154,8 +153,8 @@ export function placeLucCatTinh(
   const locTonIdx = LOC_TON_BY_CAN[yearCan];
   placeAux(result, 'Lộc Tồn', locTonIdx, 'cat');
 
-  // Tả Phù: Tháng 1 ở Dần(2), đếm thuận
-  const taPhuIdx = (2 + lunarMonth - 1) % 12;
+  // Tả Phù: Tháng 1 ở Thìn(4), đếm thuận
+  const taPhuIdx = (4 + lunarMonth - 1) % 12;
   placeAux(result, 'Tả Phù', taPhuIdx, 'support');
 
   // Hữu Bật: Tháng 1 ở Tuất(10), đếm ngược
@@ -187,7 +186,7 @@ export function placeLucCatTinh(
 
 /**
  * An Lục Sát Tinh:
- * Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Địa Không, Địa Kiếp
+ * Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Thiên Không, Địa Kiếp
  */
 export function placeLucSatTinh(
   palaces: Palace[],
@@ -206,18 +205,19 @@ export function placeLucSatTinh(
   const daLaIdx = (kinhIdx - 1 + 12) % 12;
   placeAux(result, 'Đà La', daLaIdx, 'sha');
 
-  const hoaTinhTable = HOA_TINH_TABLE[yearChiIndex];
-  if (hoaTinhTable) {
-    const hoaIdx = hoaTinhTable[hourChiIndex] ?? 0;
+  const hoaLinhStart = HOA_LINH_START_BY_YEAR_CHI[yearChiIndex];
+  if (hoaLinhStart) {
+    const hoaIdx = (hoaLinhStart.hoa + hourChiIndex) % 12;
+    const linhIdx = (hoaLinhStart.linh + hourChiIndex) % 12;
     placeAux(result, 'Hỏa Tinh', hoaIdx, 'sha');
-    placeAux(result, 'Linh Tinh', (hoaIdx + 6) % 12, 'sha');
+    placeAux(result, 'Linh Tinh', linhIdx, 'sha');
   }
 
-  // Địa Không: Giờ Tý → Hợi(11), đếm ngược
-  const diaKhongIdx = ((11 - hourChiIndex) + 12) % 12;
-  placeAux(result, 'Địa Không', diaKhongIdx, 'sha');
+  // Thiên Không: khởi từ Hợi, lấy giờ Tý, đếm ngược tới giờ sinh
+  const thienKhongIdx = ((11 - hourChiIndex) + 12) % 12;
+  placeAux(result, 'Thiên Không', thienKhongIdx, 'sha');
 
-  // Địa Kiếp: Giờ Tý → Hợi(11), đếm thuận
+  // Địa Kiếp: khởi từ Hợi, lấy giờ Tý, đếm thuận tới giờ sinh
   const diaKiepIdx = (11 + hourChiIndex) % 12;
   placeAux(result, 'Địa Kiếp', diaKiepIdx, 'sha');
 

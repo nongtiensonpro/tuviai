@@ -152,16 +152,16 @@ function placeTapDieu(
   // Địa Giải: Tháng 1 tại Mùi (7), đếm thuận
   placeStar(palaces, 'Địa Giải', 7 + month - 1, 'cat');
   // === Theo Ngày ===
-  // Tam Thai: Từ Tả Phù (Tháng 1 tại Dần 2, thuận) + ngày - 1
-  const taPhuIdx = (2 + month - 1) % 12;
+  // Tam Thai: Từ Tả Phù (Tháng 1 tại Thìn 4, thuận) + ngày - 1
+  const taPhuIdx = (4 + month - 1) % 12;
   placeStar(palaces, 'Tam Thai', taPhuIdx + day - 1, 'cat');
   // Bát Tọa: Từ Hữu Bật (Tháng 1 tại Tuất 10, nghịch) - ngày + 1
   const huuBatIdx = (10 - month + 1 + 12) % 12;
   placeStar(palaces, 'Bát Tọa', huuBatIdx - day + 1 + 12, 'cat');
-  // n Quang: Từ Văn Xương (Tý Dựa Tuất 10, nghịch giờ) + ngày - 2
+  // Ân Quang: lấy Văn Xương làm ngày 1, đếm thuận tới ngày sinh rồi lùi 1 cung
   const vanXuongIdx = (10 - hourChiIdx + 12) % 12;
   placeStar(palaces, 'Ân Quang', vanXuongIdx + day - 2 + 12, 'cat');
-  // Thiên Quý: Từ Văn Khúc (Tý Dựa Thìn 4, thuận giờ) - ngày + 2 (hoặc đếm nghịch ngày lùi 1)
+  // Thiên Quý: lấy Văn Khúc làm ngày 1, đếm nghịch tới ngày sinh rồi lùi 1 cung
   const vanKhucIdx = (4 + hourChiIdx) % 12;
   placeStar(palaces, 'Thiên Quý', vanKhucIdx - (day - 1) - 1 + 24, 'cat');
 
@@ -170,10 +170,6 @@ function placeTapDieu(
   placeStar(palaces, 'Thai Phụ', vanKhucIdx + 2, 'cat');
   placeStar(palaces, 'Phong Cáo', vanKhucIdx - 2 + 12, 'cat');
   
-  // Thiên Không (Ngay trước Địa Kiếp hoặc Thái Tuế + 1)
-  // Thực tế Việt Nam Tử Vi: Thiên Không an ngay sau Thái Tuế (cùng Thiếu Dương).
-  placeStar(palaces, 'Thiên Không', yearChiIdx + 1, 'sha');
-
   // === Theo Năm ===
   // Đào Hoa: Tý/Ngọ/Mão/Dậu sinh -> Dần Ngọ Tuất -> Mão (3)...
   placeStar(palaces, 'Đào Hoa', DAO_HOA_BY_YEAR_CHI[yearChiIdx] ?? 3, 'cat');
@@ -219,11 +215,11 @@ function placeTapDieu(
   placeStar(palaces, 'Thiên Phúc', thienPhucMap[yearCanIdx]!, 'cat');
 
   // Lưu Hà: Tùy Can Năm
-  const luuHaMap = [9, 10, 7, 5, 5, 6, 8, 3, 11, 2];
+  const luuHaMap = [9, 10, 7, 4, 5, 6, 8, 3, 11, 2];
   placeStar(palaces, 'Lưu Hà', luuHaMap[yearCanIdx]!, 'sha');
 
   // Thiên Trù: Tùy Can Năm
-  const thienTruMap = [5, 6, 0, 5, 6, 8, 2, 6, 9, 11];
+  const thienTruMap = [5, 6, 0, 5, 6, 8, 2, 6, 9, 10];
   placeStar(palaces, 'Thiên Trù', thienTruMap[yearCanIdx]!, 'cat');
 
   // Thiên Mã: Dần Ngọ Tuất mã ở Thân(8)...

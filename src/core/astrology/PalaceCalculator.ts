@@ -56,36 +56,40 @@ export function calcNguHanhCuc(menhCan: TenCan, menhChi: TwoelveChi): NguHanhCuc
   const key = `${menhCan}-${menhChi}`;
   
   const NAP_AM_CUC: Record<string, NguHanhCuc> = {
-    'Giáp-Tý': 4, 'Ất-Sửu': 4,   // Kim Tứ Cục
-    'Bính-Dần': 6, 'Đinh-Mão': 6, // Hỏa Lục Cục
-    'Mậu-Thìn': 6, 'Kỷ-Tỵ': 6,   // Hỏa Lục Cục
-    'Canh-Ngọ': 2, 'Tân-Mùi': 2,  // Thủy Nhị Cục
-    'Nhâm-Thân': 2, 'Quý-Dậu': 2, // Thủy Nhị Cục
-    'Giáp-Tuất': 3, 'Ất-Hợi': 3,  // Mộc Tam Cục
-    'Bính-Tý': 3, 'Đinh-Sửu': 3,  // Mộc Tam Cục
-    'Mậu-Dần': 5, 'Kỷ-Mão': 5,   // Thổ Ngũ Cục
-    'Canh-Thìn': 5, 'Tân-Tỵ': 5,  // Thổ Ngũ Cục
-    'Nhâm-Ngọ': 6, 'Quý-Mùi': 6,  // Hỏa Lục Cục
-    'Giáp-Thân': 4, 'Ất-Dậu': 4,  // Kim Tứ Cục
-    'Bính-Tuất': 3, 'Đinh-Hợi': 3,// Mộc Tam Cục
-    'Mậu-Tý': 2, 'Kỷ-Sửu': 2,   // Thủy Nhị Cục
-    'Canh-Dần': 3, 'Tân-Mão': 3,  // Mộc Tam Cục
-    'Nhâm-Thìn': 6, 'Quý-Tỵ': 6,  // Hỏa Lục Cục
-    'Giáp-Ngọ': 5, 'Ất-Mùi': 5,  // Thổ Ngũ Cục
-    'Bính-Thân': 4, 'Đinh-Dậu': 4,// Kim Tứ Cục
-    'Mậu-Tuất': 3, 'Kỷ-Hợi': 3,  // Mộc Tam Cục
-    'Canh-Tý': 4, 'Tân-Sửu': 4,  // Kim Tứ Cục
-    'Nhâm-Dần': 5, 'Quý-Mão': 5,  // Thổ Ngũ Cục
-    'Giáp-Thìn': 6, 'Ất-Tỵ': 6,  // Hỏa Lục Cục
-    'Bính-Ngọ': 2, 'Đinh-Mùi': 2, // Thủy Nhị Cục
-    'Mậu-Thân': 2, 'Kỷ-Dậu': 2,  // Thủy Nhị Cục
-    'Canh-Tuất': 5, 'Tân-Hợi': 5, // Thổ Ngũ Cục
-    'Nhâm-Tý': 3, 'Quý-Sửu': 3,  // Mộc Tam Cục
-    'Giáp-Dần': 5, 'Ất-Mão': 5,  // Thổ Ngũ Cục
-    'Bính-Thìn': 4, 'Đinh-Tỵ': 4, // Kim Tứ Cục
-    'Mậu-Ngọ': 6, 'Kỷ-Mùi': 6,  // Hỏa Lục Cục
-    'Canh-Thân': 6, 'Tân-Dậu': 6, // Hỏa Lục Cục
-    'Nhâm-Tuất': 2, 'Quý-Hợi': 2, // Thủy Nhị Cục
+    'Giáp-Tý': 4, 'Ất-Sửu': 4,
+    'Nhâm-Dần': 4, 'Quý-Mão': 4,
+    'Canh-Thìn': 4, 'Tân-Tỵ': 4,
+    'Giáp-Ngọ': 4, 'Ất-Mùi': 4,
+    'Nhâm-Thân': 4, 'Quý-Dậu': 4,
+    'Canh-Tuất': 4, 'Tân-Hợi': 4,
+
+    'Canh-Tý': 5, 'Tân-Sửu': 5,
+    'Mậu-Dần': 5, 'Kỷ-Mão': 5,
+    'Bính-Thìn': 5, 'Đinh-Tỵ': 5,
+    'Canh-Ngọ': 5, 'Tân-Mùi': 5,
+    'Mậu-Thân': 5, 'Kỷ-Dậu': 5,
+    'Bính-Tuất': 5, 'Đinh-Hợi': 5,
+
+    'Mậu-Tý': 6, 'Kỷ-Sửu': 6,
+    'Bính-Dần': 6, 'Đinh-Mão': 6,
+    'Giáp-Thìn': 6, 'Ất-Tỵ': 6,
+    'Mậu-Ngọ': 6, 'Kỷ-Mùi': 6,
+    'Bính-Thân': 6, 'Đinh-Dậu': 6,
+    'Giáp-Tuất': 6, 'Ất-Hợi': 6,
+
+    'Nhâm-Tý': 3, 'Quý-Sửu': 3,
+    'Canh-Dần': 3, 'Tân-Mão': 3,
+    'Mậu-Thìn': 3, 'Kỷ-Tỵ': 3,
+    'Nhâm-Ngọ': 3, 'Quý-Mùi': 3,
+    'Canh-Thân': 3, 'Tân-Dậu': 3,
+    'Mậu-Tuất': 3, 'Kỷ-Hợi': 3,
+
+    'Bính-Tý': 2, 'Đinh-Sửu': 2,
+    'Giáp-Dần': 2, 'Ất-Mão': 2,
+    'Nhâm-Thìn': 2, 'Quý-Tỵ': 2,
+    'Bính-Ngọ': 2, 'Đinh-Mùi': 2,
+    'Giáp-Thân': 2, 'Ất-Dậu': 2,
+    'Nhâm-Tuất': 2, 'Quý-Hợi': 2,
   };
 
   return (NAP_AM_CUC[key] ?? 2) as NguHanhCuc;
