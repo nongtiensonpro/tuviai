@@ -153,8 +153,8 @@ describe('PalaceCalculator', () => {
       expect(calcNguHanhCuc('Giáp', 'Tý')).toBe(4);
     });
 
-    it('Canh-Ngọ → Thủy Nhị Cục (2)', () => {
-      expect(calcNguHanhCuc('Canh', 'Ngọ')).toBe(2);
+    it('Canh-Ngọ → Thổ Ngũ Cục (5)', () => {
+      expect(calcNguHanhCuc('Canh', 'Ngọ')).toBe(5);
     });
 
     it('Bính-Dần → Hỏa Lục Cục (6)', () => {
@@ -165,8 +165,12 @@ describe('PalaceCalculator', () => {
       expect(calcNguHanhCuc('Mậu', 'Dần')).toBe(5);
     });
 
-    it('Giáp-Tuất → Mộc Tam Cục (3)', () => {
-      expect(calcNguHanhCuc('Giáp', 'Tuất')).toBe(3);
+    it('Giáp-Tuất → Hỏa Lục Cục (6)', () => {
+      expect(calcNguHanhCuc('Giáp', 'Tuất')).toBe(6);
+    });
+
+    it('Bính-Thìn → Thổ Ngũ Cục (5)', () => {
+      expect(calcNguHanhCuc('Bính', 'Thìn')).toBe(5);
     });
   });
 
@@ -202,32 +206,36 @@ describe('PalaceCalculator', () => {
 
 describe('ZiweiEngine', () => {
   describe('findZiweiPosition', () => {
-    it('Thủy Nhị Cục, ngày 2 → dư 0 → Ngọ (6)', () => {
-      expect(findZiweiPosition(2, 2)).toBe(6);
+    it('Thủy Nhị Cục, ngày 2 → Dần (2)', () => {
+      expect(findZiweiPosition(2, 2)).toBe(2);
     });
 
-    it('Thủy Nhị Cục, ngày 1 → dư 1 → Dần (2)', () => {
-      expect(findZiweiPosition(1, 2)).toBe(2);
+    it('Thủy Nhị Cục, ngày 1 → Sửu (1)', () => {
+      expect(findZiweiPosition(1, 2)).toBe(1);
     });
 
-    it('Mộc Tam Cục, ngày 3 → dư 0 → Dậu (9)', () => {
-      expect(findZiweiPosition(3, 3)).toBe(9);
+    it('Mộc Tam Cục, ngày 3 → Dần (2)', () => {
+      expect(findZiweiPosition(3, 3)).toBe(2);
     });
 
-    it('Mộc Tam Cục, ngày 1 → dư 1 → Mão (3)', () => {
-      expect(findZiweiPosition(1, 3)).toBe(3);
+    it('Mộc Tam Cục, ngày 1 → Thìn (4)', () => {
+      expect(findZiweiPosition(1, 3)).toBe(4);
     });
 
-    it('Kim Tứ Cục, ngày 4 → dư 0 → Tuất (10)', () => {
-      expect(findZiweiPosition(4, 4)).toBe(10);
+    it('Kim Tứ Cục, ngày 4 → Dần (2)', () => {
+      expect(findZiweiPosition(4, 4)).toBe(2);
     });
 
-    it('Thổ Ngũ Cục, ngày 5 → dư 0 → Hợi (11)', () => {
-      expect(findZiweiPosition(5, 5)).toBe(11);
+    it('Thổ Ngũ Cục, ngày 5 → Dần (2)', () => {
+      expect(findZiweiPosition(5, 5)).toBe(2);
     });
 
-    it('Hỏa Lục Cục, ngày 6 → dư 0 → Ngọ (6)', () => {
-      expect(findZiweiPosition(6, 6)).toBe(6);
+    it('Hỏa Lục Cục, ngày 6 → Dần (2)', () => {
+      expect(findZiweiPosition(6, 6)).toBe(2);
+    });
+
+    it('Thổ Ngũ Cục, ngày 7 → Tý (0) cho case 27/09/1998', () => {
+      expect(findZiweiPosition(7, 5)).toBe(0);
     });
 
     it('vị trí Tử Vi luôn trong phạm vi 0-11', () => {
@@ -266,12 +274,12 @@ describe('ZiweiEngine', () => {
       expect(hasTuvi).toBe(true);
     });
 
-    it('Thiên Phủ phải ở vị trí đối xứng với Tử Vi', () => {
+    it('Thiên Phủ phải ở vị trí đối ứng canon với Tử Vi', () => {
       const namCanChi = getNamCanChi(1990);
       const yearCanChi = getYearCanChi(1990);
       const palaces = buildPalaces(3, namCanChi, yearCanChi.canIndex);
       const ziweiPos = 3; // Mão
-      const expectedThienPhuPos = (14 - ziweiPos) % 12;
+      const expectedThienPhuPos = (4 - ziweiPos + 12) % 12;
       const result = placeMainStars(palaces, ziweiPos);
       const hasThienPhu = result[expectedThienPhuPos]!.mainStars.some(s => s.name === 'Thiên Phủ');
       expect(hasThienPhu).toBe(true);
@@ -385,6 +393,23 @@ describe('ChartBuilder', () => {
           buildZiweiChart({ day: 10, month: 5, year, hour: 8 }, 'female');
         }).not.toThrow();
       });
+    });
+
+    it('case 27/09/1998 09:00 nam phải ra Thổ Ngũ Cục và Mệnh tại Thìn', () => {
+      const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+      expect(chart.tenCuc).toBe('Thổ Ngũ Cục');
+      expect(chart.cungMenhChi).toBe('Thìn');
+      expect(chart.namCanChi.displayName).toBe('Mậu Dần');
+    });
+
+    it('case 27/09/1998 09:00 nam phải có Liêm Trinh - Thiên Phủ tại Mệnh và Tử Vi tại Tài Bạch', () => {
+      const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+      const menhPalace = chart.palaces.find(palace => palace.palaceName === 'Mệnh');
+      const taiBachPalace = chart.palaces.find(palace => palace.palaceName === 'Tài Bạch');
+
+      expect(menhPalace?.mainStars.map(star => star.name)).toEqual(['Liêm Trinh', 'Thiên Phủ']);
+      expect(taiBachPalace?.mainStars.map(star => star.name)).toEqual(['Tử Vi']);
     });
   });
 });

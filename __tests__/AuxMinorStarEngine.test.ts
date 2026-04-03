@@ -40,23 +40,32 @@ describe('AuxStarEngine', () => {
     });
   });
 
-  it('an Tả Phù tại Dần tháng 1 và Thiên Việt ở đối cung Thiên Khôi', () => {
+  it('an Tả Phù tại Thìn tháng 1, Hữu Bật tại Tuất và Thiên Việt ở đối cung Thiên Khôi', () => {
     const { palaces, yearCanChi } = createBasePalaces(1985); // Ất
     const result = placeLucCatTinh(palaces, 1, yearCanChi.canIndex, 0);
 
-    expect(result[2]?.auxStars.some(star => star.name === 'Tả Phù')).toBe(true);
+    expect(result[4]?.auxStars.some(star => star.name === 'Tả Phù')).toBe(true);
     expect(result[10]?.auxStars.some(star => star.name === 'Hữu Bật')).toBe(true);
     expect(result[0]?.auxStars.some(star => star.name === 'Thiên Khôi')).toBe(true);
     expect(result[6]?.auxStars.some(star => star.name === 'Thiên Việt')).toBe(true);
   });
 
-  it('an Hỏa Tinh theo bảng và Linh Tinh đối cung với Hỏa Tinh', () => {
+  it('an Hỏa Tinh và Linh Tinh theo bảng khởi giờ của năm Bính Dần', () => {
     const { palaces, yearCanChi } = createBasePalaces(1986); // Bính Dần
     const withCat = placeLucCatTinh(palaces, 1, yearCanChi.canIndex, 2);
     const result = placeLucSatTinh(withCat, yearCanChi.canIndex, yearCanChi.chiIndex, 2);
 
-    expect(result[4]?.auxStars.some(star => star.name === 'Hỏa Tinh')).toBe(true);
-    expect(result[10]?.auxStars.some(star => star.name === 'Linh Tinh')).toBe(true);
+    expect(result[3]?.auxStars.some(star => star.name === 'Hỏa Tinh')).toBe(true);
+    expect(result[5]?.auxStars.some(star => star.name === 'Linh Tinh')).toBe(true);
+  });
+
+  it('an Hỏa Tinh/Linh Tinh đúng với ví dụ Nhâm Thìn giờ Mão', () => {
+    const { palaces, yearCanChi } = createBasePalaces(2012); // Nhâm Thìn
+    const withCat = placeLucCatTinh(palaces, 1, yearCanChi.canIndex, 3);
+    const result = placeLucSatTinh(withCat, yearCanChi.canIndex, yearCanChi.chiIndex, 3);
+
+    expect(result[5]?.auxStars.some(star => star.name === 'Hỏa Tinh')).toBe(true);
+    expect(result[1]?.auxStars.some(star => star.name === 'Linh Tinh')).toBe(true);
   });
 
   it('tính Tuần Không và Triệt Không đúng cho năm Canh Ngọ', () => {
@@ -127,6 +136,61 @@ describe('MinorStarEngine', () => {
 
     expect(thienDucMonthOne).toBe(thienDucMonthSix);
     expect(nguyetDucMonthOne).toBe(nguyetDucMonthSix);
+  });
+
+  it('khóa cụm Thiên Không/Địa Kiếp theo giờ và không nhân đôi Thiên Không ở case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+    const thienKhongPalaces = chart.palaces.filter(palace => palace.auxStars.some(star => star.name === 'Thiên Không'));
+    const diaKiepPalaces = chart.palaces.filter(palace => palace.auxStars.some(star => star.name === 'Địa Kiếp'));
+
+    expect(thienKhongPalaces).toHaveLength(1);
+    expect(thienKhongPalaces[0]?.chi).toBe('Ngọ');
+    expect(diaKiepPalaces).toHaveLength(1);
+    expect(diaKiepPalaces[0]?.chi).toBe('Thìn');
+  });
+
+  it('khóa Tả Phù, Hữu Bật và Tam Thai của case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+    expect(chart.palaces.find(palace => palace.chi === 'Hợi')?.auxStars.some(star => star.name === 'Tả Phù')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Mão')?.auxStars.some(star => star.name === 'Hữu Bật')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Tỵ')?.auxStars.some(star => star.name === 'Tam Thai')).toBe(true);
+  });
+
+  it('khóa Bát Tọa, Ân Quang, Thiên Quý, Thiên Quan, Thiên Phúc của case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+    expect(chart.palaces.find(palace => palace.chi === 'Dậu')?.auxStars.some(star => star.name === 'Bát Tọa')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Tuất')?.auxStars.some(star => star.name === 'Ân Quang')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Dần')?.auxStars.some(star => star.name === 'Thiên Quý')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Mão')?.auxStars.some(star => star.name === 'Thiên Quan')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Mão')?.auxStars.some(star => star.name === 'Thiên Phúc')).toBe(true);
+  });
+
+  it('khóa Hỏa Tinh và Linh Tinh của case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+    expect(chart.palaces.find(palace => palace.chi === 'Ngọ')?.auxStars.some(star => star.name === 'Hỏa Tinh')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Thân')?.auxStars.some(star => star.name === 'Linh Tinh')).toBe(true);
+  });
+
+  it('khóa nhóm sao theo năm của case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+    expect(chart.palaces.find(palace => palace.chi === 'Tỵ')?.auxStars.some(star => star.name === 'Cô Thần')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Sửu')?.auxStars.some(star => star.name === 'Quả Tú')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Hợi')?.auxStars.some(star => star.name === 'Kiếp Sát')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Tuất')?.auxStars.some(star => star.name === 'Hoa Cái')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Dậu')?.auxStars.some(star => star.name === 'Phá Toái')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Dậu')?.auxStars.some(star => star.name === 'Long Đức')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Mùi')?.auxStars.some(star => star.name === 'Nguyệt Đức')).toBe(true);
+  });
+
+  it('khóa Lưu Hà và Thiên Trù của case 27/09/1998', () => {
+    const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
+
+    expect(chart.palaces.find(palace => palace.chi === 'Tỵ')?.auxStars.some(star => star.name === 'Lưu Hà')).toBe(true);
+    expect(chart.palaces.find(palace => palace.chi === 'Ngọ')?.auxStars.some(star => star.name === 'Thiên Trù')).toBe(true);
   });
 });
 
