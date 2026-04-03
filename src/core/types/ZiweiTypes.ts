@@ -375,6 +375,64 @@ export interface FullChartAnalysis {
   modern_advice: string;
 }
 
+/** Nhóm lỗi AI chuẩn hóa để UI có thể xử lý nhất quán */
+export type AiErrorCode =
+  | 'invalid_api_key'
+  | 'quota_exceeded'
+  | 'rate_limited'
+  | 'model_overloaded'
+  | 'network_unavailable'
+  | 'request_timeout'
+  | 'empty_response'
+  | 'invalid_json'
+  | 'user_cancelled'
+  | 'unknown';
+
+/** Payload lỗi AI đã chuẩn hóa để service và UI giao tiếp cùng một ngôn ngữ */
+export interface AiServiceErrorDetails {
+  code: AiErrorCode;
+  message: string;
+  retryable: boolean;
+  suggestedAction: string;
+  status?: number;
+  modelName?: string;
+  attemptNumber?: number;
+  maxAttempts?: number;
+  retryAfterMs?: number;
+}
+
+/** Thông tin một lần retry để UI mô tả tiến trình tự phục hồi */
+export interface AiRetryAttempt {
+  attemptNumber: number;
+  maxAttempts: number;
+  retryAfterMs: number;
+  code: AiErrorCode;
+  modelName: string;
+}
+
+/** Thống kê cục bộ về độ ổn định của một model AI */
+export interface AiModelTelemetryRecord {
+  modelName: string;
+  successCount: number;
+  failureCount: number;
+  lastLatencyMs: number;
+  averageLatencyMs: number;
+  lastUsedAt: number;
+  lastSuccessAt?: number;
+  lastFailureAt?: number;
+  lastErrorCode?: AiErrorCode;
+}
+
+/** Snapshot health đã rút gọn để UI dễ hiển thị */
+export interface AiModelHealthSnapshot {
+  modelName: string;
+  score: number;
+  healthLabel: 'excellent' | 'good' | 'watch' | 'risky' | 'unknown';
+  successRate: number | null;
+  averageLatencyMs: number | null;
+  lastErrorCode?: AiErrorCode;
+}
+
 /** Payload tối thiểu để yêu cầu worker lập mệnh bàn */
 export interface ChartWorkerInput {
   day: number;
