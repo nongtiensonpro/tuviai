@@ -5,6 +5,8 @@ import type { AnalysisStreamStatus, ModelFallbackState, UiErrorState } from './u
 interface AnalysisStatusStackProps {
   errorState: UiErrorState | null;
   fallbackState: ModelFallbackState | null;
+  suggestedRecoveryModel: string | null;
+  lastFailureScope: 'analysis' | 'chat' | null;
   isShowingLastGoodResult: boolean;
   analysisResultExists: boolean;
   isLoading: boolean;
@@ -13,6 +15,7 @@ interface AnalysisStatusStackProps {
   loadingMessage: string;
   loadingHint: string;
   onRetryAnalyze: () => void;
+  onRetryAnalyzeWithSuggestedModel: () => void;
 }
 
 function formatRetryDelay(ms: number): string {
@@ -26,6 +29,8 @@ function formatFocusLabel(focusArea: string): string {
 export const AnalysisStatusStack: React.FC<AnalysisStatusStackProps> = ({
   errorState,
   fallbackState,
+  suggestedRecoveryModel,
+  lastFailureScope,
   isShowingLastGoodResult,
   analysisResultExists,
   isLoading,
@@ -34,26 +39,46 @@ export const AnalysisStatusStack: React.FC<AnalysisStatusStackProps> = ({
   loadingMessage,
   loadingHint,
   onRetryAnalyze,
+  onRetryAnalyzeWithSuggestedModel,
 }) => (
   <>
     {errorState && (
       <div className="rounded-sm border border-red-500/25 bg-red-950/20 px-4 py-3">
         <p className="text-sm text-red-200">{errorState.message}</p>
         <p className="mt-1 text-xs text-red-100/75">{errorState.suggestion}</p>
+        {lastFailureScope === 'analysis' && (
+          <p className="mt-2 text-[11px] text-red-100/60">
+            Bạn có thể thử lại ngay, hoặc đổi tạm sang model khác nếu muốn phản hồi mượt hơn.
+          </p>
+        )}
         {fallbackState && (
           <p className="mt-2 text-[11px] text-red-100/65">
-            Hệ thống đã thử chuyển từ `{fallbackState.fromModel}` sang `{fallbackState.toModel}` vì lỗi `{fallbackState.reasonCode}`.
+            Lần gần nhất bạn đã chuyển từ `{fallbackState.fromModel}` sang `{fallbackState.toModel}` vì lỗi `{fallbackState.reasonCode}`.
           </p>
         )}
         {errorState.retryable && (
-          <button
-            type="button"
-            onClick={onRetryAnalyze}
-            disabled={isLoading}
-            className="mt-3 text-xs text-red-100 underline underline-offset-2 disabled:opacity-40"
-          >
-            Thử lại ngay
-          </button>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {lastFailureScope === 'analysis' && (
+              <button
+                type="button"
+                onClick={onRetryAnalyze}
+                disabled={isLoading}
+                className="text-xs text-red-100 underline underline-offset-2 disabled:opacity-40"
+              >
+                Thử lại ngay
+              </button>
+            )}
+            {lastFailureScope === 'analysis' && suggestedRecoveryModel && (
+              <button
+                type="button"
+                onClick={onRetryAnalyzeWithSuggestedModel}
+                disabled={isLoading}
+                className="text-xs text-red-100 underline underline-offset-2 disabled:opacity-40"
+              >
+                Đổi tạm sang {suggestedRecoveryModel}
+              </button>
+            )}
+          </div>
         )}
       </div>
     )}
@@ -61,14 +86,14 @@ export const AnalysisStatusStack: React.FC<AnalysisStatusStackProps> = ({
     {fallbackState && !errorState && (
       <div className="rounded-sm border border-amber-500/20 bg-amber-950/15 px-4 py-3">
         <p className="text-sm text-amber-200">
-          Hệ thống đã chuyển tạm từ `{fallbackState.fromModel}` sang `{fallbackState.toModel}` để giữ nhịp phản hồi ổn định hơn.
+          Hiện bạn đang dùng tạm `{fallbackState.toModel}` thay cho `{fallbackState.fromModel}` để AI trả lời đều hơn.
         </p>
       </div>
     )}
 
     {analysisResultExists && isShowingLastGoodResult && (
       <div className="rounded-sm border border-cyan-500/20 bg-cyan-950/15 px-4 py-3">
-        <p className="text-sm text-cyan-100">Đang hiển thị kết quả gần nhất an toàn trong khi hệ thống thử phục hồi hoặc chờ bạn chạy lại.</p>
+        <p className="text-sm text-cyan-100">Mình đang giữ lại phần luận giải gần nhất để bạn không bị đứt mạch đọc trong lúc thử lại hoặc đổi model.</p>
       </div>
     )}
 
@@ -96,7 +121,7 @@ export const AnalysisStatusStack: React.FC<AnalysisStatusStackProps> = ({
             </p>
             {streamStatus.phase === 'retrying' && streamStatus.retryCode && (
               <p className="text-[11px] text-white/30">
-                Tự phục hồi lỗi `{streamStatus.retryCode}` trong khoảng {formatRetryDelay(streamStatus.retryAfterMs)}.
+                AI đang được gọi lại sau lỗi `{streamStatus.retryCode}`, dự kiến trong khoảng {formatRetryDelay(streamStatus.retryAfterMs)}.
               </p>
             )}
           </div>

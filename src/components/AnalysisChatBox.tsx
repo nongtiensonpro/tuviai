@@ -7,8 +7,13 @@ interface AnalysisChatBoxProps {
   isLoading: boolean;
   question: string;
   streamStatus: AnalysisStreamStatus;
+  hasChatError: boolean;
+  suggestedRecoveryModel: string | null;
   onQuestionChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
+  onRetryLastMessage: () => Promise<void>;
+  onRetryLastMessageWithSuggestedModel: () => Promise<void>;
+  onResetThread: () => void;
 }
 
 function formatRetryDelay(ms: number): string {
@@ -20,8 +25,13 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
   isLoading,
   question,
   streamStatus,
+  hasChatError,
+  suggestedRecoveryModel,
   onQuestionChange,
   onSubmit,
+  onRetryLastMessage,
+  onRetryLastMessageWithSuggestedModel,
+  onResetThread,
 }) => (
   <div className="mt-10 pt-2">
     <h4 className="text-lg text-gold/80 mb-4 flex items-center gap-2"><span>💬</span> Đàm Thoại Trực Tiếp Mệnh Bàn</h4>
@@ -47,8 +57,8 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
       {isLoading && currentThread.turns.length > 0 && (
         <div className="text-xs text-white/46 italic">
           {streamStatus.phase === 'retrying'
-            ? `Gemini đang tự thử lại sau sự cố tạm thời, dự kiến trong ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
-            : 'Đang soạn phản hồi...'}
+            ? `AI đang thử trả lời lại, dự kiến trong ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
+            : 'AI đang soạn câu trả lời...'}
         </div>
       )}
     </div>
@@ -64,5 +74,36 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
       />
       <button type="submit" disabled={isLoading || !question.trim()} className="btn-primary w-full sm:w-24">Gửi</button>
     </form>
+
+    {hasChatError && (
+      <div className="mt-3 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => void onRetryLastMessage()}
+          disabled={isLoading}
+          className="text-xs text-white/70 underline underline-offset-2 disabled:opacity-40"
+        >
+          Gửi lại câu hỏi vừa rồi
+        </button>
+        {suggestedRecoveryModel && (
+          <button
+            type="button"
+            onClick={() => void onRetryLastMessageWithSuggestedModel()}
+            disabled={isLoading}
+            className="text-xs text-white/70 underline underline-offset-2 disabled:opacity-40"
+          >
+            Gửi lại bằng {suggestedRecoveryModel}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onResetThread}
+          disabled={isLoading}
+          className="text-xs text-white/55 underline underline-offset-2 disabled:opacity-40"
+        >
+          Xóa mạch trao đổi này
+        </button>
+      </div>
+    )}
   </div>
 );

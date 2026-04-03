@@ -48,8 +48,13 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     handleResetThread,
     handleNavigateFocus,
     retryAnalyze,
+    retryAnalyzeWithSuggestedModel,
+    retryLastMessage,
+    retryLastMessageWithSuggestedModel,
     handleKeyReady,
     handleLockKey,
+    suggestedRecoveryModel,
+    lastFailureScope,
   } = useAnalysisAiState({
     chart,
     targetPalaceName,
@@ -95,6 +100,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
             <AnalysisStatusStack
               errorState={errorState}
               fallbackState={fallbackState}
+              suggestedRecoveryModel={suggestedRecoveryModel}
+              lastFailureScope={lastFailureScope}
               isShowingLastGoodResult={isShowingLastGoodResult}
               analysisResultExists={!!analysisResult}
               isLoading={isLoading}
@@ -103,6 +110,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
               loadingMessage={loadingMessage}
               loadingHint={loadingHint}
               onRetryAnalyze={retryAnalyze}
+              onRetryAnalyzeWithSuggestedModel={retryAnalyzeWithSuggestedModel}
             />
 
             {analysisResult && (
@@ -122,8 +130,13 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
                 isLoading={isLoading}
                 question={question}
                 streamStatus={streamStatus}
+                hasChatError={lastFailureScope === 'chat'}
+                suggestedRecoveryModel={suggestedRecoveryModel}
                 onQuestionChange={setQuestion}
                 onSubmit={handleSendMessage}
+                onRetryLastMessage={retryLastMessage}
+                onRetryLastMessageWithSuggestedModel={retryLastMessageWithSuggestedModel}
+                onResetThread={handleResetThread}
               />
             )}
           </div>

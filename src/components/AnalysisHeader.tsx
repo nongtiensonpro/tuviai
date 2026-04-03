@@ -45,9 +45,9 @@ export const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
           type="button"
           onClick={onResetThread}
           className="text-white/76 border border-white/10 hover:border-gold/30 px-2 py-1 flex items-center gap-1 rounded-sm text-xs transition-colors"
-          title="Xóa mạch hội thoại đang lưu cho vùng trọng tâm hiện tại"
+          title="Xóa mạch trao đổi hiện tại để bắt đầu lại từ đầu"
         >
-          <span>↺</span> Làm Mới Hội Thoại
+          <span>↺</span> Xóa Mạch Trao Đổi
         </button>
       )}
       {apiKey && (
@@ -58,9 +58,9 @@ export const AnalysisHeader: React.FC<AnalysisHeaderProps> = ({
             }
           }}
           className="text-red-200 border border-red-500/30 hover:border-red-400/50 px-2 py-1 flex items-center gap-1 rounded-sm text-xs transition-colors"
-          title="Nút này giúp bạn khóa lại AI hoặc cài lại Key nếu bị lỗi Error 400"
+          title="Khóa AI tạm thời hoặc mở khóa lại bằng API Key khác"
         >
-          <span>⚙️</span> Đổi / Khóa Key
+          <span>⚙️</span> Khóa / Đổi Key
         </button>
       )}
     </div>

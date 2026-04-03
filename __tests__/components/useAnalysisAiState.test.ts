@@ -92,7 +92,7 @@ describe('useAnalysisAiState', () => {
     return latestResult;
   }
 
-  it('falls back to a backup model and records telemetry when the primary model overloads', async () => {
+  it('suggests a backup model after failure and only switches when the user retries manually', async () => {
     mockAnalyzeChartJSON.mockImplementation(async (_apiKey, _chart, _target, _question, modelName) => {
       if (modelName === 'gemini-3.1-pro-preview') {
         throw {
@@ -128,13 +128,20 @@ describe('useAnalysisAiState', () => {
     });
 
     await waitFor(() => {
+      expect(latestResult?.analysisResult).toBeNull();
+      expect(latestResult?.errorState?.code).toBe('model_overloaded');
+      expect(latestResult?.suggestedRecoveryModel).toBe('gemini-2.5-flash');
+      expect(latestResult?.activeModel).toBe('gemini-3.1-pro-preview');
+    });
+
+    await act(async () => {
+      latestResult?.retryAnalyzeWithSuggestedModel();
+      await flushPromises();
+    });
+
+    await waitFor(() => {
       expect(latestResult?.analysisResult?.summary).toBe('resolved by gemini-2.5-flash');
       expect(latestResult?.activeModel).toBe('gemini-2.5-flash');
-      expect(latestResult?.fallbackState).toEqual({
-        fromModel: 'gemini-3.1-pro-preview',
-        toModel: 'gemini-2.5-flash',
-        reasonCode: 'model_overloaded',
-      });
     });
 
     const primarySnapshot = AiTelemetryService.getSnapshot('gemini-3.1-pro-preview');
@@ -157,12 +164,14 @@ describe('useAnalysisAiState', () => {
       follow_up_suggestions: ['e'],
     });
 
-    const sendMessage = jest.fn<Promise<string>, [unknown, string]>().mockRejectedValue({
-      code: 'network_unavailable',
-      message: 'network down',
-      retryable: true,
-      suggestedAction: 'retry',
-    });
+    const sendMessage = jest.fn<Promise<string>, [unknown, string]>()
+      .mockRejectedValueOnce({
+        code: 'network_unavailable',
+        message: 'network down',
+        retryable: true,
+        suggestedAction: 'retry',
+      })
+      .mockResolvedValueOnce('Đã gửi lại thành công');
 
     mockCreateChatSession.mockReturnValue({
       sendMessage,
@@ -197,7 +206,20 @@ describe('useAnalysisAiState', () => {
 
     expect(latestResult?.question).toBe('Câu hỏi giữ lại khi lỗi');
     expect(latestResult?.errorState?.code).toBe('network_unavailable');
+    expect(latestResult?.lastFailureScope).toBe('chat');
+    expect(latestResult?.suggestedRecoveryModel).toBe('gemini-2.5-flash');
     expect(latestResult?.currentThread?.turns).toHaveLength(0);
+
+    await act(async () => {
+      await latestResult?.retryLastMessage();
+      await flushPromises();
+    });
+
+    await waitFor(() => {
+      expect(latestResult?.question).toBe('');
+      expect(latestResult?.currentThread?.turns).toHaveLength(2);
+      expect(latestResult?.currentThread?.turns[1]?.msg).toBe('Đã gửi lại thành công');
+    });
     expect(sendMessage).toHaveBeenCalled();
   });
 

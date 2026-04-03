@@ -61,6 +61,8 @@ interface UseAnalysisAiStateResult {
   currentChatSession: GeminiChatSession | null;
   errorState: UiErrorState | null;
   fallbackState: ModelFallbackState | null;
+  suggestedRecoveryModel: string | null;
+  lastFailureScope: 'analysis' | 'chat' | null;
   isShowingLastGoodResult: boolean;
   activeModelHealth: AiModelHealthSnapshot;
   question: string;
@@ -79,7 +81,10 @@ interface UseAnalysisAiStateResult {
   handleResetThread: () => void;
   handleNavigateFocus: (focusArea: AnalysisFocusArea) => void;
   retryAnalyze: () => void;
+  retryAnalyzeWithSuggestedModel: () => void;
   cancelActiveAnalysis: () => void;
+  retryLastMessage: () => Promise<void>;
+  retryLastMessageWithSuggestedModel: () => Promise<void>;
   handleKeyReady: (key: string, model: string) => void;
   handleLockKey: () => void;
 }
@@ -146,9 +151,31 @@ function isAiServiceErrorDetails(value: unknown): value is AiServiceErrorDetails
 
 function toUiErrorState(error: unknown, fallbackMessage: string): UiErrorState {
   if (isAiServiceErrorDetails(error)) {
+    const friendlyMessageByCode: Partial<Record<AiErrorCode, string>> = {
+      model_overloaded: 'AI đang bận xử lý nhiều yêu cầu cùng lúc.',
+      request_timeout: 'AI phản hồi chậm hơn bình thường nên lần thử này chưa hoàn tất.',
+      network_unavailable: 'Kết nối tới AI đang chập chờn nên câu trả lời chưa về kịp.',
+      empty_response: 'AI vừa rồi chưa trả lại nội dung rõ ràng.',
+      invalid_json: 'AI đã phản hồi nhưng phần dữ liệu trả về chưa trọn vẹn.',
+      rate_limited: 'AI đang tạm giới hạn nhịp gửi yêu cầu trong ít giây.',
+      quota_exceeded: 'API Key hiện tại đã chạm hạn mức sử dụng.',
+      invalid_api_key: 'API Key hiện tại chưa dùng được cho yêu cầu này.',
+    };
+
+    const friendlySuggestionByCode: Partial<Record<AiErrorCode, string>> = {
+      model_overloaded: 'Bạn có thể chờ một chút rồi thử lại, hoặc đổi tạm sang model nhẹ hơn nếu muốn tiếp tục nhanh.',
+      request_timeout: 'Bạn có thể thử lại ngay, hoặc đổi sang model phản hồi nhanh hơn nếu muốn.',
+      network_unavailable: 'Bạn có thể gửi lại sau ít giây. Nếu mạng vẫn chập chờn, hãy thử lại bằng model khác.',
+      empty_response: 'Bạn có thể gửi lại nguyên câu hỏi vừa rồi, hoặc thử lại bằng model khác.',
+      invalid_json: 'Bạn có thể thử lại ngay để nhận phản hồi trọn vẹn hơn.',
+      rate_limited: 'Bạn có thể đợi ít giây rồi thử lại, hoặc tạm đổi model nếu đang cần phản hồi ngay.',
+      quota_exceeded: 'Hãy dùng API Key khác hoặc chờ hạn mức được làm mới rồi thử lại.',
+      invalid_api_key: 'Hãy kiểm tra lại API Key hoặc mở khóa lại bằng key khác.',
+    };
+
     return {
-      message: error.message,
-      suggestion: error.suggestedAction,
+      message: friendlyMessageByCode[error.code] ?? error.message,
+      suggestion: friendlySuggestionByCode[error.code] ?? error.suggestedAction,
       retryable: error.retryable,
       code: error.code,
     };
@@ -221,9 +248,12 @@ export function useAnalysisAiState({
   const [currentChatSession, setCurrentChatSession] = useState<GeminiChatSession | null>(null);
   const [errorState, setErrorState] = useState<UiErrorState | null>(null);
   const [fallbackState, setFallbackState] = useState<ModelFallbackState | null>(null);
+  const [suggestedRecoveryModel, setSuggestedRecoveryModel] = useState<string | null>(null);
+  const [lastFailureScope, setLastFailureScope] = useState<'analysis' | 'chat' | null>(null);
   const [isShowingLastGoodResult, setIsShowingLastGoodResult] = useState(false);
   const [activeModelHealth, setActiveModelHealth] = useState<AiModelHealthSnapshot>(() => AiTelemetryService.getSnapshot('gemini-3.1-pro-preview'));
   const [question, setQuestion] = useState<string>('');
+  const lastFailedUserMessageRef = useRef<string | null>(null);
   const [streamStatus, setStreamStatus] = useState<AnalysisStreamStatus>(IDLE_STREAM_STATUS);
   const analyzeRequestIdRef = useRef(0);
   const activeRequestAbortRef = useRef<AbortController | null>(null);
@@ -336,6 +366,10 @@ export function useAnalysisAiState({
   }, []);
 
   const handleAnalyze = async (specificPalace?: PalaceName) => {
+    await analyzeWithModel(activeModel, specificPalace);
+  };
+
+  const analyzeWithModel = async (modelName: string, specificPalace?: PalaceName) => {
     if (!apiKey) {
       setErrorState({
         message: 'Vui lòng mở khóa API key trước.',
@@ -357,7 +391,11 @@ export function useAnalysisAiState({
 
     setIsLoading(true);
     setErrorState(null);
-    setFallbackState(null);
+    setLastFailureScope(null);
+    setSuggestedRecoveryModel(null);
+    if (modelName === activeModel) {
+      setFallbackState(null);
+    }
     setIsShowingLastGoodResult(!!analysisResult);
     setStreamStatus({
       phase: 'requesting',
@@ -373,110 +411,60 @@ export function useAnalysisAiState({
 
     try {
       const { GeminiService } = await loadGeminiServiceModule();
-      let resolvedModel = activeModel;
-      const candidateModels = [activeModel, ...getFallbackModels(selectedModel, activeModel)];
-      let result: ModelAttemptResult | null = null;
-      let finalError: unknown = null;
+      activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
+      const startedAt = Date.now();
+      const response = await GeminiService.analyzeChartJSON(
+        apiKey,
+        chart,
+        specificPalace,
+        undefined,
+        modelName,
+        bridgeContext,
+        {
+          abortSignal: abortController.signal,
+          onStreamEvent: (event) => {
+            if (analyzeRequestIdRef.current !== requestId) {
+              return;
+            }
 
-      for (let index = 0; index < candidateModels.length; index += 1) {
-        const candidateModel = candidateModels[index];
-        activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
-        const startedAt = Date.now();
-
-        try {
-          const response = await GeminiService.analyzeChartJSON(
-            apiKey,
-            chart,
-            specificPalace,
-            undefined,
-            candidateModel,
-            bridgeContext,
-            {
-              abortSignal: abortController.signal,
-              onStreamEvent: (event) => {
-                if (analyzeRequestIdRef.current !== requestId) {
-                  return;
-                }
-
-                scheduleStreamStatus({
-                  phase: 'receiving',
-                  focusArea,
-                  receivedChars: event.receivedChars,
-                  receivedChunks: event.receivedChunks,
-                  attemptNumber: activeAttemptRef.current.attemptNumber,
-                  maxAttempts: activeAttemptRef.current.maxAttempts,
-                  retryAfterMs: 0,
-                  retryCode: null,
-                });
-              },
-              onRetryAttempt: (attempt: AiRetryAttempt) => {
-                if (analyzeRequestIdRef.current !== requestId) {
-                  return;
-                }
-
-                commitStreamStatus({
-                  phase: 'retrying',
-                  focusArea,
-                  receivedChars: 0,
-                  receivedChunks: 0,
-                  attemptNumber: attempt.attemptNumber,
-                  maxAttempts: attempt.maxAttempts,
-                  retryAfterMs: attempt.retryAfterMs,
-                  retryCode: attempt.code,
-                });
-                activeAttemptRef.current = {
-                  attemptNumber: attempt.attemptNumber,
-                  maxAttempts: attempt.maxAttempts,
-                };
-              },
-            },
-          );
-          AiTelemetryService.recordSuccess(candidateModel, Date.now() - startedAt);
-          result = {
-            response,
-            modelName: candidateModel,
-          };
-          resolvedModel = candidateModel;
-          if (candidateModel !== activeModel) {
-            setFallbackState({
-              fromModel: activeModel,
-              toModel: candidateModel,
-              reasonCode: index > 0 && isAiServiceErrorDetails(finalError) ? finalError.code : 'model_overloaded',
+            scheduleStreamStatus({
+              phase: 'receiving',
+              focusArea,
+              receivedChars: event.receivedChars,
+              receivedChunks: event.receivedChunks,
+              attemptNumber: activeAttemptRef.current.attemptNumber,
+              maxAttempts: activeAttemptRef.current.maxAttempts,
+              retryAfterMs: 0,
+              retryCode: null,
             });
-          } else {
-            setFallbackState(null);
-          }
-          break;
-        } catch (error: unknown) {
-          finalError = error;
-          const errorCode = isAiServiceErrorDetails(error) ? error.code : 'unknown';
-          setActiveModelHealth(AiTelemetryService.recordFailure(candidateModel, errorCode));
-          if (!isAiServiceErrorDetails(error) || !shouldTryFallbackModel(error.code) || index === candidateModels.length - 1) {
-            throw error;
-          }
+          },
+          onRetryAttempt: (attempt: AiRetryAttempt) => {
+            if (analyzeRequestIdRef.current !== requestId) {
+              return;
+            }
 
-          const nextModel = candidateModels[index + 1];
-          setFallbackState({
-            fromModel: candidateModel,
-            toModel: nextModel,
-            reasonCode: error.code,
-          });
-          commitStreamStatus({
-            phase: 'retrying',
-            focusArea,
-            receivedChars: 0,
-            receivedChunks: 0,
-            attemptNumber: 1,
-            maxAttempts: 3,
-            retryAfterMs: 0,
-            retryCode: error.code,
-          });
-        }
-      }
-
-      if (!result) {
-        throw finalError instanceof Error ? finalError : new Error('Không nhận được kết quả từ Gemini.');
-      }
+            commitStreamStatus({
+              phase: 'retrying',
+              focusArea,
+              receivedChars: 0,
+              receivedChunks: 0,
+              attemptNumber: attempt.attemptNumber,
+              maxAttempts: attempt.maxAttempts,
+              retryAfterMs: attempt.retryAfterMs,
+              retryCode: attempt.code,
+            });
+            activeAttemptRef.current = {
+              attemptNumber: attempt.attemptNumber,
+              maxAttempts: attempt.maxAttempts,
+            };
+          },
+        },
+      );
+      AiTelemetryService.recordSuccess(modelName, Date.now() - startedAt);
+      const result: ModelAttemptResult = {
+        response,
+        modelName,
+      };
       if (analyzeRequestIdRef.current !== requestId) {
         return;
       }
@@ -484,15 +472,30 @@ export function useAnalysisAiState({
       const thread = AnalysisThreadService.createThread(chart, focusArea, result.response, bridgeContext);
       AnalysisThreadService.saveThread(thread);
       syncThreadState(thread);
-      setActiveModel(resolvedModel);
+      if (modelName !== activeModel) {
+        setFallbackState({
+          fromModel: activeModel,
+          toModel: modelName,
+          reasonCode: errorState?.code ?? 'unknown',
+        });
+      }
+      setActiveModel(modelName);
       setActiveModelHealth(AiTelemetryService.getSnapshot(result.modelName));
       setIsShowingLastGoodResult(false);
+      setLastFailureScope(null);
+      setSuggestedRecoveryModel(null);
     } catch (err: unknown) {
       if (analyzeRequestIdRef.current !== requestId) {
         return;
       }
 
       const nextError = toUiErrorState(err, 'Lỗi khi gọi AI.');
+      const backupModel = shouldTryFallbackModel(nextError.code)
+        ? getFallbackModels(selectedModel, modelName)[0] ?? null
+        : null;
+      setSuggestedRecoveryModel(backupModel);
+      setLastFailureScope('analysis');
+      setActiveModelHealth(AiTelemetryService.recordFailure(modelName, nextError.code));
       if (nextError.code !== 'user_cancelled') {
         setErrorState(nextError);
         setIsShowingLastGoodResult(!!analysisResult);
@@ -535,9 +538,20 @@ export function useAnalysisAiState({
       return;
     }
 
-    const userMessage = question.trim();
+    await sendMessageWithModel(question.trim(), activeModel);
+  };
+
+  const sendMessageWithModel = async (userMessage: string, modelName: string) => {
+    if (!currentThread) {
+      return;
+    }
+
     setErrorState(null);
-    setFallbackState(null);
+    setLastFailureScope(null);
+    setSuggestedRecoveryModel(null);
+    if (modelName === activeModel) {
+      setFallbackState(null);
+    }
 
     try {
       const { GeminiService } = await loadGeminiServiceModule();
@@ -545,64 +559,42 @@ export function useAnalysisAiState({
       activeRequestAbortRef.current?.abort('user_cancelled');
       activeRequestAbortRef.current = abortController;
       setIsLoading(true);
-      let aiResponse = '';
-      let resolvedModel = activeModel;
-      const candidateModels = [activeModel, ...getFallbackModels(selectedModel, activeModel)];
-      let finalError: unknown = null;
 
-      for (let index = 0; index < candidateModels.length; index += 1) {
-        const candidateModel = candidateModels[index];
-        const session = candidateModel === activeModel && currentChatSession
-          ? currentChatSession
-          : GeminiService.createChatSession(apiKey, candidateModel);
-        const startedAt = Date.now();
-
-        try {
-          aiResponse = await session.sendMessage(currentThread, userMessage, {
-            abortSignal: abortController.signal,
-          });
-          AiTelemetryService.recordSuccess(candidateModel, Date.now() - startedAt);
-          resolvedModel = candidateModel;
-          if (candidateModel !== activeModel) {
-            setFallbackState({
-              fromModel: activeModel,
-              toModel: candidateModel,
-              reasonCode: index > 0 && isAiServiceErrorDetails(finalError) ? finalError.code : 'model_overloaded',
-            });
-          } else {
-            setFallbackState(null);
-          }
-          break;
-        } catch (error: unknown) {
-          finalError = error;
-          const errorCode = isAiServiceErrorDetails(error) ? error.code : 'unknown';
-          setActiveModelHealth(AiTelemetryService.recordFailure(candidateModel, errorCode));
-          if (!isAiServiceErrorDetails(error) || !shouldTryFallbackModel(error.code) || index === candidateModels.length - 1) {
-            throw error;
-          }
-
-          const nextModel = candidateModels[index + 1];
-          setFallbackState({
-            fromModel: candidateModel,
-            toModel: nextModel,
-            reasonCode: error.code,
-          });
-        }
-      }
-
-      if (!aiResponse) {
-        throw finalError instanceof Error ? finalError : new Error('AI không thể trả lời câu hỏi lúc này.');
-      }
+      const session = modelName === activeModel && currentChatSession
+        ? currentChatSession
+        : GeminiService.createChatSession(apiKey, modelName);
+      const startedAt = Date.now();
+      const aiResponse = await session.sendMessage(currentThread, userMessage, {
+        abortSignal: abortController.signal,
+      });
+      AiTelemetryService.recordSuccess(modelName, Date.now() - startedAt);
 
       const threadWithUserTurn = AnalysisThreadService.appendTurn(currentThread, 'user', userMessage);
       const threadWithReply = AnalysisThreadService.appendTurn(threadWithUserTurn, 'ai', aiResponse);
       syncThreadState(threadWithReply);
       AnalysisThreadService.saveThread(threadWithReply);
       setQuestion('');
-      setActiveModel(resolvedModel);
-      setActiveModelHealth(AiTelemetryService.getSnapshot(resolvedModel));
+      lastFailedUserMessageRef.current = null;
+      if (modelName !== activeModel) {
+        setFallbackState({
+          fromModel: activeModel,
+          toModel: modelName,
+          reasonCode: errorState?.code ?? 'unknown',
+        });
+      }
+      setActiveModel(modelName);
+      setActiveModelHealth(AiTelemetryService.getSnapshot(modelName));
+      setLastFailureScope(null);
+      setSuggestedRecoveryModel(null);
     } catch (err: unknown) {
       const nextError = toUiErrorState(err, 'AI không thể trả lời câu hỏi lúc này.');
+      lastFailedUserMessageRef.current = userMessage;
+      const backupModel = shouldTryFallbackModel(nextError.code)
+        ? getFallbackModels(selectedModel, modelName)[0] ?? null
+        : null;
+      setSuggestedRecoveryModel(backupModel);
+      setLastFailureScope('chat');
+      setActiveModelHealth(AiTelemetryService.recordFailure(modelName, nextError.code));
       if (nextError.code !== 'user_cancelled') {
         setErrorState(nextError);
       }
@@ -619,8 +611,11 @@ export function useAnalysisAiState({
 
     const resetThread = AnalysisThreadService.resetConversation(currentThread);
     AnalysisThreadService.saveThread(resetThread);
-    syncThreadState(resetThread);
-    setErrorState(null);
+      syncThreadState(resetThread);
+      setErrorState(null);
+      setLastFailureScope(null);
+      setSuggestedRecoveryModel(null);
+      lastFailedUserMessageRef.current = null;
   };
 
   const handleNavigateFocus = (focusArea: AnalysisFocusArea) => {
@@ -644,15 +639,15 @@ export function useAnalysisAiState({
 
   const loadingFocusArea = streamStatus.focusArea ?? currentFocus;
   const loadingMessage = streamStatus.phase === 'receiving'
-    ? `Gemini đã bắt đầu trả dữ liệu cho ${formatFocusAreaLabel(loadingFocusArea)}. Đã nhận ${streamStatus.receivedChunks} đợt, khoảng ${formatStreamSize(streamStatus.receivedChars)}.`
+    ? `AI đã bắt đầu trả lời cho ${formatFocusAreaLabel(loadingFocusArea)}. Hiện đã nhận ${streamStatus.receivedChunks} đợt dữ liệu, khoảng ${formatStreamSize(streamStatus.receivedChars)}.`
     : streamStatus.phase === 'retrying'
-      ? `Gemini vừa gặp sự cố tạm thời (${streamStatus.retryCode ?? 'unknown'}) nên hệ thống đang chuẩn bị thử lại lần ${streamStatus.attemptNumber}/${streamStatus.maxAttempts}.`
-      : `Đang gửi dữ kiện ${formatFocusAreaLabel(loadingFocusArea)} tới Gemini để tạo luận giải.`;
+      ? `AI vừa khựng lại một chút nên hệ thống đang chuẩn bị thử lại lần ${streamStatus.attemptNumber}/${streamStatus.maxAttempts}.`
+      : `Đang gửi dữ kiện ${formatFocusAreaLabel(loadingFocusArea)} để AI bắt đầu luận giải.`;
   const loadingHint = streamStatus.phase === 'retrying'
-    ? `Hệ thống sẽ thử lại sau khoảng ${formatRetryDelay(streamStatus.retryAfterMs)}. Bạn chưa cần thao tác lại.`
+    ? `Hệ thống sẽ thử lại sau khoảng ${formatRetryDelay(streamStatus.retryAfterMs)}. Bạn có thể chờ thêm, hoặc dừng lại để tự chọn cách xử lý khác.`
     : streamStatus.phase === 'requesting' && isThinkingHeavyModel(selectedModel)
-      ? 'Model hiện tại đang suy luận sâu để tăng độ chính xác, nên có thể mất vài giây trước khi phản hồi đầu tiên xuất hiện.'
-      : 'Khi có chunk đầu tiên, trạng thái này sẽ tự chuyển sang chế độ streaming.';
+      ? 'Model hiện tại đang suy luận kỹ hơn thường lệ, nên phản hồi đầu tiên có thể đến chậm hơn vài giây.'
+      : 'Khi AI bắt đầu trả dữ liệu, trạng thái này sẽ tự đổi sang chế độ đang phản hồi.';
   const activeModelHealthText = formatHealthLabel(activeModelHealth);
   const activeModelLatencyText = activeModelHealth.averageLatencyMs
     ? `Độ trễ gần đây khoảng ${(activeModelHealth.averageLatencyMs / 1000).toFixed(1)} giây.`
@@ -685,16 +680,35 @@ export function useAnalysisAiState({
     handleSendMessage,
     handleResetThread,
     handleNavigateFocus,
+    suggestedRecoveryModel,
+    lastFailureScope,
     retryAnalyze: () => {
       void handleAnalyze(currentFocus === 'overall' ? undefined : currentFocus);
     },
+    retryAnalyzeWithSuggestedModel: () => {
+      if (suggestedRecoveryModel) {
+        void analyzeWithModel(suggestedRecoveryModel, currentFocus === 'overall' ? undefined : currentFocus);
+      }
+    },
     cancelActiveAnalysis,
+    retryLastMessage: async () => {
+      if (lastFailedUserMessageRef.current) {
+        await sendMessageWithModel(lastFailedUserMessageRef.current, activeModel);
+      }
+    },
+    retryLastMessageWithSuggestedModel: async () => {
+      if (lastFailedUserMessageRef.current && suggestedRecoveryModel) {
+        await sendMessageWithModel(lastFailedUserMessageRef.current, suggestedRecoveryModel);
+      }
+    },
     handleKeyReady: (key: string, model: string) => {
       setApiKey(key);
       setSelectedModel(model);
       setActiveModel(model);
       setFallbackState(null);
       setIsShowingLastGoodResult(false);
+      setLastFailureScope(null);
+      setSuggestedRecoveryModel(null);
     },
     handleLockKey: () => {
       cancelActiveAnalysis();
