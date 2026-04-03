@@ -34,6 +34,8 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     fallbackState,
     isShowingLastGoodResult,
     question,
+    pendingChatMessage,
+    pendingChatElapsedMs,
     streamStatus,
     currentFocus,
     visiblePalaceFocus,
@@ -49,6 +51,7 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
     handleNavigateFocus,
     retryAnalyze,
     retryAnalyzeWithSuggestedModel,
+    cancelActiveChatRequest,
     retryLastMessage,
     retryLastMessageWithSuggestedModel,
     handleKeyReady,
@@ -129,11 +132,14 @@ export const AnalysisPanel: React.FC<AnalysisPanelProps> = ({ chart, targetPalac
                 currentThread={currentThread}
                 isLoading={isLoading}
                 question={question}
+                pendingChatMessage={pendingChatMessage}
+                pendingChatElapsedMs={pendingChatElapsedMs}
                 streamStatus={streamStatus}
                 hasChatError={lastFailureScope === 'chat'}
                 suggestedRecoveryModel={suggestedRecoveryModel}
                 onQuestionChange={setQuestion}
                 onSubmit={handleSendMessage}
+                onCancelActiveChatRequest={cancelActiveChatRequest}
                 onRetryLastMessage={retryLastMessage}
                 onRetryLastMessageWithSuggestedModel={retryLastMessageWithSuggestedModel}
                 onResetThread={handleResetThread}

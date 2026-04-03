@@ -6,11 +6,14 @@ interface AnalysisChatBoxProps {
   currentThread: AnalysisThread;
   isLoading: boolean;
   question: string;
+  pendingChatMessage: string | null;
+  pendingChatElapsedMs: number;
   streamStatus: AnalysisStreamStatus;
   hasChatError: boolean;
   suggestedRecoveryModel: string | null;
   onQuestionChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => Promise<void>;
+  onCancelActiveChatRequest: () => void;
   onRetryLastMessage: () => Promise<void>;
   onRetryLastMessageWithSuggestedModel: () => Promise<void>;
   onResetThread: () => void;
@@ -20,15 +23,23 @@ function formatRetryDelay(ms: number): string {
   return `${(ms / 1000).toFixed(ms >= 10_000 ? 0 : 1)} giây`;
 }
 
+function formatElapsed(ms: number): string {
+  const seconds = Math.max(1, Math.round(ms / 1000));
+  return `${seconds} giây`;
+}
+
 export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
   currentThread,
   isLoading,
   question,
+  pendingChatMessage,
+  pendingChatElapsedMs,
   streamStatus,
   hasChatError,
   suggestedRecoveryModel,
   onQuestionChange,
   onSubmit,
+  onCancelActiveChatRequest,
   onRetryLastMessage,
   onRetryLastMessageWithSuggestedModel,
   onResetThread,
@@ -54,7 +65,20 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
           <div className="whitespace-pre-line">{turn.msg}</div>
         </div>
       ))}
-      {isLoading && currentThread.turns.length > 0 && (
+      {pendingChatMessage && (
+        <div className="py-2 text-sm max-w-[85%] text-blue-100 self-end ml-auto">
+          <strong className="block text-blue-300 mb-1 text-xs">Bạn</strong>
+          <div className="whitespace-pre-line">{pendingChatMessage}</div>
+          <div className="mt-2 rounded-sm border border-blue-400/20 bg-blue-400/5 px-3 py-2 text-xs text-blue-100/70">
+            {streamStatus.phase === 'retrying'
+              ? `AI đang thử trả lời lại cho câu hỏi này. Dự kiến thêm ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
+              : streamStatus.phase === 'requesting'
+                ? `Câu hỏi đã được gửi. AI đang đọc lại mạch trao đổi, khoảng ${formatElapsed(pendingChatElapsedMs)} rồi.`
+                : `AI đang chuẩn bị câu trả lời, khoảng ${formatElapsed(pendingChatElapsedMs)} rồi.`}
+          </div>
+        </div>
+      )}
+      {isLoading && currentThread.turns.length > 0 && !pendingChatMessage && (
         <div className="text-xs text-white/46 italic">
           {streamStatus.phase === 'retrying'
             ? `AI đang thử trả lời lại, dự kiến trong ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
@@ -74,6 +98,19 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
       />
       <button type="submit" disabled={isLoading || !question.trim()} className="btn-primary w-full sm:w-24">Gửi</button>
     </form>
+
+    {pendingChatMessage && (
+      <div className="mt-3 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onCancelActiveChatRequest}
+          disabled={!isLoading}
+          className="text-xs text-white/65 underline underline-offset-2 disabled:opacity-40"
+        >
+          Dừng lần gửi này
+        </button>
+      </div>
+    )}
 
     {hasChatError && (
       <div className="mt-3 flex flex-wrap gap-3">

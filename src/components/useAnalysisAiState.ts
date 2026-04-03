@@ -66,6 +66,8 @@ interface UseAnalysisAiStateResult {
   isShowingLastGoodResult: boolean;
   activeModelHealth: AiModelHealthSnapshot;
   question: string;
+  pendingChatMessage: string | null;
+  pendingChatElapsedMs: number;
   streamStatus: AnalysisStreamStatus;
   currentFocus: AnalysisFocusArea;
   hasAnalysisResult: boolean;
@@ -83,6 +85,7 @@ interface UseAnalysisAiStateResult {
   retryAnalyze: () => void;
   retryAnalyzeWithSuggestedModel: () => void;
   cancelActiveAnalysis: () => void;
+  cancelActiveChatRequest: () => void;
   retryLastMessage: () => Promise<void>;
   retryLastMessageWithSuggestedModel: () => Promise<void>;
   handleKeyReady: (key: string, model: string) => void;
@@ -253,6 +256,9 @@ export function useAnalysisAiState({
   const [isShowingLastGoodResult, setIsShowingLastGoodResult] = useState(false);
   const [activeModelHealth, setActiveModelHealth] = useState<AiModelHealthSnapshot>(() => AiTelemetryService.getSnapshot('gemini-3.1-pro-preview'));
   const [question, setQuestion] = useState<string>('');
+  const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
+  const [pendingChatStartedAt, setPendingChatStartedAt] = useState<number | null>(null);
+  const [pendingChatElapsedMs, setPendingChatElapsedMs] = useState(0);
   const lastFailedUserMessageRef = useRef<string | null>(null);
   const [streamStatus, setStreamStatus] = useState<AnalysisStreamStatus>(IDLE_STREAM_STATUS);
   const analyzeRequestIdRef = useRef(0);
@@ -284,6 +290,14 @@ export function useAnalysisAiState({
     }
     setIsLoading(false);
     setStreamStatus(IDLE_STREAM_STATUS);
+  };
+
+  const cancelActiveChatRequest = () => {
+    activeRequestAbortRef.current?.abort('user_cancelled');
+    activeRequestAbortRef.current = null;
+    setIsLoading(false);
+    setPendingChatMessage(null);
+    setPendingChatStartedAt(null);
   };
 
   const commitStreamStatus = (status: AnalysisStreamStatus) => {
@@ -325,6 +339,22 @@ export function useAnalysisAiState({
   useEffect(() => {
     setActiveModelHealth(AiTelemetryService.getSnapshot(activeModel));
   }, [activeModel]);
+
+  useEffect(() => {
+    if (!pendingChatStartedAt) {
+      setPendingChatElapsedMs(0);
+      return;
+    }
+
+    setPendingChatElapsedMs(Math.max(0, Date.now() - pendingChatStartedAt));
+    const timer = setInterval(() => {
+      setPendingChatElapsedMs(Math.max(0, Date.now() - pendingChatStartedAt));
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [pendingChatStartedAt]);
 
   useEffect(() => {
     if (!apiKey || !hasAnalysisResult) {
@@ -559,6 +589,18 @@ export function useAnalysisAiState({
       activeRequestAbortRef.current?.abort('user_cancelled');
       activeRequestAbortRef.current = abortController;
       setIsLoading(true);
+      setPendingChatMessage(userMessage);
+      setPendingChatStartedAt(Date.now());
+      setStreamStatus({
+        phase: 'requesting',
+        focusArea: currentThread.focusArea,
+        receivedChars: 0,
+        receivedChunks: 0,
+        attemptNumber: 1,
+        maxAttempts: 3,
+        retryAfterMs: 0,
+        retryCode: null,
+      });
 
       const session = modelName === activeModel && currentChatSession
         ? currentChatSession
@@ -575,6 +617,8 @@ export function useAnalysisAiState({
       AnalysisThreadService.saveThread(threadWithReply);
       setQuestion('');
       lastFailedUserMessageRef.current = null;
+      setPendingChatMessage(null);
+      setPendingChatStartedAt(null);
       if (modelName !== activeModel) {
         setFallbackState({
           fromModel: activeModel,
@@ -595,12 +639,16 @@ export function useAnalysisAiState({
       setSuggestedRecoveryModel(backupModel);
       setLastFailureScope('chat');
       setActiveModelHealth(AiTelemetryService.recordFailure(modelName, nextError.code));
+      setPendingChatStartedAt(null);
       if (nextError.code !== 'user_cancelled') {
         setErrorState(nextError);
+      } else {
+        setPendingChatMessage(null);
       }
     } finally {
       activeRequestAbortRef.current = null;
       setIsLoading(false);
+      setStreamStatus(IDLE_STREAM_STATUS);
     }
   };
 
@@ -615,6 +663,8 @@ export function useAnalysisAiState({
       setErrorState(null);
       setLastFailureScope(null);
       setSuggestedRecoveryModel(null);
+      setPendingChatMessage(null);
+      setPendingChatStartedAt(null);
       lastFailedUserMessageRef.current = null;
   };
 
@@ -666,6 +716,8 @@ export function useAnalysisAiState({
     isShowingLastGoodResult,
     activeModelHealth,
     question,
+    pendingChatMessage,
+    pendingChatElapsedMs,
     streamStatus,
     currentFocus,
     hasAnalysisResult,
@@ -691,6 +743,7 @@ export function useAnalysisAiState({
       }
     },
     cancelActiveAnalysis,
+    cancelActiveChatRequest,
     retryLastMessage: async () => {
       if (lastFailedUserMessageRef.current) {
         await sendMessageWithModel(lastFailedUserMessageRef.current, activeModel);
@@ -709,6 +762,8 @@ export function useAnalysisAiState({
       setIsShowingLastGoodResult(false);
       setLastFailureScope(null);
       setSuggestedRecoveryModel(null);
+      setPendingChatMessage(null);
+      setPendingChatStartedAt(null);
     },
     handleLockKey: () => {
       cancelActiveAnalysis();
@@ -717,6 +772,8 @@ export function useAnalysisAiState({
       syncThreadState(null);
       setCurrentChatSession(null);
       setQuestion('');
+      setPendingChatMessage(null);
+      setPendingChatStartedAt(null);
     },
   };
 }
