@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import type { Palace } from '../core/types/ZiweiTypes';
+import type { InsightStarSelection, InsightTermSelection, Palace } from '../core/types/ZiweiTypes';
 import { getGlossaryDescription } from '../data/GlossaryDescriptions';
 import { getStarDescription } from '../data/StarDescriptions';
 
@@ -35,8 +35,8 @@ interface PalaceCellProps {
   palace: Palace;
   isActive?: boolean;
   onClick?: () => void;
-  onStarClick?: (name: string) => void;
-  onGlossaryClick?: (name: string) => void;
+  onStarClick?: (selection: InsightStarSelection) => void;
+  onGlossaryClick?: (selection: InsightTermSelection) => void;
 }
 
 const buildStarTooltip = (name: string, nguHanh?: string, borrowed = false): string => {
@@ -74,6 +74,20 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
   if (palace.hasTuanKhong) tuanTriet.push('Tuần');
   if (palace.hasTrinhKhong) tuanTriet.push('Triệt');
 
+  const glossarySelection = (name: string): InsightTermSelection => ({
+    name,
+    palaceName: palace.palaceName,
+    chi: palace.chi,
+  });
+
+  const starSelection = (name: string, isMainStar: boolean, isBorrowed = false): InsightStarSelection => ({
+    name,
+    palaceName: palace.palaceName,
+    chi: palace.chi,
+    isMainStar,
+    isBorrowed,
+  });
+
   return (
     <div
       onClick={onClick}
@@ -103,7 +117,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
               title={palaceTitle}
               onClick={(e) => {
                 e.stopPropagation();
-                onGlossaryClick?.(palace.palaceName);
+                onGlossaryClick?.(glossarySelection(palace.palaceName));
               }}
               className={`text-[12px] font-bold uppercase tracking-[0.04em] transition-colors ${isActive ? 'text-gold' : 'text-white/90 hover:text-gold'}`}
             >
@@ -115,7 +129,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
                 title={thanTitle}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onGlossaryClick?.('Cung Thân');
+                  onGlossaryClick?.(glossarySelection('Cung Thân'));
                 }}
                 className="text-red-200/80 text-[8px] uppercase tracking-[0.14em] transition-colors hover:text-red-100"
               >
@@ -131,7 +145,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
                     title={getGlossaryDescription(marker)}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onGlossaryClick?.(marker);
+                      onGlossaryClick?.(glossarySelection(marker));
                     }}
                     className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] text-white/55 transition-colors hover:text-white/78"
                   >
@@ -147,7 +161,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
             title={daiHanTitle}
             onClick={(e) => {
               e.stopPropagation();
-              onGlossaryClick?.('Đại Hạn');
+              onGlossaryClick?.(glossarySelection('Đại Hạn'));
             }}
             className="text-[10px] font-bold text-white/35 text-right transition-colors hover:text-gold/80"
           >
@@ -159,7 +173,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
           {mainStars.map((star, idx) => (
             <div
               key={idx}
-              onClick={(e) => { e.stopPropagation(); onStarClick?.(star.name); }}
+              onClick={(e) => { e.stopPropagation(); onStarClick?.(starSelection(star.name, true)); }}
               title={buildStarTooltip(star.name, star.nguHanh)}
               className={`cursor-help break-words text-[13px] font-bold leading-[1.15] sm:text-[13.5px] ${getColorNguHanh(star.nguHanh)}`}
             >
@@ -174,8 +188,9 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
               {palace.borrowedStars.map((star, idx) => (
                 <div
                   key={`borrowed-${idx}`}
+                  onClick={(e) => { e.stopPropagation(); onStarClick?.(starSelection(star.name, true, true)); }}
                   title={buildStarTooltip(star.name, star.nguHanh, true)}
-                  className={`font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}
+                  className={`cursor-help font-bold text-[12px] leading-tight ${getColorNguHanh(star.nguHanh)}`}
                 >
                   {star.name}
                   {star.brightness && <span className="text-[9px] ml-0.5 font-normal">({star.brightness})</span>}
@@ -195,7 +210,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
             {leftStars.map((s, i) => (
               <div
                 key={i}
-                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name); }}
+                onClick={(e) => { e.stopPropagation(); onStarClick?.(starSelection(s.name, false)); }}
                 title={buildStarTooltip(s.name, s.nguHanh)}
                 className={`mb-0.5 cursor-help break-words text-[10px] font-medium leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
@@ -208,7 +223,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
             {rightStars.map((s, i) => (
               <div
                 key={i}
-                onClick={(e) => { e.stopPropagation(); onStarClick?.(s.name); }}
+                onClick={(e) => { e.stopPropagation(); onStarClick?.(starSelection(s.name, false)); }}
                 title={buildStarTooltip(s.name, s.nguHanh)}
                 className={`mb-0.5 cursor-help break-words text-[10px] font-semibold leading-[1.2] tracking-tight md:text-[10.5px] ${getColorNguHanh(s.nguHanh)}`}
               >
@@ -225,7 +240,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
             title={trangSinhTitle}
             onClick={(e) => {
               e.stopPropagation();
-              onGlossaryClick?.(palace.trangSinh);
+              onGlossaryClick?.(glossarySelection(palace.trangSinh));
             }}
             className="text-[9px] uppercase tracking-[0.12em] font-semibold text-[#f1c40f]/70 leading-none transition-colors hover:text-[#f1c40f]"
           >

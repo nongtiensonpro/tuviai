@@ -375,6 +375,85 @@ export interface FullChartAnalysis {
   modern_advice: string;
 }
 
+export type InsightKind = 'star' | 'palace' | 'glossary' | 'state-marker';
+
+export interface InsightTag {
+  label: string;
+}
+
+export interface InsightSection {
+  title: string;
+  body: string;
+}
+
+export interface InsightProfile {
+  description?: string;
+  keywords: string[];
+  sections: InsightSection[];
+}
+
+export interface InsightRelatedItem {
+  kind: InsightKind;
+  name: string;
+  label: string;
+  hint?: string;
+}
+
+export type InsightExploreCategory =
+  | 'family'
+  | 'counterpart'
+  | 'palace-impact'
+  | 'theme'
+  | 'related';
+
+export interface InsightExploreGroup {
+  id: string;
+  title: string;
+  description: string;
+  category: InsightExploreCategory;
+  items: InsightRelatedItem[];
+}
+
+export interface InsightContext {
+  palaceName?: PalaceName;
+  chi?: TwoelveChi;
+  isMainStar?: boolean;
+  isBorrowed?: boolean;
+  isThanPalace?: boolean;
+  nguHanh?: NguHanh;
+  brightness?: StarBrightness;
+  sihua?: SihuaType;
+  trangSinh?: string;
+  daiHan?: number;
+}
+
+export interface InsightPayload {
+  kind: InsightKind;
+  title: string;
+  subtitle: string;
+  description: string;
+  keywords: string[];
+  sections: InsightSection[];
+  tags: InsightTag[];
+  context: InsightContext;
+  relatedItems: InsightRelatedItem[];
+  exploreGroups: InsightExploreGroup[];
+}
+
+export interface InsightStarSelection {
+  name: string;
+  palaceName?: PalaceName;
+  chi?: TwoelveChi;
+  isMainStar?: boolean;
+  isBorrowed?: boolean;
+}
+
+export interface InsightTermSelection {
+  name: string;
+  palaceName?: PalaceName;
+  chi?: TwoelveChi;
+}
+
 /** Nhóm lỗi AI chuẩn hóa để UI có thể xử lý nhất quán */
 export type AiErrorCode =
   | 'invalid_api_key'

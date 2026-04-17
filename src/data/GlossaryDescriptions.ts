@@ -82,6 +82,10 @@ const TERM_ALIASES: Record<string, string> = {
 };
 
 const STAR_BACKED_TERMS = new Set<string>([
+  'Hóa Lộc',
+  'Hóa Quyền',
+  'Hóa Khoa',
+  'Hóa Kỵ',
   'Trường Sinh',
   'Mộc Dục',
   'Quan Đới',
@@ -116,6 +120,10 @@ export const KNOWN_GLOSSARY_TERMS: string[] = [
 function normalizeGlossaryTerm(name: string): string {
   const cleanName = name.replace(/\[.*?\]|\(.*?\)/g, '').trim();
   return TERM_ALIASES[cleanName] ?? cleanName;
+}
+
+export function resolveGlossaryTerm(name: string): string {
+  return normalizeGlossaryTerm(name);
 }
 
 export function getGlossaryDescription(name: string): string {

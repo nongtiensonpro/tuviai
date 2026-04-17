@@ -4,14 +4,14 @@
  * Giống hệt thiết kế lá số Tử Vi truyền thống
  */
 import React from 'react';
-import type { ZiweiChart } from '../core/types/ZiweiTypes';
+import type { InsightStarSelection, InsightTermSelection, ZiweiChart } from '../core/types/ZiweiTypes';
 import { getGlossaryDescription } from '../data/GlossaryDescriptions';
 import { getStarDescription } from '../data/StarDescriptions';
 
 interface CenterPanelProps {
   chart: ZiweiChart;
-  onGlossaryClick?: (name: string) => void;
-  onStarClick?: (name: string) => void;
+  onGlossaryClick?: (selection: InsightTermSelection) => void;
+  onStarClick?: (selection: InsightStarSelection) => void;
 }
 
 export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick, onStarClick }) => {
@@ -24,6 +24,8 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
 
   const metaButtonClass = 'transition-colors hover:text-gold';
   const starButtonClass = 'font-semibold text-white/90 transition-colors hover:text-gold';
+  const glossarySelection = (name: string): InsightTermSelection => ({ name });
+  const starSelection = (name: string): InsightStarSelection => ({ name });
 
   return (
     <div className="palace-center relative flex flex-col items-center justify-start overflow-hidden p-3.5 sm:p-4">
@@ -91,7 +93,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription(amDuongNamNu)}
-                  onClick={() => onGlossaryClick?.(amDuongNamNu)}
+                  onClick={() => onGlossaryClick?.(glossarySelection(amDuongNamNu))}
                   className={`w-fit text-left font-bold text-blue-300 leading-snug ${metaButtonClass}`}
                 >
                   {amDuongNamNu}
@@ -99,7 +101,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription(amDuongLy)}
-                  onClick={() => onGlossaryClick?.(amDuongLy)}
+                  onClick={() => onGlossaryClick?.(glossarySelection(amDuongLy))}
                   className={`w-fit text-left text-white/50 text-[11px] leading-snug sm:text-xs ${metaButtonClass}`}
                 >
                   {amDuongLy}
@@ -114,7 +116,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
               <button
                 type="button"
                 title={getGlossaryDescription('Bản Mệnh')}
-                onClick={() => onGlossaryClick?.('Bản Mệnh')}
+                onClick={() => onGlossaryClick?.(glossarySelection('Bản Mệnh'))}
                 className={`w-fit text-left font-bold text-emerald-400 capitalize leading-snug ${metaButtonClass}`}
               >
                 {banMenh}
@@ -129,7 +131,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription(tenCuc)}
-                  onClick={() => onGlossaryClick?.(tenCuc)}
+                  onClick={() => onGlossaryClick?.(glossarySelection(tenCuc))}
                   className={`w-fit text-left font-bold text-amber-500 capitalize leading-snug ${metaButtonClass}`}
                 >
                   {tenCuc}
@@ -137,7 +139,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription(menhCucSinhKhac)}
-                  onClick={() => onGlossaryClick?.(menhCucSinhKhac)}
+                  onClick={() => onGlossaryClick?.(glossarySelection(menhCucSinhKhac))}
                   className={`w-fit text-left text-white/50 text-[11px] leading-snug sm:text-xs ${metaButtonClass}`}
                 >
                   {menhCucSinhKhac}
@@ -155,7 +157,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription('Mệnh Chủ')}
-                  onClick={() => onGlossaryClick?.('Mệnh Chủ')}
+                  onClick={() => onGlossaryClick?.(glossarySelection('Mệnh Chủ'))}
                   className={`text-left ${metaButtonClass}`}
                 >
                   Mệnh:
@@ -163,7 +165,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getStarDescription(menhChu)}
-                  onClick={() => onStarClick?.(menhChu)}
+                  onClick={() => onStarClick?.(starSelection(menhChu))}
                   className={starButtonClass}
                 >
                   {menhChu}
@@ -173,7 +175,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getGlossaryDescription('Thân Chủ')}
-                  onClick={() => onGlossaryClick?.('Thân Chủ')}
+                  onClick={() => onGlossaryClick?.(glossarySelection('Thân Chủ'))}
                   className={`text-left ${metaButtonClass}`}
                 >
                   Thân:
@@ -181,7 +183,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
                 <button
                   type="button"
                   title={getStarDescription(thanChu)}
-                  onClick={() => onStarClick?.(thanChu)}
+                  onClick={() => onStarClick?.(starSelection(thanChu))}
                   className={starButtonClass}
                 >
                   {thanChu}
