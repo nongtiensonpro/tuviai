@@ -226,7 +226,7 @@ export const ZiWeiBoard: React.FC<ZiWeiBoardProps> = ({ chart, onPalaceClick, ac
       </div>
 
       <div className="mx-auto mt-3 w-full max-w-[800px]">
-        <div className="rounded-sm border border-white/10 bg-[#111922]/72 p-4 sm:p-5">
+        <div className="p-2 sm:p-4">
           {activeInsight ? (
             <div className="animate-fade-up">
               <div className="flex items-start justify-between gap-4">
