@@ -84,6 +84,9 @@ export interface SolarDate {
   trueSolarMinute?: number;     // Phút Mặt Trời Thực sau hiệu chỉnh
   isHistoricalTimezoneApplied?: boolean;
   isTrueSolarTimeApplied?: boolean;
+  
+  // Option xử lý giờ Tý sớm (23:00 - 23:59)
+  earlyZiMode?: 'next_day' | 'same_day';
 }
 
 /** Ngày sinh đã chuyển sang Âm lịch */
@@ -94,6 +97,9 @@ export interface LunarDate {
   isLeap: boolean;     // Tháng nhuận
   hourChi: TwoelveChi; // Địa Chi giờ sinh
   hourChiIndex: number; // 0-11
+  
+  // Flag đánh dấu đã tự động điều chỉnh tăng 1 ngày do sinh giờ Tý sớm
+  isEarlyZiAdjusted?: boolean;
 }
 
 /** Thiên Can + Địa Chi của một mốc thời gian */
@@ -637,3 +643,28 @@ export const PALACE_NAMES_ORDER: PalaceName[] = [
   'Quan Lộc', 'Nô Bộc',  'Thiên Di',  'Tật Ách',
   'Tài Bạch', 'Tử Tức',  'Phu Thê',   'Huynh Đệ',
 ];
+
+// ============================================================
+// 7. TIỂU VẬN & LƯU NIÊN
+// ============================================================
+
+export interface AnnualPalace {
+  chiIndex: number;
+  chi: TwoelveChi;
+  palaceName: PalaceName;
+  daiHan: number;
+  tieuVanAge?: number;
+  isTieuVan: boolean;
+  isLuuThaiTue: boolean;
+  annualStars: Star[];
+  mainStars: Star[];
+  auxStars: Star[];
+}
+
+export interface AnnualChart {
+  targetYear: number;
+  targetAge: number;
+  tieuVanPalaceIndex: number;
+  luuThaiTuePalaceIndex: number;
+  palaces: AnnualPalace[];
+}

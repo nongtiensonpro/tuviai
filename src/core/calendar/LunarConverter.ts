@@ -57,8 +57,22 @@ const MONTH_CAN_START: Record<number, number> = {
  * @returns LunarDate đầy đủ thông tin
  */
 export function solarToLunar(solar: SolarDate): LunarDate {
+  let adjustedSolar = { ...solar };
+  let isEarlyZiAdjusted = false;
+
+  // Giờ Tý sớm bắt đầu từ 23:00 đến 23:59
+  // Mặc định earlyZiMode là 'next_day' nếu không được truyền vào
+  if (solar.hour === 23 && solar.earlyZiMode !== 'same_day') {
+    const jsDate = new Date(solar.year, solar.month - 1, solar.day);
+    jsDate.setDate(jsDate.getDate() + 1);
+    adjustedSolar.day = jsDate.getDate();
+    adjustedSolar.month = jsDate.getMonth() + 1;
+    adjustedSolar.year = jsDate.getFullYear();
+    isEarlyZiAdjusted = true;
+  }
+
   // API thực tế của @dqcai/vn-lunar
-  const lunar = getLunarDate(solar.day, solar.month, solar.year);
+  const lunar = getLunarDate(adjustedSolar.day, adjustedSolar.month, adjustedSolar.year);
 
   const hourChiIndex = hourToChiIndex(solar.hour);
   const hourChi = TWELVE_CHI[hourChiIndex] as TwoelveChi;
@@ -70,6 +84,7 @@ export function solarToLunar(solar: SolarDate): LunarDate {
     isLeap: lunar.leap,
     hourChi,
     hourChiIndex,
+    isEarlyZiAdjusted,
   };
 }
 

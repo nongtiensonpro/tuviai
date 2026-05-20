@@ -130,6 +130,7 @@ describe('SolarTimeCalculator & Astronomical Calibration', () => {
       expect(chartNormal.solarDate.month).toBe(4);
 
       // 2. Có hiệu chỉnh địa điểm Sài Gòn (Nam Việt Nam thời điểm 1968 dùng UTC+8)
+      // Sử dụng earlyZiMode: 'same_day' để so sánh sự dịch chuyển ngày thiên văn đơn thuần
       const chartCalibrated = buildZiweiChart(
         calibrateSolarDate({
           year: 1968,
@@ -139,6 +140,7 @@ describe('SolarTimeCalculator & Astronomical Calibration', () => {
           exactHour: 0,
           exactMinute: 30,
           birthPlace: 'TP. Hồ Chí Minh',
+          earlyZiMode: 'same_day',
         }),
         'male'
       );
@@ -154,7 +156,7 @@ describe('SolarTimeCalculator & Astronomical Calibration', () => {
       expect(chartCalibrated.solarDate.trueSolarHour).toBe(23);
       expect(chartCalibrated.solarDate.trueSolarMinute).toBe(36);
 
-      // Đảm bảo Âm lịch của hai lá số khác nhau hoàn toàn do ngày dương lịch dịch chuyển
+      // Đảm bảo Âm lịch của hai lá số khác nhau hoàn toàn do ngày dương lịch dịch chuyển (và không bị dịch ngược lại bởi giờ Tý sớm)
       expect(chartCalibrated.lunarDate.day).not.toBe(chartNormal.lunarDate.day);
       
       // Kiểm tra vị trí của sao Tử Vi bị dịch chuyển cung trên Mệnh bàn do ngày âm lịch thay đổi
@@ -165,6 +167,23 @@ describe('SolarTimeCalculator & Astronomical Calibration', () => {
         return palace ? palace.palaceName : '';
       };
       expect(findTuViPalaceName(chartCalibrated)).not.toBe(findTuViPalaceName(chartNormal));
+
+      // 3. Kiểm thử thêm: Có hiệu chỉnh địa điểm Sài Gòn, dùng earlyZiMode mặc định (next_day)
+      // Giờ Tý sớm (23:36 ngày 14) phải dịch chuyển sang ngày âm lịch tiếp theo (tương đương ngày 15)
+      const chartCalibratedNextDay = buildZiweiChart(
+        calibrateSolarDate({
+          year: 1968,
+          month: 4,
+          day: 15,
+          hourMode: 'exact',
+          exactHour: 0,
+          exactMinute: 30,
+          birthPlace: 'TP. Hồ Chí Minh',
+        }),
+        'male'
+      );
+      expect(chartCalibratedNextDay.lunarDate.isEarlyZiAdjusted).toBe(true);
+      expect(chartCalibratedNextDay.lunarDate.day).toBe(chartNormal.lunarDate.day);
     });
   });
 });

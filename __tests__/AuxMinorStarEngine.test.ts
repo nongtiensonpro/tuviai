@@ -40,14 +40,14 @@ describe('AuxStarEngine', () => {
     });
   });
 
-  it('an Tả Phù tại Thìn tháng 1, Hữu Bật tại Tuất và Thiên Việt ở đối cung Thiên Khôi', () => {
+  it('an Tả Phù tại Thìn tháng 1, Hữu Bật tại Tuất và Thiên Việt đúng vị trí theo Thiên Can', () => {
     const { palaces, yearCanChi } = createBasePalaces(1985); // Ất
     const result = placeLucCatTinh(palaces, 1, yearCanChi.canIndex, 0);
 
     expect(result[4]?.auxStars.some(star => star.name === 'Tả Phù')).toBe(true);
     expect(result[10]?.auxStars.some(star => star.name === 'Hữu Bật')).toBe(true);
     expect(result[0]?.auxStars.some(star => star.name === 'Thiên Khôi')).toBe(true);
-    expect(result[6]?.auxStars.some(star => star.name === 'Thiên Việt')).toBe(true);
+    expect(result[8]?.auxStars.some(star => star.name === 'Thiên Việt')).toBe(true);
   });
 
   it('an Hỏa Tinh và Linh Tinh theo bảng khởi giờ của năm Bính Dần', () => {

@@ -32,7 +32,7 @@ const DAN_CHI_INDEX = 2;
 const ZIWEI_CYCLE_ONE: Record<NguHanhCuc, number[]> = {
   2: [1, 2],
   3: [4, 1, 2],
-  4: [11, 6, 1, 2],
+  4: [11, 4, 1, 2],
   5: [6, 11, 4, 1, 2],
   6: [9, 6, 11, 4, 1, 2],
 };

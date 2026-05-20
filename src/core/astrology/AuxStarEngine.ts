@@ -23,6 +23,18 @@ const THIEN_KHOI_BY_CAN: Record<TenCan, number> = {
 };
 
 /**
+ * Thiên Việt theo Thiên Can năm sinh
+ * Source: SKILL.md §9 Lục Cát
+ */
+const THIEN_VIET_BY_CAN: Record<TenCan, number> = {
+  'Giáp': 7, 'Mậu': 7,        // Mùi (index 7)
+  'Ất': 8, 'Kỷ': 8,           // Thân (index 8)
+  'Bính': 9, 'Đinh': 9,       // Dậu (index 9)
+  'Canh': 2, 'Tân': 2,        // Dần (index 2)
+  'Nhâm': 5, 'Quý': 5,        // Tỵ (index 5)
+};
+
+/**
  * Lộc Tồn theo Thiên Can năm sinh
  * Giáp→Dần, Ất→Mão, Bính/Mậu→Tỵ, Đinh/Kỷ→Ngọ,
  * Canh→Thân, Tân→Dậu, Nhâm→Hợi, Quý→Tý
@@ -165,8 +177,8 @@ export function placeLucCatTinh(
   const khoiIdx = THIEN_KHOI_BY_CAN[yearCan] ?? 1;
   placeAux(result, 'Thiên Khôi', khoiIdx, 'cat');
 
-  // Thiên Việt: đối cung với Thiên Khôi
-  const vietIdx = (khoiIdx + 6) % 12;
+  // Thiên Việt: theo Can năm
+  const vietIdx = THIEN_VIET_BY_CAN[yearCan] ?? 7;
   placeAux(result, 'Thiên Việt', vietIdx, 'cat');
 
   // Văn Xương: Giờ Tý → Tuất(10), đếm ngược

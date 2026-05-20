@@ -153,10 +153,10 @@ Liêm Trinh: (Z - 8 + 12) % 12
 
 ```typescript
 // Thiên Phủ luôn đối xứng qua trục Dần(2) - Thân(8) với Tử Vi
-// Công thức: thienPhu = (14 - ziweiPos) % 12
-// Ví dụ: Tử Vi ở Dần(2) → Thiên Phủ ở Thân(8); Tử Vi ở Tý(0) → Thiên Phủ ở Dần(2)
+// Công thức: thienPhu = (4 - ziweiPos + 12) % 12
+// Ví dụ: Tử Vi ở Dần(2) → Thiên Phủ ở Dần(2); Tử Vi ở Tý(0) → Thiên Phủ ở Thìn(4)
 function findThienPhuPalace(ziweiPos: number): number {
-  return (14 - ziweiPos) % 12;
+  return (4 - ziweiPos + 12) % 12;
 }
 ```
 
@@ -194,10 +194,10 @@ const TU_HOA: Record<string, [string, string, string, string]> = {
 ## 9. An Phụ Tinh Quan Trọng
 
 ### Lục Cát Tinh:
-- **Tả Phù**: Theo tháng âm — Tháng 1 ở Dần, đếm thuận
+- **Tả Phù**: Theo tháng âm — Tháng 1 ở Thìn(4), đếm thuận
 - **Hữu Bật**: Theo tháng âm — Tháng 1 ở Tuất, đếm ngược
 - **Thiên Khôi**: Theo Thiên Can năm: Giáp/Mậu → Sửu; Ất/Kỷ → Tý; Bính/Đinh → Hợi; Canh/Tân → Ngọ; Nhâm/Quý → Mão
-- **Thiên Việt**: Đối cung với Thiên Khôi
+- **Thiên Việt**: Theo Thiên Can năm: Giáp/Mậu → Mùi(7); Ất/Kỷ → Thân(8); Bính/Đinh → Dậu(9); Canh/Tân → Dần(2); Nhâm/Quý → Tỵ(5)
 - **Văn Xương**: Theo giờ sinh — Giờ Tý → Tuất, đếm ngược
 - **Văn Khúc**: Theo giờ sinh — Giờ Tý → Thìn, đếm thuận
 
@@ -205,7 +205,7 @@ const TU_HOA: Record<string, [string, string, string, string]> = {
 - **Kình Dương**: Theo Thiên Can năm — Giáp→Mão, Ất→Thìn, Bính/Mậu→Ngọ, Đinh/Kỷ→Mùi, Canh→Dậu, Tân→Tuất, Nhâm→Tý, Quý→Sửu
 - **Đà La**: Trước Kình Dương 1 cung (đếm ngược)
 - **Hỏa Tinh**: Theo Địa Chi năm và giờ sinh (tra bảng)
-- **Linh Tinh**: Đối cung với Hỏa Tinh
+- **Linh Tinh**: Theo Địa Chi năm và giờ sinh (tra bảng, không phải đối cung với Hỏa Tinh)
 
 ### Sao Cố Định:
 - **Thiên Thương**: Cố định tại cung Nô Bộc

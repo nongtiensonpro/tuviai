@@ -143,6 +143,7 @@ export function calibrateSolarDate(params: {
   exactMinute?: number;
   birthPlace: string; // Tên tỉnh thành hoặc "manual" hoặc "none"
   customLongitude?: number;
+  earlyZiMode?: 'next_day' | 'same_day';
 }): SolarDate {
   const { year, month, day, hourMode, hourIndex, exactHour, exactMinute, birthPlace, customLongitude } = params;
 
@@ -195,7 +196,8 @@ export function calibrateSolarDate(params: {
       trueSolarHour: adminHour,
       trueSolarMinute: adminMinute,
       isHistoricalTimezoneApplied: false,
-      isTrueSolarTimeApplied: false
+      isTrueSolarTimeApplied: false,
+      earlyZiMode: params.earlyZiMode
     };
   }
 
@@ -261,6 +263,7 @@ export function calibrateSolarDate(params: {
     trueSolarHour: trueSolarResult.hour,
     trueSolarMinute: trueSolarResult.minute,
     isHistoricalTimezoneApplied,
-    isTrueSolarTimeApplied: true
+    isTrueSolarTimeApplied: true,
+    earlyZiMode: params.earlyZiMode
   };
 }
