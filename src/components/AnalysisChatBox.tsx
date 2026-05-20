@@ -57,19 +57,26 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
       </p>
     )}
 
-    <div className="analysis-chat-log flex flex-col gap-3 mb-4 max-h-60 overflow-y-scroll pr-2 custom-scrollbar">
+    <div className="analysis-chat-log flex flex-col gap-4 mb-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
       {currentThread.turns.map(turn => (
-        <div key={turn.id} className={`py-2 text-sm max-w-[85%] ${turn.role === 'user' ? 'text-blue-100 self-end ml-auto' : 'text-white/90 self-start mr-auto'}`}>
-          {turn.role === 'ai' && <strong className="block text-gold mb-1 text-xs">Đại Sư AI</strong>}
-          {turn.role === 'user' && <strong className="block text-blue-300 mb-1 text-xs">Bạn</strong>}
-          <div className="whitespace-pre-line">{turn.msg}</div>
+        <div 
+          key={turn.id} 
+          className={`text-sm max-w-[85%] px-4 py-3 rounded-2xl transition-all duration-300 ${
+            turn.role === 'user' 
+              ? 'bg-cyan/8 border border-cyan/20 text-[#e6f7ff] self-end ml-auto rounded-tr-none shadow-[0_4px_12px_rgba(143,179,190,0.05)]' 
+              : 'bg-gold/5 border border-gold/15 text-[#fffaf0]/90 self-start mr-auto rounded-tl-none shadow-[0_4px_12px_rgba(212,175,55,0.05)]'
+          }`}
+        >
+          {turn.role === 'ai' && <strong className="block text-gold mb-1.5 text-xs font-semibold uppercase tracking-wider">Đại Sư AI</strong>}
+          {turn.role === 'user' && <strong className="block text-cyan mb-1.5 text-xs font-semibold uppercase tracking-wider">Bạn</strong>}
+          <div className="whitespace-pre-line leading-relaxed">{turn.msg}</div>
         </div>
       ))}
       {pendingChatMessage && (
-        <div className="py-2 text-sm max-w-[85%] text-blue-100 self-end ml-auto">
-          <strong className="block text-blue-300 mb-1 text-xs">Bạn</strong>
-          <div className="whitespace-pre-line">{pendingChatMessage}</div>
-          <div className="mt-2 rounded-sm border border-blue-400/20 bg-blue-400/5 px-3 py-2 text-xs text-blue-100/70">
+        <div className="bg-cyan/8 border border-cyan/20 text-[#e6f7ff] self-end ml-auto rounded-2xl rounded-tr-none px-4 py-3 text-sm max-w-[85%] shadow-[0_4px_12px_rgba(143,179,190,0.05)]">
+          <strong className="block text-cyan mb-1.5 text-xs font-semibold uppercase tracking-wider">Bạn</strong>
+          <div className="whitespace-pre-line leading-relaxed">{pendingChatMessage}</div>
+          <div className="mt-3 rounded-lg border border-cyan/15 bg-cyan/5 px-3 py-2 text-xs text-[#e6f7ff]/70 leading-relaxed">
             {streamStatus.phase === 'retrying'
               ? `AI đang thử trả lời lại cho câu hỏi này. Dự kiến thêm ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
               : streamStatus.phase === 'requesting'
@@ -79,10 +86,10 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
         </div>
       )}
       {isLoading && currentThread.turns.length > 0 && !pendingChatMessage && (
-        <div className="text-xs text-white/46 italic">
+        <div className="text-xs text-gold/60 italic px-2 animate-pulse">
           {streamStatus.phase === 'retrying'
             ? `AI đang thử trả lời lại, dự kiến trong ${streamStatus.retryAfterMs > 0 ? formatRetryDelay(streamStatus.retryAfterMs) : 'ít giây'}.`
-            : 'AI đang soạn câu trả lời...'}
+            : 'AI đang truyền tin và soạn câu trả lời...'}
         </div>
       )}
     </div>

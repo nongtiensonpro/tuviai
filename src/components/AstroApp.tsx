@@ -6,6 +6,7 @@ import React, { Suspense, lazy, startTransition, useEffect, useState } from 'rea
 import { BirthForm, type BirthInfo } from './BirthForm';
 import type { ZiweiChart, PalaceName } from '../core/types/ZiweiTypes';
 import { ChartWorkerService } from '../services/ChartWorkerService';
+import { CosmicLoading } from './CosmicLoading';
 
 const ZiWeiBoard = lazy(async () => {
   const module = await import('./ZiWeiBoard');
@@ -35,13 +36,11 @@ export const AstroApp: React.FC = () => {
       setError('');
 
       try {
-        const newChart = await ChartWorkerService.buildChart({
-          day: info.day,
-          month: info.month,
-          year: info.year,
-          hourIndex: info.hourIndex,
-          gender: info.gender,
-        });
+        // Chạy song song: vừa tính toán mệnh bàn thông qua Worker vừa giữ màn hình Loading chạy mượt mà ~2.6 giây để tạo hiệu ứng hiệu chuẩn thiên văn
+        const [newChart] = await Promise.all([
+          ChartWorkerService.buildChart(info),
+          new Promise(resolve => setTimeout(resolve, 2600))
+        ]);
 
         startTransition(() => {
           setActivePalace(undefined);
@@ -99,6 +98,8 @@ export const AstroApp: React.FC = () => {
 
   return (
     <div className="w-full flex flex-col items-center gap-14 px-0">
+      {isLoading && <CosmicLoading />}
+
       {!chart && (
         <section className="flex justify-center w-full px-0">
           <BirthForm onSubmit={handleGenerateChart} isLoading={isLoading} />

@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import { buildZiweiChart } from '../core/astrology/ChartBuilder';
+import { calibrateSolarDate } from '../core/calendar/SolarTimeCalculator';
 import type {
   ChartWorkerRequest,
   ChartWorkerResponse,
@@ -8,20 +9,24 @@ import type {
 
 const workerScope = self as DedicatedWorkerGlobalScope;
 
-function computeSolarHour(hourIndex: number): number {
-  return hourIndex === 0 ? 23 : (hourIndex * 2) - 1;
-}
-
 workerScope.addEventListener('message', (event: MessageEvent<ChartWorkerRequest>) => {
   const { requestId, input } = event.data;
 
   try {
-    const chart = buildZiweiChart({
-      day: input.day,
-      month: input.month,
+    // Thực hiện hiệu chỉnh thiên văn học nâng cao ngay trong Worker trước khi dựng lá số
+    const calibratedSolar = calibrateSolarDate({
       year: input.year,
-      hour: computeSolarHour(input.hourIndex),
-    }, input.gender);
+      month: input.month,
+      day: input.day,
+      hourMode: input.hourMode,
+      hourIndex: input.hourIndex,
+      exactHour: input.exactHour,
+      exactMinute: input.exactMinute,
+      birthPlace: input.birthPlace,
+      customLongitude: input.customLongitude,
+    });
+
+    const chart = buildZiweiChart(calibratedSolar, input.gender);
 
     const response: ChartWorkerResponse = {
       requestId,

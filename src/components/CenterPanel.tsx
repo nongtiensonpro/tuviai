@@ -29,8 +29,13 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
 
   return (
     <div className="palace-center relative flex flex-col items-center justify-start overflow-hidden p-3.5 sm:p-4">
+      {/* Quầng sáng vũ trụ chuyển động chìm */}
+      <div className="absolute inset-0 pointer-events-none select-none z-0 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-radial-gradient from-gold/5 via-coral/3 to-transparent rounded-full filter blur-2xl animate-pulse" />
+      </div>
+
       {/* Watermark Bát Quái / Chữ Hán mờ phía sau */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] pointer-events-none select-none">
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.035] pointer-events-none select-none z-0">
         <span className="text-[250px] font-serif-sc leading-none" style={{ textShadow: '0 0 30px rgba(240,192,64,0.22)' }}>紫微</span>
       </div>
       
@@ -192,6 +197,34 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({ chart, onGlossaryClick
             </div>
           </div>
         </div>
+
+        {/* Khối hiệu chỉnh thiên văn học nâng cao */}
+        {solarDate.isTrueSolarTimeApplied && (
+          <div className="mt-2.5 border-t border-gold/10 pt-2.5 text-[11px] text-white/50 leading-relaxed font-mono select-none w-full max-w-[330px]">
+            <p className="text-gold/90 font-serif-sc text-xs tracking-wider uppercase mb-1.5 flex items-center gap-1">
+              <span>⚛️</span> Hiệu chuẩn thiên văn học
+            </p>
+            <div className="grid grid-cols-[82px_1fr] gap-x-1.5 gap-y-0.5">
+              <span>Nơi sinh:</span>
+              <span className="text-white/80">{solarDate.birthPlace} ({solarDate.longitude?.toFixed(2)}°E)</span>
+              
+              <span>Múi giờ gốc:</span>
+              <span className="text-white/80">UTC+{solarDate.timezoneUsed}</span>
+              
+              <span>Hiệu chỉnh:</span>
+              <span className="text-white/80">
+                EOT: {solarDate.eot && solarDate.eot > 0 ? '+' : ''}{solarDate.eot?.toFixed(1)}m | 
+                Kinh độ: {solarDate.longitudeOffset && solarDate.longitudeOffset > 0 ? '+' : ''}{solarDate.longitudeOffset?.toFixed(1)}m
+              </span>
+              
+              <span className="text-gold/95 font-semibold">Giờ TST thực:</span>
+              <span className="text-gold/95 font-semibold">
+                {String(solarDate.trueSolarHour).padStart(2, '0')}:{String(solarDate.trueSolarMinute).padStart(2, '0')} (Giờ {lunarDate.hourChi})
+              </span>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

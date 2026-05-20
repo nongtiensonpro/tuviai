@@ -22,6 +22,24 @@ const getColorNguHanh = (nguHanh: string): string => {
   }
 };
 
+const mapChiToHan = (chi: string): string => {
+  switch (chi) {
+    case 'Tý': return '子';
+    case 'Sửu': return '丑';
+    case 'Dần': return '寅';
+    case 'Mão': return '卯';
+    case 'Thìn': return '辰';
+    case 'Tỵ': return '巳';
+    case 'Ngọ': return '午';
+    case 'Mùi': return '未';
+    case 'Thân': return '申';
+    case 'Dậu': return '酉';
+    case 'Tuất': return '戌';
+    case 'Hợi': return '亥';
+    default: return '';
+  }
+};
+
 const BAD_STARS = [
   'Kình Dương', 'Đà La', 'Hỏa Tinh', 'Linh Tinh', 'Địa Không', 'Địa Kiếp',
   'Thiên Khốc', 'Thiên Hư', 'Tang Môn', 'Bạch Hổ', 'Điếu Khách', 'Tuế Phá',
@@ -93,6 +111,13 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
       onClick={onClick}
       className={`palace-cell relative overflow-hidden transition-all duration-200 ${isActive ? 'active' : ''}`}
     >
+      {/* Chữ Hán cổ làm hình nền mờ ẩn */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0 overflow-hidden">
+        <span className="font-serif-sc text-[96px] text-white/[0.022] leading-none select-none font-bold">
+          {mapChiToHan(palace.chi)}
+        </span>
+      </div>
+
       {/* Hiệu ứng SVG nền cho VCD */}
       {isVCD && (
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none z-0">

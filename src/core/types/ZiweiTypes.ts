@@ -72,6 +72,18 @@ export interface SolarDate {
   year: number;
   hour: number;        // 0-23 (giờ hệ 24h)
   minute?: number;
+
+  // Trường bổ sung phục vụ độ chính xác thiên văn học
+  birthPlace?: string;
+  longitude?: number;
+  timezoneUsed?: number;
+  eot?: number;                 // Equation of Time (phút)
+  longitudeOffset?: number;     // Lệch kinh độ so với múi giờ hành chính (phút)
+  totalOffset?: number;         // Tổng hiệu chỉnh (phút)
+  trueSolarHour?: number;       // Giờ Mặt Trời Thực sau hiệu chỉnh
+  trueSolarMinute?: number;     // Phút Mặt Trời Thực sau hiệu chỉnh
+  isHistoricalTimezoneApplied?: boolean;
+  isTrueSolarTimeApplied?: boolean;
 }
 
 /** Ngày sinh đã chuyển sang Âm lịch */
@@ -517,8 +529,17 @@ export interface ChartWorkerInput {
   day: number;
   month: number;
   year: number;
-  hourIndex: number;
   gender: Gender;
+
+  // Các thông số giờ sinh nâng cao
+  hourMode: 'exact' | 'chi'; // Nhập giờ chính xác hay chỉ nhập giờ Địa Chi
+  hourIndex?: number;        // 0-11 nếu nhập theo giờ Địa Chi
+  exactHour?: number;        // 0-23 nếu nhập giờ chính xác
+  exactMinute?: number;      // 0-59 nếu nhập giờ chính xác
+  
+  // Thông tin địa lý sinh
+  birthPlace: string;        // Tên tỉnh thành hoặc "manual" hoặc "none"
+  customLongitude?: number;  // Kinh độ tự nhập nếu chọn "manual"
 }
 
 /** Message gửi vào worker lập mệnh bàn */

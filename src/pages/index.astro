@@ -48,7 +48,7 @@ import { AstroApp } from "../components/AstroApp";
     />
   </head>
 
-  <body class="min-h-screen bg-ziwei text-white font-sans">
+  <body class="min-h-screen text-white font-sans overflow-x-hidden relative">
     <!-- Cosmic Star Field (CSS-only, no JS) -->
     <div class="star-field" aria-hidden="true">
       <span style="top:5%;left:12%"></span>
@@ -155,7 +155,7 @@ import { AstroApp } from "../components/AstroApp";
     >
     </div>
     <!-- Header -->
-    <header class="site-header sticky top-0 z-50">
+    <header class="site-header sticky top-0 z-50 backdrop-blur-md bg-[#030712]/35 border-b border-white/5 transition-all duration-300">
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-14 py-3 flex items-center justify-between gap-4"
       >

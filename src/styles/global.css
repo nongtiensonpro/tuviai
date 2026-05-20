@@ -2,32 +2,32 @@
 
 /* ============================================================
    Tử Vi Đẩu Số AI — Design System
-   Dark cosmic theme: Deep navy + Imperial gold
+   Cosmic Alchemy Theme: Cosmic Black + Imperial Amber Gold
    ============================================================ */
 
 /* ---------- CSS Custom Properties ---------- */
 :root {
-  /* Color Palette */
-  --color-bg-deep:     #0f1e29;
-  --color-bg-surface:  #182b37;
-  --color-bg-card:     #203441;
-  --color-bg-elevated: #2b4251;
+  /* Color Palette - Cosmic Alchemy */
+  --color-bg-deep:     #030712; /* Pitch black space */
+  --color-bg-surface:  #080c18; /* Deep midnight navy */
+  --color-bg-card:     rgba(0, 0, 0, 0.45); /* Glassmorphic dark base */
+  --color-bg-elevated: rgba(25, 30, 45, 0.5); /* Glowing dark base */
 
   --color-paper:       #efe2cb;
-  --color-paper-soft:  rgba(239, 226, 203, 0.14);
+  --color-paper-soft:  rgba(239, 226, 203, 0.1);
 
-  --color-gold:        #d6a85c;
-  --color-gold-dim:    #b8863f;
-  --color-gold-glow:   rgba(214, 168, 92, 0.18);
+  --color-gold:        #d4af37; /* Royal gold */
+  --color-gold-dim:    #aa841c;
+  --color-gold-glow:   rgba(212, 175, 55, 0.15);
 
   --color-accent:      #7f9a86;
   --color-accent-dim:  #637864;
   --color-cyan:        #8fb3be;
   --color-coral:       #b96e5a;
-  --color-ink:         #2d241d;
+  --color-ink:         #030712;
 
-  --color-border:      rgba(239, 226, 203, 0.1);
-  --color-border-gold: rgba(214, 168, 92, 0.3);
+  --color-border:      rgba(255, 255, 255, 0.08);
+  --color-border-gold: rgba(212, 175, 55, 0.2);
 
   /* Typography */
   --font-sans:    'Segoe UI Variable Text', 'Aptos', 'Segoe UI', 'Noto Sans', sans-serif;
@@ -35,18 +35,18 @@
   --font-han:     'Iowan Old Style', 'Palatino Linotype', 'Songti SC', 'STSong', 'KaiTi', 'SimSun', serif;
 
   /* Radii */
-  --radius-sm:    2px;
-  --radius-md:    3px;
-  --radius-lg:    6px;
+  --radius-sm:    4px;
+  --radius-md:    6px;
+  --radius-lg:    12px;
 
   /* Shadows */
-  --shadow-card:  0 18px 40px rgba(6, 16, 25, 0.32);
-  --shadow-gold:  0 0 28px rgba(214, 168, 92, 0.18);
+  --shadow-card:  0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-gold:  0 0 25px rgba(212, 175, 55, 0.15);
 }
 
 /* ---------- Tailwind v4 Theme Overrides ---------- */
 @theme {
-  --color-gold: #d6a85c;
+  --color-gold: #d4af37;
   --color-accent: #7f9a86;
   --color-cyan: #8fb3be;
   --color-coral: #b96e5a;
@@ -71,8 +71,9 @@ body {
   font-family: var(--font-sans);
   background-color: var(--color-bg-deep);
   background:
-    radial-gradient(circle at top, rgba(143, 179, 190, 0.12), transparent 26%),
-    linear-gradient(180deg, #173143 0%, #162836 36%, #12222e 68%, #0f1b24 100%);
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.08), transparent 35%),
+    radial-gradient(circle at 80% 20%, rgba(185, 110, 90, 0.05), transparent 40%),
+    linear-gradient(180deg, #030712 0%, #070b16 50%, #0c101d 100%);
   color: #f7f0e4;
   line-height: 1.6;
   min-height: 100vh;
@@ -84,9 +85,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(214, 168, 92, 0.1) 0%, transparent 72%),
-    radial-gradient(ellipse 40% 26% at 20% 24%, rgba(127, 154, 134, 0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 34% at 82% 86%, rgba(143, 179, 190, 0.1) 0%, transparent 70%);
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(212, 175, 55, 0.08) 0%, transparent 72%),
+    radial-gradient(ellipse 40% 26% at 20% 24%, rgba(127, 154, 134, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 34% at 82% 86%, rgba(143, 179, 190, 0.07) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -96,11 +97,11 @@ body::after {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 16%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent 16%),
     repeating-linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.01) 0,
-      rgba(255, 255, 255, 0.01) 1px,
+      rgba(255, 255, 255, 0.005) 0,
+      rgba(255, 255, 255, 0.005) 1px,
       transparent 1px,
       transparent 16px
     );
@@ -116,31 +117,59 @@ main, header, footer {
 }
 
 ::selection {
-  background: rgba(214, 168, 92, 0.28);
+  background: rgba(212, 175, 55, 0.28);
   color: #fff8ed;
 }
 
 /* ---------- Component Classes ---------- */
 
-/* Card */
-.card {
-  background: transparent;
+/* Card & Glassmorphism */
+.glass-card {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-lg);
-  box-shadow: none;
-  backdrop-filter: none;
-  transition: none;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.glass-card-gold {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(212, 175, 55, 0.03);
+  transition: all 0.3s ease;
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 12px 45px 0 rgba(0, 0, 0, 0.6), 0 0 25px rgba(212, 175, 55, 0.08);
+  transform: translateY(-2px);
+}
+
+.card {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
 }
 
 .card-hover {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
-  box-shadow: none;
-  backdrop-filter: none;
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
 }
 
 .card-hover:hover {
-  transform: none;
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 20px rgba(212, 175, 55, 0.06);
+  transform: translateY(-2px);
 }
 
 /* Buttons */
@@ -150,33 +179,34 @@ main, header, footer {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
-  background: linear-gradient(135deg, #ead4a0 0%, #d6a85c 55%, #b8863f 100%);
-  color: var(--color-ink);
+  background: linear-gradient(135deg, #f3e5c8 0%, #d4af37 55%, #a67c1e 100%);
+  color: #030712;
   font-weight: 600;
   font-size: 0.9rem;
-  border: 1px solid rgba(45, 36, 29, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 16px rgba(184, 134, 63, 0.18);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
 }
 
 .btn-primary:hover {
-  transform: none;
-  box-shadow: 0 8px 18px rgba(184, 134, 63, 0.22);
-  filter: brightness(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+  filter: brightness(1.05);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .btn-primary:disabled,
 .btn-secondary:disabled {
-  opacity: 0.65;
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  filter: none;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 .btn-secondary {
@@ -185,45 +215,49 @@ main, header, footer {
   justify-content: center;
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
-  background: transparent;
-  color: rgba(247, 240, 228, 0.78);
+  background: rgba(255, 255, 255, 0.02);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 500;
   font-size: 0.9rem;
-  border: 1px solid rgba(239, 226, 203, 0.16);
+  border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 .btn-secondary:hover {
-  border-color: rgba(214, 168, 92, 0.24);
-  color: #fff8eb;
-  background: transparent;
+  border-color: rgba(212, 175, 55, 0.6);
+  color: #ffffff;
+  background: rgba(212, 175, 55, 0.05);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
 }
 
 /* Form elements */
 .input {
   width: 100%;
   padding: 0.625rem 0.875rem;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.35);
   color: #fff7ee;
-  border: none;
-  border-radius: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
   font-size: 0.9rem;
   font-family: var(--font-sans);
   outline: none;
-  box-shadow: inset 0 -1px 0 rgba(239, 226, 203, 0.14);
-  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
   appearance: none;
   -webkit-appearance: none;
 }
 
 .input:focus {
-  box-shadow: inset 0 -1px 0 rgba(214, 168, 92, 0.55);
+  border-color: rgba(212, 175, 55, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.1), inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 select.input option {
-  background: var(--color-bg-card);
+  background: #0d1222;
   color: white;
 }
 
@@ -261,9 +295,11 @@ select.input option {
 .hero-panel {
   position: relative;
   overflow: hidden;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(212, 175, 55, 0.03);
   contain: layout paint;
 }
 
@@ -273,7 +309,7 @@ select.input option {
   inset: -30% auto auto -10%;
   width: min(36rem, 70vw);
   height: min(36rem, 70vw);
-  background: radial-gradient(circle, rgba(239, 226, 203, 0.08), transparent 72%);
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.06), transparent 72%);
   pointer-events: none;
 }
 
@@ -283,7 +319,7 @@ select.input option {
   inset: auto -10% -34% auto;
   width: min(28rem, 64vw);
   height: min(28rem, 64vw);
-  background: radial-gradient(circle, rgba(127, 154, 134, 0.1), transparent 72%);
+  background: radial-gradient(circle, rgba(185, 110, 90, 0.08), transparent 72%);
   pointer-events: none;
 }
 
@@ -291,27 +327,39 @@ select.input option {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  border-radius: 4px;
-  background: transparent;
+  border-radius: 9999px;
+  background: rgba(212, 175, 55, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   color: rgba(255, 248, 235, 0.82);
-  padding: 0;
-  backdrop-filter: none;
+  padding: 0.35rem 1rem;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .feature-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0;
-  border-radius: 0;
-  background: transparent;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   color: rgba(255, 248, 235, 0.76);
+  transition: all 0.3s ease;
+}
+
+.feature-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(212, 175, 55, 0.2);
+  color: #ffffff;
 }
 
 .footer-panel {
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   content-visibility: auto;
   contain-intrinsic-size: 640px;
 }
@@ -439,28 +487,35 @@ select.input option {
 
 .palace-cell {
   display: flex;
-  background: rgba(22, 38, 48, 0.78);
+  background: rgba(7, 10, 18, 0.55);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   padding: clamp(6px, 1vw, 10px);
   position: relative;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 156px;
 }
 
 .palace-cell:hover {
-  background: rgba(25, 43, 54, 0.86);
-  box-shadow: none;
+  background: rgba(212, 175, 55, 0.03);
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
 }
 
 .palace-cell.active {
-  background: rgba(28, 48, 60, 0.92);
-  box-shadow: none;
+  background: rgba(212, 175, 55, 0.05);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), inset 0 0 20px rgba(212, 175, 55, 0.08);
 }
 
 .palace-center {
   grid-column: 2 / span 2;
   grid-row: 2 / span 2;
-  background: rgba(18, 31, 39, 0.9);
+  background: rgba(4, 6, 12, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.04);
 }
 
 /* Star badge colors */

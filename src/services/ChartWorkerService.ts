@@ -10,10 +10,6 @@ type PendingRequest = {
   reject: (error: Error) => void;
 };
 
-function computeSolarHour(hourIndex: number): number {
-  return hourIndex === 0 ? 23 : (hourIndex * 2) - 1;
-}
-
 function createRequestId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
@@ -78,13 +74,22 @@ export class ChartWorkerService {
 
   private static async buildChartOnMainThread(input: ChartWorkerInput): Promise<ZiweiChart> {
     const { buildZiweiChart } = await import('../core/astrology/ChartBuilder');
+    const { calibrateSolarDate } = await import('../core/calendar/SolarTimeCalculator');
 
-    return buildZiweiChart({
-      day: input.day,
-      month: input.month,
+    // Hiệu chỉnh âm dương lịch pháp dựa trên múi giờ lịch sử và kinh độ của nơi sinh
+    const calibratedSolar = calibrateSolarDate({
       year: input.year,
-      hour: computeSolarHour(input.hourIndex),
-    }, input.gender);
+      month: input.month,
+      day: input.day,
+      hourMode: input.hourMode,
+      hourIndex: input.hourIndex,
+      exactHour: input.exactHour,
+      exactMinute: input.exactMinute,
+      birthPlace: input.birthPlace,
+      customLongitude: input.customLongitude,
+    });
+
+    return buildZiweiChart(calibratedSolar, input.gender);
   }
 
   static async buildChart(input: ChartWorkerInput): Promise<ZiweiChart> {
