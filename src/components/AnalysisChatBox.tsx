@@ -69,7 +69,11 @@ export const AnalysisChatBox: React.FC<AnalysisChatBoxProps> = ({
         >
           {turn.role === 'ai' && <strong className="block text-gold mb-1.5 text-xs font-semibold uppercase tracking-wider">Đại Sư AI</strong>}
           {turn.role === 'user' && <strong className="block text-cyan mb-1.5 text-xs font-semibold uppercase tracking-wider">Bạn</strong>}
-          <div className="whitespace-pre-line leading-relaxed">{turn.msg}</div>
+          {turn.role === 'ai' ? (
+            <div className="leading-relaxed" dangerouslySetInnerHTML={{ __html: turn.msg }} />
+          ) : (
+            <div className="whitespace-pre-line leading-relaxed">{turn.msg}</div>
+          )}
         </div>
       ))}
       {pendingChatMessage && (

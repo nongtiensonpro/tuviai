@@ -640,3 +640,110 @@ select.input option {
     transition: none !important;
   }
 }
+
+/* ============================================================
+   Interactive AI Output Styles (HTML/SVG)
+   ============================================================ */
+
+.ai-interactive-details {
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: var(--radius-lg);
+  background: rgba(0, 0, 0, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 0.875rem 0;
+  overflow: hidden;
+}
+
+.ai-interactive-details[open] {
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(8, 12, 24, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(212, 175, 55, 0.05);
+}
+
+.ai-interactive-summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-gold);
+  cursor: pointer;
+  user-select: none;
+  background: rgba(212, 175, 55, 0.03);
+  transition: all 0.2s ease;
+}
+
+.ai-interactive-summary:hover {
+  background: rgba(212, 175, 55, 0.08);
+  color: #fff8ed;
+}
+
+.ai-interactive-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ai-interactive-summary::before {
+  content: '▶';
+  display: inline-block;
+  font-size: 0.65rem;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--color-coral);
+}
+
+.ai-interactive-details[open] > .ai-interactive-summary::before {
+  transform: rotate(90deg);
+}
+
+.ai-interactive-content {
+  padding: 1rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.65;
+}
+
+.ai-interactive-content p {
+  margin-bottom: 0.75rem;
+}
+.ai-interactive-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Styled Tables inside AI response */
+.ai-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ai-table th {
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--color-gold);
+  font-weight: 600;
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+}
+
+.ai-table td {
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: rgba(255, 248, 235, 0.8);
+}
+
+.ai-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ai-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+  color: #ffffff;
+}
+

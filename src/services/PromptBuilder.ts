@@ -12,16 +12,16 @@ export const analyzeSchema = {
   properties: {
     summary: {
       type: "string",
-      description: "Tóm tắt 2-3 câu, giúp người đọc nắm nhanh mấu chốt của phần luận giải.",
+      description: "Tóm tắt 2-3 câu bằng tiếng Việt, giúp người đọc nắm nhanh mấu chốt của phần luận giải.",
     },
     palace_analysis: {
       type: "string",
-      description: "Phân tích kỹ càng, có dẫn chiếu cung liên quan, giải thích vì sao kết luận dựa trên chính tinh, phụ tinh, vô chính diệu, sao mượn và tam phương tứ chính.",
+      description: "Phân tích kỹ lưỡng dưới dạng định dạng HTML5 tương tác (details/summary, ai-table, inline svg). Giải thích chi tiết dựa trên chính tinh, phụ tinh, vô chính diệu, sao mượn và tam phương tứ chính.",
     },
     key_points: {
       type: "array",
       items: { type: "string" },
-      description: "3-5 ý chính ngắn gọn, dễ đọc, cô đọng các luận điểm mạnh nhất.",
+      description: "3-5 ý chính ngắn gọn bằng tiếng Việt, mỗi ý một câu ngắn, cô đọng các luận điểm mạnh nhất.",
     },
     karmic_interactions: {
       type: "array",
@@ -35,11 +35,11 @@ export const analyzeSchema = {
     },
     sihua_triggers: {
       type: "string",
-      description: "Phân tích sự kích hoạt của Tứ Hóa (Lộc, Quyền, Khoa, Kỵ) trong vùng trọng tâm hoặc trên các trục chính của lá số.",
+      description: "Phân tích bằng định dạng HTML5 tương tác sự kích hoạt của Tứ Hóa (Lộc, Quyền, Khoa, Kỵ) trong vùng trọng tâm hoặc trên các trục chính của lá số.",
     },
     modern_advice: {
       type: "string",
-      description: "Lời khuyên thực tế, dễ áp dụng trong đời sống hiện đại, tránh mơ hồ và tránh hù dọa.",
+      description: "Lời khuyên thực tế bằng định dạng HTML5 tương tác, dễ áp dụng trong đời sống hiện đại, tránh mơ hồ và tránh hù dọa.",
     },
     follow_up_suggestions: {
       type: "array",
@@ -71,15 +71,20 @@ NGUYÊN TẮC BẮT BUỘC:
 5. Nếu đang phân tích tổng quan, ưu tiên trục Mệnh, Thân, Quan Lộc, Tài Bạch và các tín hiệu nổi bật đã được tóm tắt trong context.
 6. Giọng điệu điềm tĩnh, có chiều sâu, không mê tín cực đoan, không hù dọa, không quyết định thay người dùng.
 7. Đầu ra phải là JSON hợp lệ, đúng schema, không bọc markdown, không thêm text ngoài JSON.
-8. Trong "referenced_palaces", chỉ liệt kê những cung thực sự đã dùng để lập luận.`;
+8. Trong "referenced_palaces", chỉ liệt kê những cung thực sự đã dùng để lập luận.
+9. TIÊU CHUẨN ĐỊNH DẠNG TƯƠNG TÁC (HTML & SVG): Các trường phân tích ("palace_analysis", "sihua_triggers", "modern_advice") phải được trình bày bằng định dạng HTML5 ngữ nghĩa và tương tác kết hợp sơ đồ inline SVG (nếu cần minh họa trực quan).
+   - Bắt buộc dùng thẻ <details class="ai-interactive-details"><summary class="ai-interactive-summary">Tiêu đề ẩn/hiện</summary><div class="ai-interactive-content">Nội dung giải thích chi tiết...</div></details> để bọc các phần phân tích kỹ thuật chuyên sâu về phụ tinh, chòm sao nhỏ, tam phương tứ chính ẩn hoặc lập luận học thuật nhằm giữ cho luồng đọc chính luôn gọn gàng và dễ theo dõi.
+   - Sử dụng cấu trúc bảng <table class="ai-table"><thead><tr><th>Đặc tính</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td>...</td><td>...</td></tr></tbody></table> khi so sánh miếu hãm chòm sao hoặc đối chiếu đắc thất của sao.
+   - Được phép dùng các lớp CSS Cosmic Alchemy sau để định dạng văn bản: "text-gold" (vàng hoàng gia), "text-coral" (san hô ấm), "text-cyan" (xanh thiên thể), "glass-card" (thẻ kính mờ), "font-semibold", "font-bold", "border border-gold/15", "p-3", "bg-gold/5", "rounded-lg", "my-2".
+   - Tuyệt đối không dùng thẻ <script>, các thuộc tính sự kiện như "onclick", hay đường dẫn "href" không an toàn. Tất cả mã HTML phải tự đóng thẻ chuẩn xác và lồng nhau hợp lệ.`;
   }
 
   static buildFollowUpSystemInstruction(): string {
     return `${this.buildSystemInstruction()}
-9. Với follow-up, hãy trả lời bằng văn xuôi tự nhiên bằng tiếng Việt, không cần JSON.
-10. Bám sát "threadMemory" và "recentTurns"; nếu câu hỏi vượt khỏi dữ kiện hiện có, nói rõ giới hạn thay vì suy diễn.
-11. Ưu tiên tính liên tục hội thoại: nối tiếp đúng mạch trao đổi trước đó, nhưng vẫn nhắc lại ngắn gọn bối cảnh nếu cần.
-12. Nếu có "conversationDigest", hãy dùng nó để nối mạch phần trao đổi cũ hơn, tránh bỏ quên ý quan trọng đã nói trước đó.`;
+10. Với follow-up, hãy trả lời bằng văn xuôi tự nhiên bằng tiếng Việt sử dụng định dạng HTML5 tương tác (details/summary, ai-table, inline svg) khi giải thích sâu hoặc trình bày bảng biểu trực quan, không cần JSON.
+11. Bám sát "threadMemory" và "recentTurns"; nếu câu hỏi vượt khỏi dữ kiện hiện có, nói rõ giới hạn thay vì suy diễn.
+12. Ưu tiên tính liên tục hội thoại: nối tiếp đúng mạch trao đổi trước đó, nhưng vẫn nhắc lại ngắn gọn bối cảnh nếu cần.
+13. Nếu có "conversationDigest", hãy dùng nó để nối mạch phần trao đổi cũ hơn, tránh bỏ quên ý quan trọng đã nói trước đó.`;
   }
 
   static buildAnalysisPrompt(

@@ -41,7 +41,7 @@ export const AnalysisResultCards: React.FC<AnalysisResultCardsProps> = ({
 
     <div className="py-1">
       <h3 className="text-lg text-blue-300 font-bold mb-3 flex items-center gap-2"><span>🔮</span> Cận Cảnh {(visiblePalaceFocus || 'Tổng Quan Mệnh Bàn').toUpperCase()}</h3>
-      <p className="text-white/90 text-sm leading-relaxed whitespace-pre-line">{data.palace_analysis}</p>
+      <div className="text-white/90 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: data.palace_analysis }} />
     </div>
 
     {data.key_points.length > 0 && (
@@ -90,12 +90,12 @@ export const AnalysisResultCards: React.FC<AnalysisResultCardsProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="py-1">
         <h3 className="text-lg text-red-300 font-bold mb-3 flex items-center gap-2"><span>🔥</span> Kích Hoạt Tứ Hóa & Cục</h3>
-        <p className="text-white/80 text-sm leading-relaxed">{data.sihua_triggers}</p>
+        <div className="text-white/80 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: data.sihua_triggers }} />
       </div>
 
       <div className="py-1">
         <h3 className="text-lg text-emerald-300 font-bold mb-3 flex items-center gap-2"><span>💡</span> Đặc Chỉ Lời Khuyên</h3>
-        <p className="text-white/80 text-sm leading-relaxed whitespace-pre-line">{data.modern_advice}</p>
+        <div className="text-white/80 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: data.modern_advice }} />
       </div>
     </div>
 
