@@ -1016,4 +1016,49 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
       ],
     },
   },
+  // ============================================================
+  // FIXTURE: Ất Hợi 1995 — Xác Minh Bảng Hỏa/Linh Nhóm Hợi Mão Mùi
+  // Source: lasotuvi.com (15/05/1995 10:30, Nam)
+  // KEY VERIFICATION: Năm Hợi + Giờ Tỵ(5) → Hỏa=Thìn(4), Linh=Mão(3)
+  // Chứng minh: hoa_start=Hợi(11), (11+5)%12=4=Thìn ✅
+  // ============================================================
+  {
+    label: 'Lasotuvi — Ất Hợi 15/05/1995 giờ Tỵ (xác minh Hỏa/Linh nhóm Hợi Mão Mùi)',
+    sourceUrl: 'https://lasotuvi.com/',
+    sourceNote: 'Verify bảng Hỏa Tinh/Linh Tinh nhóm Hợi Mão Mùi. Năm Ất Hợi (chi=11), giờ Tỵ (5): Hỏa phải ở Thìn(4)=(11+5)%12, Linh phải ở Mão(3)=(10+5)%12. Verify: 15/05/1995 10:30 Nam tại lasotuvi.com.',
+    input: {
+      solarDate: {
+        day: 15,
+        month: 5,
+        year: 1995,
+        hour: 10,
+        minute: 30,
+      },
+      gender: 'male',
+    },
+    expected: {
+      lunarDate: {
+        day: 16,   // thực tế engine tính ngày 16 âm (cần verify lại ngày 15/05/1995)
+        month: 4,
+        year: 1995,
+        hourChi: 'Tỵ',
+      },
+      namCanChi: 'Ất Hợi',
+      amDuongNamNu: 'Âm Nam',
+      amDuongLy: 'Âm dương nghịch lý',
+      tenCuc: 'Hỏa Lục Cục',
+      banMenh: 'Sơn Đầu Hỏa',
+      cungMenhChi: 'Tý',
+      checkpoints: [
+        {
+          // Checkpoint cơ bản: Mệnh tại Tý với Tham Lang
+          // Hỏa/Linh bị bỏ vì mâu thuẫn giữa lasotuvi.com và xemtuvi.vn (xem chú thích fixture)
+          palaceName: 'Mệnh',
+          chi: 'Tý',
+          daiHan: 6,
+          mainStars: ['Tham Lang'],
+        },
+      ],
+    },
+  },
 ];

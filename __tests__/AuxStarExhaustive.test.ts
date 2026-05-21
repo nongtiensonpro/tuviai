@@ -73,11 +73,16 @@ describe('Exhaustive Auxiliary Stars Verification', () => {
   it('khớp 100% Hỏa Tinh & Linh Tinh cho 12 Địa Chi năm × 12 giờ sinh (144 cases)', () => {
     // Start indexes based on Earthly Branch groups
     // 0=Tý, 1=Sửu, 2=Dần, 3=Mão, 4=Thìn, 5=Tỵ, 6=Ngọ, 7=Mùi, 8=Thân, 9=Dậu, 10=Tuất, 11=Hợi
+    //
+    // ⚠️ Mâu thuẫn trường phái về nhóm Hợi Mão Mùi:
+    // - lasotuvi.com: Ất Hợi + giờ Tỵ(5) → Hỏa=Thìn(4) ⇒ khởi Hợi(11)
+    // - xemtuvi.vn:  Đinh Hợi + giờ Tỵ(5) → Hỏa=Dần(2) ⇒ khởi Dậu(9) [2 lá số verify]
+    // Đang dùng khởi Dậu(9) vì xemtuvi.vn có 2 lá số xác nhận. Cần verify thêm.
     const getStartPos = (chiYear: number) => {
-      if ([0, 4, 8].includes(chiYear)) return { hoa: 2, linh: 10 }; // Thân Tý Thìn -> Dần, Tuất
-      if ([2, 6, 10].includes(chiYear)) return { hoa: 1, linh: 3 };  // Dần Ngọ Tuất -> Sửu, Mão
-      if ([1, 5, 9].includes(chiYear)) return { hoa: 3, linh: 10 };  // Tỵ Dậu Sửu -> Mão, Tuất
-      return { hoa: 9, linh: 10 };                                  // Hợi Mão Mùi -> Dậu, Tuất
+      if ([0, 4, 8].includes(chiYear)) return { hoa: 2, linh: 10 };  // Thân Tý Thìn → Dần, Tuất
+      if ([2, 6, 10].includes(chiYear)) return { hoa: 1, linh: 3 };  // Dần Ngọ Tuất → Sửu, Mão
+      if ([1, 5, 9].includes(chiYear)) return { hoa: 3, linh: 10 };  // Tỵ Dậu Sửu → Mão, Tuất
+      return { hoa: 9, linh: 10 };                                  // Hợi Mão Mùi → Dậu, Tuất [mâu thuẫn: lasotuvi.com dùng khởi Hợi(11)]
     };
 
     for (let chiYear = 0; chiYear < 12; chiYear++) {

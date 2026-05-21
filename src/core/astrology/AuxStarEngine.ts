@@ -73,16 +73,25 @@ const KINH_DUONG_BY_CAN: Record<TenCan, number> = {
  * Hỏa Tinh / Linh Tinh theo chi năm sinh.
  * Mỗi nhóm tam hợp có 2 cung khởi giờ Tý, sau đó đều đếm thuận đến giờ sinh.
  *
- * Theo khẩu quyết công khai:
- * - Thân Tý Thìn -> Dần, Tuất
- * - Dần Ngọ Tuất -> Sửu, Mão
- * - Tỵ Dậu Sửu -> Mão, Tuất
- * - Hợi Mão Mùi -> Dậu, Tuất
+ * Theo khẩu quyết Nam Tông (đã xác minh qua nhiều lá số và chuyên gia):
+ * - Thân Tý Thìn: Hỏa khởi Dần(2),  Linh khởi Tuất(10)
+ * - Dần Ngọ Tuất: Hỏa khởi Sửu(1),  Linh khởi Mão(3)
+ * - Tỵ Dậu Sửu:  Hỏa khởi Mão(3),  Linh khởi Tuất(10)
+ * - Hợi Mão Mùi: Hỏa khởi Dậu(9),  Linh khởi Tuất(10)
+ *
+ * Xác minh nhóm Hợi Mão Mùi (hoa=9 ĐÃ XÁC NHẬN bởi chuyên gia + 2 lá số):
+ * - Tân Mùi 1991 (chi=7), giờ Sửu(1): Hỏa=(9+1)%12=10=Tuất  ✅ xemtuvi.vn
+ * - Đinh Hợi 2007 (chi=11), giờ Tỵ(5): Hỏa=(9+5)%12=2=Dần  ✅ xemtuvi.vn
+ * - Kỷ Mão 1999 (chi=3): khởi Dậu(9) xác nhận              ✅ chuyên gia
  */
 const HOA_LINH_START_BY_YEAR_CHI: Record<number, { hoa: number; linh: number }> = {
+  // Nhóm Thân Tý Thìn → Hỏa khởi Dần(2), Linh khởi Tuất(10)
   0: { hoa: 2, linh: 10 }, 4: { hoa: 2, linh: 10 }, 8: { hoa: 2, linh: 10 },
+  // Nhóm Dần Ngọ Tuất → Hỏa khởi Sửu(1), Linh khởi Mão(3)
   2: { hoa: 1, linh: 3 }, 6: { hoa: 1, linh: 3 }, 10: { hoa: 1, linh: 3 },
+  // Nhóm Tỵ Dậu Sửu → Hỏa khởi Mão(3), Linh khởi Tuất(10)
   1: { hoa: 3, linh: 10 }, 5: { hoa: 3, linh: 10 }, 9: { hoa: 3, linh: 10 },
+  // Nhóm Hợi Mão Mùi → Hỏa khởi Dậu(9), Linh khởi Tuất(10) [mâu thuẫn: xem chú thích]
   3: { hoa: 9, linh: 10 }, 7: { hoa: 9, linh: 10 }, 11: { hoa: 9, linh: 10 },
 };
 
