@@ -30,7 +30,7 @@ ZiweiChart      // Toàn bộ mệnh bàn
 // ✅ ĐÚNG
 export interface Star {
   name: string;
-  brightness: '庙' | '旺' | '得' | '利' | '平' | '不' | '陷';
+  brightness: 'M' | 'V' | 'Đ' | 'B' | 'H' | '';
   sihua?: 'Lộc' | 'Quyền' | 'Khoa' | 'Kỵ';
 }
 

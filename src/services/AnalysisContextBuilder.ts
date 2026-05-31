@@ -38,7 +38,7 @@ function buildPalaceSnapshot(palace: Palace): AiPalaceSnapshot {
     daiHan: palace.daiHan,
     isThanPalace: palace.isThanPalace,
     hasTuanKhong: palace.hasTuanKhong,
-    hasTrietKhong: palace.hasTrinhKhong,
+    hasTrietKhong: palace.hasTrietKhong,
   };
 }
 

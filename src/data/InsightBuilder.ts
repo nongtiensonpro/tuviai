@@ -531,7 +531,7 @@ function buildPalaceRelatedItems(palace?: Palace, currentName?: string): Insight
     related.push({ kind: 'state-marker', name: 'Tuần', label: 'Tuần' });
   }
 
-  if (palace.hasTrinhKhong) {
+  if (palace.hasTrietKhong) {
     related.push({ kind: 'state-marker', name: 'Triệt', label: 'Triệt' });
   }
 
@@ -677,7 +677,7 @@ function buildPalaceSnapshotSection(palace: Palace): InsightSection {
   const stateText = [
     palace.isThanPalace ? 'Cung này đồng thời là nơi an Thân.' : '',
     palace.hasTuanKhong ? 'Cung đang bị Tuần án ngữ.' : '',
-    palace.hasTrinhKhong ? 'Cung đang bị Triệt án ngữ.' : '',
+    palace.hasTrietKhong ? 'Cung đang bị Triệt án ngữ.' : '',,
     palace.trangSinh ? `Tràng Sinh tại cung là ${palace.trangSinh}.` : '',
     `Đại Hạn khởi từ ${palace.daiHan}.`,
   ].filter(Boolean).join(' ');
@@ -1105,7 +1105,7 @@ function buildStateMarkerExploreGroups(
       description: 'Nhảy sang những cung bị Triệt án để xem nơi nào đang bị cắt đường hoặc buộc đổi hướng.',
       category: 'palace-impact',
       items: chart.palaces
-        .filter((item) => item.hasTrinhKhong)
+        .filter((item) => item.hasTrietKhong)
         .map((item) => ({
           kind: 'palace' as const,
           name: item.palaceName,
@@ -1285,7 +1285,7 @@ export function buildTermInsightPayload(chart: ZiweiChart, selection: InsightTer
     kind === 'state-marker' ? 'Chỉ dấu lá số' : '',
     palace?.isThanPalace && kind === 'palace' ? 'Thân cư cung này' : '',
     palace?.hasTuanKhong && normalizedName === 'Tuần' ? `Tác động tại ${palace.palaceName}` : '',
-    palace?.hasTrinhKhong && normalizedName === 'Triệt' ? `Tác động tại ${palace.palaceName}` : '',
+    palace?.hasTrietKhong && normalizedName === 'Triệt' ? `Tác động tại ${palace.palaceName}` : '',,
     palace?.trangSinh === normalizedName ? `Hiện diện tại ${palace.palaceName}` : '',
     palace ? `${palace.can}.${palace.chi}` : '',
     ...familyInsight.tags,

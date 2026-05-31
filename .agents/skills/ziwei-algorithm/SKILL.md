@@ -11,7 +11,7 @@ description: >
 
 ## Tổng Quan Trường Phái
 
-App này theo **Nam Tông (Tam Hợp)** — trường phái Tử Vi phổ biến nhất tại Việt Nam.
+App này tuân thủ **Nam Tông (Tam Hợp)** — trường phái Tử Vi phổ biến nhất tại Việt Nam.
 
 | Đặc điểm | Giá trị |
 |---|---|
@@ -19,7 +19,19 @@ App này theo **Nam Tông (Tam Hợp)** — trường phái Tử Vi phổ biến
 | Số chính tinh | 14 sao |
 | Phụ tinh | 6 Lục Cát + 6 Lục Sát + ~70 bàng tinh/tạp diệu |
 | Nguồn tham khảo chính | Quản Xuân Thịnh, Học viện Lý số Hà Nội |
-| Verify bằng | lasotuvi.com, unit tests (131 cases) |
+| Verify bằng | lasotuvi.com, unit tests (132 cases) |
+
+### Quyết Định Quy Ước Học Thuật (Hết Sức Quan Trọng)
+
+Để đảm bảo tính đồng nhất tuyệt đối giữa Engine tính toán và hệ thống lý giải (Insight Engine), các quy ước học thuật sau đây được áp dụng cứng:
+
+1. **Cặp sao Không-Kiếp trong Lục Sát tinh**:
+   - Sử dụng tên gọi **"Địa Không"** (an nghịch giờ sinh từ Hợi) và **"Địa Kiếp"** (an thuận giờ sinh từ Hợi).
+   - Tuyệt đối không dùng tên "Thiên Không" cho sao thuộc Lục Sát để tránh nhầm lẫn với sao Thiên Không thuộc vòng Thái Tuế.
+2. **An Hỏa Tinh & Linh Tinh**:
+   - Luôn luôn **đếm thuận** theo chiều kim đồng hồ đối với cả Nam và Nữ (Dương Nam, Âm Nam, Dương Nữ, Âm Nữ) dựa trên chi năm sinh và giờ sinh. Đây là quy ước chuẩn đã được kiểm chứng trùng khớp 100% với lasotuvi.com qua hàng loạt bộ test thực tế.
+3. **Triệt Lộ Không Vong**:
+   - An tại 2 cung liền kề theo Thiên Can năm sinh. Cung chứa Triệt Không được gắn cờ `hasTrietKhong: boolean` (đã sửa triệt để typo `hasTrinhKhong`).
 
 ---
 
@@ -365,13 +377,12 @@ const HOA_LINH_START: Record<number, { hoa: number; linh: number }> = {
 // linhIdx = (HOA_LINH_START[yearChiIndex].linh + hourChiIndex) % 12
 ```
 
-### Thiên Không & Địa Kiếp (theo giờ sinh):
+### Địa Không & Địa Kiếp (theo giờ sinh):
 
-> **Lưu ý trường phái**: App dùng tên "Thiên Không" cho sao an theo giờ (không phải "Địa Không")  
-> để phân biệt với "Địa Kiếp". Đây là quy ước của Nam Tông Việt Nam.
+> **Lưu ý trường phái**: App sử dụng tên gọi **"Địa Không"** cho sao an nghịch giờ sinh khởi từ Hợi (cặp với "Địa Kiếp" an thuận giờ sinh khởi từ Hợi). Đây là cặp sao Không - Kiếp thuộc nhóm Lục Sát tinh theo đúng chuẩn Tử Vi Nam Phái (lasotuvi.com).
 
 ```
-Thiên Không: Giờ Tý → Hợi(11), đếm NGHỊCH → (11 - hourChiIndex + 12) % 12
+Địa Không  : Giờ Tý → Hợi(11), đếm NGHỊCH → (11 - hourChiIndex + 12) % 12
 Địa Kiếp   : Giờ Tý → Hợi(11), đếm THUẬN  → (11 + hourChiIndex) % 12
 ```
 

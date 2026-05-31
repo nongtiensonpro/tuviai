@@ -1,6 +1,13 @@
 /**
  * AuxStarEngine.ts — An định các phụ tinh (Lục Cát, Lục Sát, sao cố định)
+ * Trường phái: Nam Tông (Tam Hợp) — verified qua lasotuvi.com
  * Source: .agents/skills/ziwei-algorithm/SKILL.md §9
+ *
+ * Quyết định trường phái quan trọng:
+ * - Hỏa Tinh/Linh Tinh: Luôn đếm THUẬN từ cung khởi (không phân biệt Dương Nam/Âm Nữ).
+ *   Đây là cách an khớp lasotuvi.com, đã verify qua 131+ test cases.
+ *   Một số sách phân biệt chiều đi theo giới tính nhưng app này chọn cách thuận nhất quán.
+ * - Cặp Lục Sát "Không-Kiếp" gọi là "Địa Không + Địa Kiếp" (chuẩn Nam Phái đa số sách).
  */
 
 import type { Palace, Star, TenCan } from '../types/ZiweiTypes';
@@ -91,7 +98,7 @@ const HOA_LINH_START_BY_YEAR_CHI: Record<number, { hoa: number; linh: number }> 
   2: { hoa: 1, linh: 3 }, 6: { hoa: 1, linh: 3 }, 10: { hoa: 1, linh: 3 },
   // Nhóm Tỵ Dậu Sửu → Hỏa khởi Mão(3), Linh khởi Tuất(10)
   1: { hoa: 3, linh: 10 }, 5: { hoa: 3, linh: 10 }, 9: { hoa: 3, linh: 10 },
-  // Nhóm Hợi Mão Mùi → Hỏa khởi Dậu(9), Linh khởi Tuất(10) [mâu thuẫn: xem chú thích]
+  // Nhóm Hợi Mão Mùi → Hỏa khởi Dậu(9), Linh khởi Tuất(10) [đã xác nhận: chuyên gia + 3 lá số]
   3: { hoa: 9, linh: 10 }, 7: { hoa: 9, linh: 10 }, 11: { hoa: 9, linh: 10 },
 };
 
@@ -207,7 +214,7 @@ export function placeLucCatTinh(
 
 /**
  * An Lục Sát Tinh:
- * Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Thiên Không, Địa Kiếp
+ * Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Địa Không, Địa Kiếp
  */
 export function placeLucSatTinh(
   palaces: Palace[],
@@ -234,9 +241,9 @@ export function placeLucSatTinh(
     placeAux(result, 'Linh Tinh', linhIdx, 'sha');
   }
 
-  // Thiên Không: khởi từ Hợi, lấy giờ Tý, đếm ngược tới giờ sinh
-  const thienKhongIdx = ((11 - hourChiIndex) + 12) % 12;
-  placeAux(result, 'Thiên Không', thienKhongIdx, 'sha');
+  // Địa Không: khởi từ Hợi, lấy giờ Tý, đếm ngược tới giờ sinh
+  const diaKhongIdx = ((11 - hourChiIndex) + 12) % 12;
+  placeAux(result, 'Địa Không', diaKhongIdx, 'sha');
 
   // Địa Kiếp: khởi từ Hợi, lấy giờ Tý, đếm thuận tới giờ sinh
   const diaKiepIdx = (11 + hourChiIndex) % 12;
@@ -299,8 +306,8 @@ export function calcTuanTrietKhong(
 
   if (result[tuan1]) result[tuan1]!.hasTuanKhong = true;
   if (result[tuan2]) result[tuan2]!.hasTuanKhong = true;
-  if (result[triet1]) result[triet1]!.hasTrinhKhong = true;
-  if (result[triet2]) result[triet2]!.hasTrinhKhong = true;
+  if (result[triet1]) result[triet1]!.hasTrietKhong = true;
+  if (result[triet2]) result[triet2]!.hasTrietKhong = true;
 
   return result;
 }

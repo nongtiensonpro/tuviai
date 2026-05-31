@@ -63,7 +63,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 75,
           trangSinh: 'Trường Sinh',
           mainStars: ['Tử Vi', 'Thiên Phủ'],
-          auxStarsIncludes: ['Lộc Tồn', 'Tả Phù', 'Thiên Không', 'Lưu Hà'],
+          auxStarsIncludes: ['Lộc Tồn', 'Tả Phù', 'Địa Không', 'Lưu Hà'],
           hasTuanKhong: true,
         },
         { palaceName: 'Thiên Di', chi: 'Dậu', daiHan: 65, trangSinh: 'Dưỡng', isThanPalace: true, hasTuanKhong: true },
@@ -206,7 +206,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 25,
           trangSinh: 'Thai',
           mainStars: ['Tham Lang'],
-          auxStarsIncludes: ['Kình Dương', 'Thiên Không', 'Long Trì', 'Thiên Trù', 'Hỏa Tinh'],
+          auxStarsIncludes: ['Kình Dương', 'Địa Không', 'Long Trì', 'Thiên Trù', 'Hỏa Tinh'],
         },
         {
           palaceName: 'Điền Trạch',
@@ -354,7 +354,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 34,
           trangSinh: 'Suy',
           mainStars: ['Vũ Khúc'],
-          auxStarsIncludes: ['Tả Phù', 'Kình Dương', 'Hỏa Tinh', 'Thiên Không'],
+          auxStarsIncludes: ['Tả Phù', 'Kình Dương', 'Hỏa Tinh', 'Địa Không'],
         },
         {
           palaceName: 'Quan Lộc',
@@ -409,7 +409,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 22,
           trangSinh: 'Bệnh',
           borrowedMainStars: ['Thiên Cơ', 'Thái Âm'],
-          auxStarsIncludes: ['Thiên Không', 'Cô Thần', 'Thiên Mã'],
+          auxStarsIncludes: ['Địa Không', 'Cô Thần', 'Thiên Mã'],
         },
         {
           palaceName: 'Huynh Đệ',
@@ -513,7 +513,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 22,
           trangSinh: 'Bệnh',
           mainStars: ['Tử Vi', 'Thiên Phủ'],
-          auxStarsIncludes: ['Thiên Không', 'Kiếp Sát', 'Thiên Đức', 'Đường Phù'],
+          auxStarsIncludes: ['Địa Không', 'Kiếp Sát', 'Thiên Đức', 'Đường Phù'],
         },
         {
           palaceName: 'Huynh Đệ',
@@ -643,7 +643,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 13,
           trangSinh: 'Tử',
           mainStars: ['Tham Lang'],
-          auxStarsIncludes: ['Thiên Không', 'Tam Thai', 'Ân Quang', 'Hoa Cái'],
+          auxStarsIncludes: ['Địa Không', 'Tam Thai', 'Ân Quang', 'Hoa Cái'],
         },
         {
           palaceName: 'Điền Trạch',
@@ -734,7 +734,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 26,
           trangSinh: 'Đế Vượng',
           mainStars: ['Thái Dương'],
-          auxStarsIncludes: ['Lộc Tồn', 'Thiên Không', 'Long Đức', 'Tam Thai'],
+          auxStarsIncludes: ['Lộc Tồn', 'Địa Không', 'Long Đức', 'Tam Thai'],
         },
         {
           palaceName: 'Điền Trạch',
@@ -865,7 +865,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 14,
           trangSinh: 'Lâm Quan',
           borrowedMainStars: ['Thiên Đồng', 'Thiên Lương'],
-          auxStarsIncludes: ['Thiên Không', 'Ân Quang', 'Cô Thần'],
+          auxStarsIncludes: ['Địa Không', 'Ân Quang', 'Cô Thần'],
         },
         {
           palaceName: 'Quan Lộc',
@@ -1011,7 +1011,7 @@ export const REFERENCE_CHART_FIXTURES: ReferenceChartFixture[] = [
           daiHan: 73,
           trangSinh: 'Trường Sinh',
           mainStars: ['Thiên Phủ'],
-          auxStarsIncludes: ['Thiên Không', 'Địa Kiếp', 'Thiên Thương', 'Hồng Loan', 'Thiên Quan'],
+          auxStarsIncludes: ['Địa Không', 'Địa Kiếp', 'Thiên Thương', 'Hồng Loan', 'Thiên Quan'],
         },
       ],
     },

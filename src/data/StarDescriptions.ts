@@ -87,7 +87,6 @@ export const STAR_DESC: Record<string, string> = {
   'Thiên Giải': 'Tai ương gặp Thiên Giải hóa cát, giúp trừ tà, thoát chốn nguy nan.',
   'Địa Giải': 'Hóa giải hung tinh ở mức độ nhẹ, giúp tiêu tai tan bệnh, chủ về sự che chở.',
   'Giải Thần': 'Sự hanh thông, giải thoát mọi ràng buộc, nhưng nếu đi cùng Hôn nhân / Ký kết thì lại là tan rã.',
-  'Thiên Không': 'Không tinh mang tính đột biến, hư không và phá chấp. Dễ làm việc đang thành hóa dang dở, nghĩ nhiều thành ít; nhưng gặp cách tốt lại hợp nghiên cứu, triết lý và những con đường thoát khuôn.',
   'Phong Cáo': 'Sao chủ về thăng tiến, bằng khen, được vua ban tước lộc.',
   'Thai Phụ': 'Sao phụ quý hiển, chủ nâng đỡ địa vị, nghi lễ, danh dự và phong thái đĩnh đạc. Hội cát tinh tăng sự sang trọng, được đề bạt và giữ vai trò xứng danh.',
   'Đài Phụ': 'Cách gọi thay cho Thai Phụ. Chủ nâng đỡ địa vị, nghi lễ, danh dự và làm tăng vẻ quý hiển của bộ sao đi kèm.',

@@ -73,7 +73,7 @@ describe('AuxStarEngine', () => {
     const result = calcTuanTrietKhong(palaces, yearCanChi.canIndex, yearCanChi.chiIndex);
 
     const tuanKhongPalaces = result.filter(palace => palace.hasTuanKhong).map(palace => palace.chiIndex);
-    const trietKhongPalaces = result.filter(palace => palace.hasTrinhKhong).map(palace => palace.chiIndex);
+    const trietKhongPalaces = result.filter(palace => palace.hasTrietKhong).map(palace => palace.chiIndex);
 
     expect(tuanKhongPalaces).toEqual([10, 11]); // Tuất, Hợi
     expect(trietKhongPalaces).toEqual([6, 7]);  // Ngọ, Mùi
@@ -138,13 +138,13 @@ describe('MinorStarEngine', () => {
     expect(nguyetDucMonthOne).toBe(nguyetDucMonthSix);
   });
 
-  it('khóa cụm Thiên Không/Địa Kiếp theo giờ và không nhân đôi Thiên Không ở case 27/09/1998', () => {
+  it('khóa cụm Địa Không/Địa Kiếp theo giờ và không nhân đôi Địa Không ở case 27/09/1998', () => {
     const chart = buildZiweiChart({ day: 27, month: 9, year: 1998, hour: 9 }, 'male');
-    const thienKhongPalaces = chart.palaces.filter(palace => palace.auxStars.some(star => star.name === 'Thiên Không'));
+    const diaKhongPalaces = chart.palaces.filter(palace => palace.auxStars.some(star => star.name === 'Địa Không'));
     const diaKiepPalaces = chart.palaces.filter(palace => palace.auxStars.some(star => star.name === 'Địa Kiếp'));
 
-    expect(thienKhongPalaces).toHaveLength(1);
-    expect(thienKhongPalaces[0]?.chi).toBe('Ngọ');
+    expect(diaKhongPalaces).toHaveLength(1);
+    expect(diaKhongPalaces[0]?.chi).toBe('Ngọ');
     expect(diaKiepPalaces).toHaveLength(1);
     expect(diaKiepPalaces[0]?.chi).toBe('Thìn');
   });
@@ -203,7 +203,7 @@ describe('ChartBuilder star integration', () => {
       0,
     );
     const tuanCount = chart.palaces.filter(palace => palace.hasTuanKhong).length;
-    const trietCount = chart.palaces.filter(palace => palace.hasTrinhKhong).length;
+    const trietCount = chart.palaces.filter(palace => palace.hasTrietKhong).length;
 
     expect(locTonCount).toBe(1);
     expect(tuanCount).toBe(2);

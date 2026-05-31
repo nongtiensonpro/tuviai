@@ -145,7 +145,7 @@ export function buildPalaces(
       daiHan: 0,
       isThanPalace: false,
       hasTuanKhong: false,
-      hasTrinhKhong: false,
+      hasTrietKhong: false,
     });
   }
 

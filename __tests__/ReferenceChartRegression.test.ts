@@ -63,7 +63,7 @@ function assertReferenceChart(fixture: ReferenceChartFixture) {
     }
 
     if (checkpoint.hasTrietKhong !== undefined) {
-      expect(palace.hasTrinhKhong).toBe(checkpoint.hasTrietKhong);
+      expect(palace.hasTrietKhong).toBe(checkpoint.hasTrietKhong);
     }
 
     if (checkpoint.mainStars) {

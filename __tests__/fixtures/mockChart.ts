@@ -93,7 +93,7 @@ const PALACE_FIXTURES: Record<number, PalaceFixtureConfig> = {
   5: {
     palaceName: 'Tử Tức',
     mainStars: [],
-    auxStars: [createAuxStar('Thiên Không', 5, 'other', 'Hỏa')],
+    auxStars: [createAuxStar('Địa Không', 5, 'sha', 'Hỏa')],
     borrowedStars: [createMainStar('Thái Âm', 5, 'B', 'Thủy')],
   },
   6: {
@@ -181,7 +181,7 @@ function createPalaces(): Palace[] {
       sihua: fixture.sihua ?? [],
       borrowedStars: fixture.borrowedStars ?? [],
       hasTuanKhong: fixture.hasTuanKhong ?? false,
-      hasTrinhKhong: fixture.hasTrietKhong ?? false,
+      hasTrietKhong: fixture.hasTrietKhong ?? false,
     };
   });
 }

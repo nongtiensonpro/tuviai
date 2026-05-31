@@ -193,7 +193,7 @@ export interface Palace {
   hasTuanKhong: boolean;
 
   /** Cung có Triệt Không */
-  hasTrinhKhong: boolean;
+  hasTrietKhong: boolean;
 }
 
 // ============================================================
