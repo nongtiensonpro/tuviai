@@ -58,4 +58,28 @@ describe('AnalysisContextBuilder', () => {
     expect(context.bridgeContext?.targetFocusArea).toBe('Quan Lộc');
     expect(context.bridgeContext?.transitionReason).toContain('chuyển từ cung Mệnh');
   });
+
+  it('enriches Palace snapshots with nguHanh and detailed star element/brightness names', () => {
+    const context = AnalysisContextBuilder.buildInitialAnalysisContext(createMockChart(), 'Mệnh');
+    const menhPalace = context.chartFacts.keyPalaces.find(p => p.palaceName === 'Mệnh');
+    
+    expect(menhPalace).toBeDefined();
+    expect(menhPalace?.nguHanh).toBe('Mộc'); // Cung Dần hành Mộc
+    
+    // Check main star formatting: e.g. "Vũ Khúc (Kim - Đắc)" or similar depending on mockChart
+    // Let's check mockChart mainStars: createMainStar('Thiên Đồng', 0, 'B', 'Thủy')
+    const phucDucPalace = context.chartFacts.all12Palaces.find(p => p.palaceName === 'Phúc Đức');
+    expect(phucDucPalace?.mainStars[0]).toContain('Thiên Đồng');
+    expect(phucDucPalace?.mainStars[0]).toContain('Thủy'); // Element Thủy
+    expect(phucDucPalace?.mainStars[0]).toContain('Bình'); // 'B' maps to 'Bình'
+  });
+
+  it('provides all 12 palaces in the context ordered by chiIndex', () => {
+    const context = AnalysisContextBuilder.buildInitialAnalysisContext(createMockChart());
+    
+    expect(context.chartFacts.all12Palaces).toHaveLength(12);
+    // Index 0 must be Tý, Index 11 must be Hợi
+    expect(context.chartFacts.all12Palaces[0].diaChi).toBe('Tý');
+    expect(context.chartFacts.all12Palaces[11].diaChi).toBe('Hợi');
+  });
 });

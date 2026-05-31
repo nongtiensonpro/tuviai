@@ -2,8 +2,9 @@
  * PromptBuilder.ts — Định dạng Mega Prompt để Gemini AI phân tích lá số
  */
 import type { AnalysisBridgeContext, AnalysisThread, FollowUpPromptContext, PalaceAnalysis, PalaceName, ZiweiChart } from '../core/types/ZiweiTypes';
-import { AnalysisContextBuilder } from './AnalysisContextBuilder';
+import { AnalysisContextBuilder, getChiNguHanh, getBrightnessText } from './AnalysisContextBuilder';
 import { AnalysisThreadService } from './AnalysisThreadService';
+import { getStarNguHanh } from '../core/astrology/NguHanhEngine';
 
 export type StructuredAiResponse = PalaceAnalysis;
 
@@ -87,6 +88,109 @@ NGUYÊN TẮC BẮT BUỘC:
 13. Nếu có "conversationDigest", hãy dùng nó để nối mạch phần trao đổi cũ hơn, tránh bỏ quên ý quan trọng đã nói trước đó.`;
   }
 
+  static getNhiHopChiIndex(chiIndex: number): number {
+    switch (chiIndex) {
+      case 0: return 1;
+      case 1: return 0;
+      case 2: return 11;
+      case 11: return 2;
+      case 3: return 10;
+      case 10: return 3;
+      case 4: return 9;
+      case 9: return 4;
+      case 5: return 8;
+      case 8: return 5;
+      case 6: return 7;
+      case 7: return 6;
+      default: return chiIndex;
+    }
+  }
+
+  static buildAnnotatedChartMap(chart: ZiweiChart): string {
+    const thanPalace = chart.palaces.find(p => p.isThanPalace);
+    let mapStr = `### BẢN ĐỒ CHIÊM TINH TỬ VI ĐẨU SỐ (BẢN ĐỒ TỰ GIẢI THÍCH CHO AI)\n\n`;
+    
+    // 1. Thông tin chung
+    mapStr += `#### [THÔNG TIN CHUNG BẢN MỆNH]\n`;
+    mapStr += `- Đương số: Giới tính ${chart.gender === 'male' ? 'Nam' : 'Nữ'} (${chart.amDuongNamNu})\n`;
+    mapStr += `- Ngày sinh Dương lịch: ${chart.solarDate.day}/${chart.solarDate.month}/${chart.solarDate.year} lúc ${chart.solarDate.hour}h\n`;
+    mapStr += `- Ngày sinh Âm lịch: Ngày ${chart.lunarDate.day} tháng ${chart.lunarDate.month} năm ${chart.namCanChi.displayName} (${chart.lunarDate.hourChi} giờ)\n`;
+    mapStr += `- Bản mệnh (Ngũ Hành): ${chart.banMenh}\n`;
+    mapStr += `- Cục (Ngũ Hành Cục): ${chart.tenCuc} (${chart.amDuongLy})\n`;
+    mapStr += `- Quan hệ Mệnh Cục: ${chart.menhCucSinhKhac}\n`;
+    mapStr += `- Mệnh Chủ: ${chart.menhChu} | Thân Chủ: ${chart.thanChu}\n`;
+    mapStr += `- Cung an Mệnh cư: ${chart.cungMenhChi} | Cung an Thân cư: ${thanPalace ? thanPalace.palaceName + ' (' + thanPalace.chi + ')' : chart.cungThanChi}\n\n`;
+
+    // 2. 12 cung địa bàn
+    mapStr += `#### [CHI TIẾT 12 CUNG TRÊN ĐỊA BÀN - THỨ TỰ ĐỊA CHI]\n`;
+    
+    chart.palaces.forEach(palace => {
+      const chiIndex = palace.chiIndex;
+      const chi = palace.chi;
+      const name = palace.palaceName;
+      const element = getChiNguHanh(chi);
+      
+      // Markers
+      const markers: string[] = [];
+      if (palace.isThanPalace) markers.push('Cung an THÂN');
+      if (palace.hasTuanKhong) markers.push('Có TUẦN KHÔNG');
+      if (palace.hasTrietKhong) markers.push('Có TRIỆT KHÔNG');
+      const markerText = markers.length > 0 ? ` [Trạng thái đặc biệt: ${markers.join(', ')}]` : '';
+      
+      mapStr += `${chiIndex + 1}. Cung ${name.toUpperCase()} (tại chi ${chi.toUpperCase()} - hành ${element})${markerText}\n`;
+      mapStr += `   - Đại hạn bắt đầu từ: ${palace.daiHan} tuổi | Vòng Tràng Sinh: ${palace.trangSinh}\n`;
+      
+      // Stars
+      const mainStarsText = palace.mainStars.map(star => {
+        const starEl = getStarNguHanh(star.name);
+        const brText = getBrightnessText(star.brightness);
+        const br = brText ? ` - ${brText}` : '';
+        const si = star.sihua ? ` [Hóa ${star.sihua}]` : '';
+        return `${star.name} (${starEl}${br})${si}`;
+      });
+      mapStr += `   - Chính tinh: ${mainStarsText.length > 0 ? mainStarsText.join(', ') : 'Vô chính diệu (Không có chính tinh)'}\n`;
+      
+      if (palace.borrowedStars.length > 0) {
+        const borrowedText = palace.borrowedStars.map(star => {
+          const starEl = getStarNguHanh(star.name);
+          const brText = getBrightnessText(star.brightness);
+          const br = brText ? ` - ${brText}` : '';
+          const si = star.sihua ? ` [Hóa ${star.sihua}]` : '';
+          return `${star.name} (${starEl}${br})${si}`;
+        });
+        mapStr += `   - Chính tinh mượn (xung chiếu): ${borrowedText.join(', ')}\n`;
+      }
+      
+      const auxText = palace.auxStars.map(star => {
+        const starEl = getStarNguHanh(star.name);
+        const si = star.sihua ? ` [Hóa ${star.sihua}]` : '';
+        return `${star.name} (${starEl})${si}`;
+      });
+      mapStr += `   - Phụ tinh & Tạp diệu: ${auxText.length > 0 ? auxText.join(', ') : 'Không có'}\n`;
+      
+      // Sihua summary
+      const sihuaItems = palace.sihua.map(trigger => `${trigger.starName} Hóa ${trigger.type}`);
+      if (sihuaItems.length > 0) {
+        mapStr += `   - Tứ Hóa xuất hiện tại cung: ${sihuaItems.join(', ')}\n`;
+      }
+
+      // Academic links (Tam Hợp, Xung Chiếu, Nhị Hợp)
+      const oppositePalace = chart.palaces[(chiIndex + 6) % 12];
+      const tamHop1 = chart.palaces[(chiIndex + 4) % 12];
+      const tamHop2 = chart.palaces[(chiIndex + 8) % 12];
+      
+      const nhiHopIndex = PromptBuilder.getNhiHopChiIndex(chiIndex);
+      const nhiHopPalace = chart.palaces[nhiHopIndex];
+      
+      mapStr += `   - Liên kết học thuật:\n`;
+      mapStr += `     * Cung xung chiếu: Cung ${oppositePalace.palaceName} (tại ${oppositePalace.chi} - hành ${getChiNguHanh(oppositePalace.chi)})\n`;
+      mapStr += `     * Các cung tam hợp: Cung ${tamHop1.palaceName} (tại ${tamHop1.chi}) và cung ${tamHop2.palaceName} (tại ${tamHop2.chi})\n`;
+      mapStr += `     * Cung nhị hợp: Cung ${nhiHopPalace.palaceName} (tại ${nhiHopPalace.chi} - hành ${getChiNguHanh(nhiHopPalace.chi)})\n\n`;
+    });
+    
+    return mapStr;
+  }
+
   static buildAnalysisPrompt(
     chart: ZiweiChart,
     targetPalaceName?: PalaceName,
@@ -96,6 +200,7 @@ NGUYÊN TẮC BẮT BUỘC:
     const context = AnalysisContextBuilder.buildInitialAnalysisContext(chart, targetPalaceName, userQuestion, bridgeContext);
     const contextStr = AnalysisContextBuilder.stringifyContext(context);
     const focusLabel = targetPalaceName ?? 'tổng quan mệnh bàn';
+    const annotatedMap = PromptBuilder.buildAnnotatedChartMap(chart);
 
     let prompt = `NHIỆM VỤ: initial_analysis\n`;
     prompt += `TRỌNG TÂM: ${focusLabel}\n`;
@@ -125,12 +230,11 @@ NGUYÊN TẮC BẮT BUỘC:
 - "referenced_palaces": chỉ liệt kê cung thực sự dùng để suy luận.
 - "sihua_triggers": phân tích riêng lớp Tứ Hóa và các kích hoạt quan trọng.
 - "modern_advice": lời khuyên thực hành, cụ thể, không giáo điều.
-- "follow_up_suggestions": 3-5 câu hỏi tự nhiên để người dùng có thể hỏi tiếp ngay sau phần này.
+- "follow_up_suggestions": 3-5 câu hỏi tự nhiên để người dùng có thể hỏi tiếp ngay sau phần này.\n`;
 
-NGỮ CẢNH CÓ CẤU TRÚC:
-\`\`\`json
-${contextStr}
-\`\`\``;
+    prompt += `\n${annotatedMap}\n`;
+    prompt += `NGỮ CẢNH DỮ LIỆU JSON CÓ CẤU TRÚC:\n`;
+    prompt += `\`\`\`json\n${contextStr}\n\`\`\``;
 
     return prompt;
   }

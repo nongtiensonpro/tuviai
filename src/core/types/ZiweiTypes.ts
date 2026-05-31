@@ -263,6 +263,7 @@ export interface AnalysisUserIntent {
 export interface AiPalaceSnapshot {
   palaceName: PalaceName;
   diaChi: TwoelveChi;
+  nguHanh: NguHanh; // Hành của cung (Kim, Mộc, Thủy, Hỏa, Thổ)
   mainStars: string[];
   auxStars: string[];
   borrowedMainStars: string[];
@@ -307,6 +308,7 @@ export interface AnalysisPromptContext {
     };
     keyPalaces: AiPalaceSnapshot[];
     focusPalaces?: AiPalaceSnapshot[];
+    all12Palaces: AiPalaceSnapshot[]; // Toàn bộ 12 cung được an theo thứ tự Địa Chi (0 = Tý, ..., 11 = Hợi)
   };
   derivedSignals: {
     chartHighlights: string[];

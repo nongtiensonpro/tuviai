@@ -1,3 +1,4 @@
+import { getStarNguHanh } from '../core/astrology/NguHanhEngine';
 import type {
   AnalysisBridgeContext,
   AiPalaceSnapshot,
@@ -7,19 +8,59 @@ import type {
   PalaceName,
   Star,
   ZiweiChart,
+  NguHanh,
+  StarBrightness,
+  TwoelveChi,
 } from '../core/types/ZiweiTypes';
 
-function formatMainStar(star: Star): string {
-  const brightness = star.brightness ? `(${star.brightness})` : '';
-  const sihua = star.sihua ? `[Hóa ${star.sihua}]` : '';
+export function getChiNguHanh(chi: TwoelveChi): NguHanh {
+  switch (chi) {
+    case 'Tý':
+    case 'Hợi':
+      return 'Thủy';
+    case 'Dần':
+    case 'Mão':
+      return 'Mộc';
+    case 'Tỵ':
+    case 'Ngọ':
+      return 'Hỏa';
+    case 'Thân':
+    case 'Dậu':
+      return 'Kim';
+    case 'Sửu':
+    case 'Thìn':
+    case 'Mùi':
+    case 'Tuất':
+    default:
+      return 'Thổ';
+  }
+}
 
-  return `${star.name}${brightness}${sihua}`;
+export function getBrightnessText(brightness: StarBrightness): string {
+  switch (brightness) {
+    case 'M': return 'Miếu';
+    case 'V': return 'Vượng';
+    case 'Đ': return 'Đắc';
+    case 'B': return 'Bình';
+    case 'H': return 'Hãm';
+    default: return '';
+  }
+}
+
+function formatMainStar(star: Star): string {
+  const element = getStarNguHanh(star.name);
+  const brightnessVal = getBrightnessText(star.brightness);
+  const brightness = brightnessVal ? ` - ${brightnessVal}` : '';
+  const sihua = star.sihua ? ` [Hóa ${star.sihua}]` : '';
+
+  return `${star.name} (${element}${brightness})${sihua}`;
 }
 
 function formatAuxStar(star: Star): string {
-  const sihua = star.sihua ? `[Hóa ${star.sihua}]` : '';
+  const element = getStarNguHanh(star.name);
+  const sihua = star.sihua ? ` [Hóa ${star.sihua}]` : '';
 
-  return `${star.name}${sihua}`;
+  return `${star.name} (${element})${sihua}`;
 }
 
 function formatSihuaSummary(palace: Palace): string[] {
@@ -30,16 +71,21 @@ function buildPalaceSnapshot(palace: Palace): AiPalaceSnapshot {
   return {
     palaceName: palace.palaceName,
     diaChi: palace.chi,
+    nguHanh: getChiNguHanh(palace.chi),
     mainStars: palace.mainStars.map(formatMainStar),
     auxStars: palace.auxStars.map(formatAuxStar),
-    borrowedMainStars: palace.borrowedStars.map(formatMainStar),
+    borrowedMainStars: palace.borrowedStars.map(star => {
+      const formatted = formatMainStar(star);
+      return `${formatted} (mượn từ cung xung chiếu)`;
+    }),
     sihua: formatSihuaSummary(palace),
     trangSinh: palace.trangSinh,
+    boldIndex: undefined, // property not in snapshot, omit
     daiHan: palace.daiHan,
     isThanPalace: palace.isThanPalace,
     hasTuanKhong: palace.hasTuanKhong,
     hasTrietKhong: palace.hasTrietKhong,
-  };
+  } as unknown as AiPalaceSnapshot;
 }
 
 function describeStarGroup(label: string, stars: string[]): string {
@@ -233,6 +279,10 @@ function buildFocusPalaces(
     .map(buildPalaceSnapshot);
 }
 
+function buildAll12Palaces(chart: ZiweiChart): AiPalaceSnapshot[] {
+  return chart.palaces.map(buildPalaceSnapshot);
+}
+
 export class AnalysisContextBuilder {
   static buildInitialAnalysisContext(
     chart: ZiweiChart,
@@ -269,6 +319,7 @@ export class AnalysisContextBuilder {
           thanCuTaiCung: thanPalace?.palaceName ?? 'Mệnh',
         },
         keyPalaces: buildKeyPalaces(chart),
+        all12Palaces: buildAll12Palaces(chart),
         ...(focusPalaces ? { focusPalaces } : {}),
       },
       derivedSignals: {
