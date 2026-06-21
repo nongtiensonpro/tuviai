@@ -10,9 +10,9 @@ describe('PromptBuilder', () => {
       'Sự nghiệp năm nay nên ưu tiên điều gì?',
     );
 
-    expect(prompt).toContain('NHIỆM VỤ: initial_analysis');
-    expect(prompt).toContain('TRỌNG TÂM: Mệnh');
-    expect(prompt).toContain('CÂU HỎI RIÊNG CỦA ĐƯƠNG SỐ: "Sự nghiệp năm nay nên ưu tiên điều gì?"');
+    expect(prompt).toContain('<task>initial_analysis</task>');
+    expect(prompt).toContain('<focus_area>Mệnh</focus_area>');
+    expect(prompt).toContain('<user_question>Sự nghiệp năm nay nên ưu tiên điều gì?</user_question>');
     expect(prompt).toContain('"mode": "initial_analysis"');
     expect(prompt).toContain('"focusArea": "Mệnh"');
     expect(prompt).toContain('"follow_up_suggestions"');
@@ -34,7 +34,7 @@ describe('PromptBuilder', () => {
       },
     );
 
-    expect(prompt).toContain('NỐI MẠCH TỪ TRAO ĐỔI TRƯỚC');
+    expect(prompt).toContain('<bridge_context>');
     expect(prompt).toContain('Người dùng vừa đi từ cung Mệnh sang Quan Lộc');
     expect(prompt).toContain('"bridgeContext"');
   });
@@ -58,6 +58,9 @@ describe('PromptBuilder', () => {
     expect(instruction).toContain('Chỉ sử dụng dữ kiện có trong context JSON');
     expect(instruction).toContain('Trong "referenced_palaces"');
     expect(instruction).toContain('Đầu ra phải là JSON hợp lệ');
+    expect(instruction).toContain('trường phái Nam Tông (Tam Hợp Phái)');
+    expect(instruction).toContain('TAM PHƯƠNG TỨ CHÍNH');
+    expect(instruction).toContain('VÒNG THÁI TUẾ');
   });
 
   it('builds a follow-up prompt from thread memory and recent turns', () => {
@@ -77,12 +80,12 @@ describe('PromptBuilder', () => {
 
     const prompt = PromptBuilder.buildFollowUpPrompt(thread, 'Nếu xét tài chính thì cần lưu ý gì?');
 
-    expect(prompt).toContain('NHIỆM VỤ: follow_up');
+    expect(prompt).toContain('<task>follow_up</task>');
     expect(prompt).toContain('"analysisSummary": "Cung Mệnh mạnh về tổ chức và định hướng."');
     expect(prompt).toContain('"conversationRecap"');
     expect(prompt).toContain('"conversationDigest"');
     expect(prompt).toContain('"recentTurns"');
-    expect(prompt).toContain('Nếu xét tài chính thì cần lưu ý gì?');
+    expect(prompt).toContain('<user_question>Nếu xét tài chính thì cần lưu ý gì?</user_question>');
   });
 
   it('defines a dedicated follow-up instruction', () => {

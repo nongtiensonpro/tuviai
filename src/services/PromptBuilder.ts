@@ -62,7 +62,18 @@ export const analyzeSchema = {
 
 export class PromptBuilder {
   static buildSystemInstruction(): string {
-    return `Bạn là chuyên gia luận giải Tử Vi Đẩu Số, ưu tiên tính chính xác, tính giải thích được và ngôn ngữ tiếng Việt sáng rõ.
+    return `Bạn là một bậc thầy luận giải Tử Vi Đẩu Số thuộc trường phái Nam Tông (Tam Hợp Phái), ưu tiên tính chính xác học thuật, tính giải thích được và ngôn ngữ tiếng Việt sáng rõ, giàu chiều sâu triết lý.
+
+HƯỚNG DẪN HỌC THUẬT NAM PHÁI CỐT LÕI:
+- Luôn xem xét thế cân bằng của TAM PHƯƠNG TỨ CHÍNH (cung chính, cung xung chiếu, và 2 cung tam hợp). Cung vị không bao giờ đứng độc lập. Phải phân tích rõ sự rọi chiếu, nâng đỡ hoặc xung sát từ các cung này.
+- Phân tích VÒNG THÁI TUẾ để xác định phẩm cách, tư thế xã hội và tâm cảnh đương số:
+  * Tam hợp Thái Tuế - Quan Phù - Bạch Hổ: Đương số đắc chính khí, có tư cách, trách nhiệm, nhưng hay chịu gánh nặng.
+  * Tam hợp Tang Môn - Tuế Phá - Điếu Khách: Đương số ở thế nghịch cảnh, hay bất mãn, lo toan, phải đấu tranh vượt khó.
+  * Tam hợp Thiếu Dương - Phúc Đức - Tử Phù: Thông minh, nhạy biến nhưng dễ chủ quan, đi trước thời thế, hay gặp cản trở do tự đắc.
+  * Tam hợp Thiếu Âm - Long Đức - Trực Phù: Hiền lành, đức độ, hay chịu thiệt thòi, nhường nhịn làm gốc.
+- Đối chiếu sự sinh khắc NGŨ HÀNH bản mệnh của đương số (ví dụ: Sơn Đầu Hỏa, Lộ Bàng Thổ...) với hành của cung an vị và hành của các tinh đẩu tọa thủ (chính tinh miếu hãm, trung tinh cát hung). Sao sinh Mệnh là đắc thời phù trợ; Sao khắc Mệnh hoặc Mệnh khắc Sao chỉ ra áp lực hoặc sự nỗ lực tự thân.
+- Chú trọng phối hợp SONG TINH và CÁCH CỤC (ví dụ: Xương Khúc, Khôi Việt, Tả Hữu, Song Hao, Không Kiếp, Hỏa Linh). Luận giải sự tương hỗ giữa chúng thay vì đọc rời rạc từng sao đơn lẻ. Chỉ rõ cách cát tinh bổ trợ hay sát tinh cản trở cách cục (ngoại trừ trường hợp sát tinh đắc địa hoặc chính tinh có khả năng chế hóa như Thất Sát, Phá Quân chế hóa Không Kiếp).
+- TỨ HÓA (Lộc, Quyền, Khoa, Kỵ) là động cơ thúc đẩy sự biến chuyển tài lộc, quyền lực, danh tiếng và tai ương. Phải chỉ rõ dòng chảy chuyển hóa này ảnh hưởng như thế nào đến các trục chính của lá số.
 
 NGUYÊN TẮC BẮT BUỘC:
 1. Chỉ sử dụng dữ kiện có trong context JSON. Không tự phát minh sao, cung, hạn hoặc dữ kiện đời thực không được cung cấp.
@@ -202,39 +213,44 @@ NGUYÊN TẮC BẮT BUỘC:
     const focusLabel = targetPalaceName ?? 'tổng quan mệnh bàn';
     const annotatedMap = PromptBuilder.buildAnnotatedChartMap(chart);
 
-    let prompt = `NHIỆM VỤ: initial_analysis\n`;
-    prompt += `TRỌNG TÂM: ${focusLabel}\n`;
+    let prompt = `<analysis_request>\n`;
+    prompt += `  <task>initial_analysis</task>\n`;
+    prompt += `  <focus_area>${focusLabel}</focus_area>\n`;
 
     if (targetPalaceName) {
-      prompt += `YÊU CẦU: Luận giải chuyên sâu cung ${targetPalaceName}, bám sát tam phương tứ chính, nêu rõ cung nào đang hỗ trợ hoặc gây áp lực.\n`;
+      prompt += `  <requirement>Luận giải chuyên sâu cung ${targetPalaceName}, bám sát tam phương tứ chính, nêu rõ cung nào đang hỗ trợ hoặc gây áp lực.</requirement>\n`;
     } else {
-      prompt += `YÊU CẦU: Luận giải tổng quan, ưu tiên trục Mệnh - Thân - Quan Lộc - Tài Bạch, làm nổi bật điểm mạnh, điểm yếu và hướng ứng dụng thực tế.\n`;
+      prompt += `  <requirement>Luận giải tổng quan, ưu tiên trục Mệnh - Thân - Quan Lộc - Tài Bạch, làm nổi bật điểm mạnh, điểm yếu và hướng ứng dụng thực tế.</requirement>\n`;
     }
 
     if (userQuestion) {
-      prompt += `CÂU HỎI RIÊNG CỦA ĐƯƠNG SỐ: "${userQuestion}"\n`;
+      prompt += `  <user_question>${userQuestion}</user_question>\n`;
     }
 
     if (bridgeContext) {
       const sourceLabel = bridgeContext.sourceFocusArea === 'overall'
         ? 'tổng quan mệnh bàn'
         : `cung ${bridgeContext.sourceFocusArea}`;
-      prompt += `NỐI MẠCH TỪ TRAO ĐỔI TRƯỚC: Người dùng vừa đi từ ${sourceLabel} sang ${focusLabel}. Hãy giữ liên hệ với mạch trước nhưng ưu tiên luận giải trọng tâm mới.\n`;
+      prompt += `  <bridge_context>\n`;
+      prompt += `    Người dùng vừa đi từ ${sourceLabel} sang ${focusLabel}. Hãy giữ liên hệ với mạch trước nhưng ưu tiên luận giải trọng tâm mới.\n`;
+      prompt += `  </bridge_context>\n`;
     }
 
-    prompt += `\nYÊU CẦU TRIỂN KHAI NỘI DUNG:
-- "summary": 2-3 câu ngắn, giúp người đọc nắm ngay mấu chốt.
-- "key_points": 3-5 ý chính, mỗi ý một câu ngắn.
-- "palace_analysis": giải thích mạch luận chính, phải bám sát các snapshot và highlights đã cho.
-- "karmic_interactions": 2-4 ý nói rõ sự tác động qua tam hợp/xung chiếu hoặc trục chính.
-- "referenced_palaces": chỉ liệt kê cung thực sự dùng để suy luận.
-- "sihua_triggers": phân tích riêng lớp Tứ Hóa và các kích hoạt quan trọng.
-- "modern_advice": lời khuyên thực hành, cụ thể, không giáo điều.
-- "follow_up_suggestions": 3-5 câu hỏi tự nhiên để người dùng có thể hỏi tiếp ngay sau phần này.\n`;
+    prompt += `  <output_format_instructions>\n`;
+    prompt += `    Trả về JSON đúng cấu trúc sau:\n`;
+    prompt += `    - "summary": 2-3 câu ngắn, giúp người đọc nắm ngay mấu chốt.\n`;
+    prompt += `    - "key_points": 3-5 ý chính, mỗi ý một câu ngắn.\n`;
+    prompt += `    - "palace_analysis": giải thích mạch luận chính, phải bám sát các cung xung chiếu, tam hợp và miếu hãm ngũ hành.\n`;
+    prompt += `    - "karmic_interactions": 2-4 ý nói rõ sự tác động qua tam hợp/xung chiếu hoặc trục chính.\n`;
+    prompt += `    - "referenced_palaces": chỉ liệt kê cung thực sự dùng để suy luận.\n`;
+    prompt += `    - "sihua_triggers": phân tích riêng lớp Tứ Hóa và các kích hoạt quan trọng.\n`;
+    prompt += `    - "modern_advice": lời khuyên thực hành, cụ thể, không giáo điều.\n`;
+    prompt += `    - "follow_up_suggestions": 3-5 câu hỏi tự nhiên để người dùng hỏi tiếp.\n`;
+    prompt += `  </output_format_instructions>\n\n`;
 
-    prompt += `\n${annotatedMap}\n`;
-    prompt += `NGỮ CẢNH DỮ LIỆU JSON CÓ CẤU TRÚC:\n`;
-    prompt += `\`\`\`json\n${contextStr}\n\`\`\``;
+    prompt += `  <astrological_chart_map>\n${annotatedMap}  </astrological_chart_map>\n\n`;
+    prompt += `  <structured_json_context>\n${contextStr}\n  </structured_json_context>\n`;
+    prompt += `</analysis_request>`;
 
     return prompt;
   }
@@ -256,24 +272,25 @@ NGUYÊN TẮC BẮT BUỘC:
 
     const focusLabel = thread.focusArea === 'overall' ? 'tổng quan mệnh bàn' : `cung ${thread.focusArea}`;
 
-    return `NHIỆM VỤ: follow_up
-TRỌNG TÂM: ${focusLabel}
+    return `<analysis_request>
+  <task>follow_up</task>
+  <focus_area>${focusLabel}</focus_area>
 
-YÊU CẦU TRẢ LỜI:
-- Trả lời trực tiếp câu hỏi mới của người dùng, không cần JSON.
-- Nếu cần, nhắc lại rất ngắn phần bối cảnh đang dùng để lập luận.
-- Nếu có conversationRecap, dùng nó như phần neo ngữ cảnh ưu tiên trước khi đọc recentTurns.
-- Ưu tiên nối mạch với phần phân tích ban đầu và các lượt hỏi gần đây.
-- Dùng conversationDigest để không quên các mốc trao đổi cũ hơn nếu thread đã dài.
-- Không lặp lại toàn bộ bài luận cũ nếu người dùng chỉ hỏi sâu thêm một ý.
-- Nếu câu hỏi chạm sang cung khác, vẫn có thể đối chiếu nhưng phải nói rõ đang liên hệ từ trọng tâm hiện tại.
+  <requirement>
+    - Trả lời trực tiếp câu hỏi mới của người dùng dưới dạng văn xuôi tự nhiên, không cần JSON.
+    - Nếu cần, nhắc lại rất ngắn phần bối cảnh đang dùng để lập luận.
+    - Nếu có conversationRecap, dùng nó như phần neo ngữ cảnh ưu tiên trước khi đọc recentTurns.
+    - Ưu tiên nối mạch với phần phân tích ban đầu và các lượt hỏi gần đây.
+    - Dùng conversationDigest để không quên các mốc trao đổi cũ hơn nếu thread đã dài.
+    - Không lặp lại toàn bộ bài luận cũ nếu người dùng chỉ hỏi sâu thêm một ý.
+    - Nếu câu hỏi chạm sang cung khác, vẫn có thể đối chiếu nhưng phải nói rõ đang liên hệ từ trọng tâm hiện tại.
+  </requirement>
 
-MEMORY HỘI THOẠI:
-\`\`\`json
+  <conversation_memory_json>
 ${JSON.stringify(context, null, 2)}
-\`\`\`
+  </conversation_memory_json>
 
-CÂU HỎI MỚI:
-${question}`;
+  <user_question>${question}</user_question>
+</analysis_request>`;
   }
 }
