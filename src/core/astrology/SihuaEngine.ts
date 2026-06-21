@@ -5,27 +5,7 @@
 
 import type { Palace, SihuaType, TenCan } from '../types/ZiweiTypes';
 
-// ============================================================
-// BẢNG TỨ HÓA
-// ============================================================
-
-/**
- * Tứ Hóa theo Thiên Can năm sinh
- * Format: [Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ]
- * Source: SKILL.md §8
- */
-const TU_HOA_TABLE: Record<TenCan, [string, string, string, string]> = {
-  'Giáp': ['Liêm Trinh',   'Phá Quân',    'Vũ Khúc',     'Thái Dương'],
-  'Ất':   ['Thiên Cơ',    'Thiên Lương',  'Tử Vi',       'Thái Âm'],
-  'Bính': ['Thiên Đồng',  'Thiên Cơ',    'Văn Xương',   'Liêm Trinh'],
-  'Đinh': ['Thái Âm',    'Thiên Đồng',  'Thiên Cơ',    'Cự Môn'],
-  'Mậu':  ['Tham Lang',   'Thái Âm',     'Hữu Bật',     'Thiên Cơ'],
-  'Kỷ':   ['Vũ Khúc',    'Tham Lang',   'Thiên Lương',  'Văn Khúc'],
-  'Canh': ['Thái Dương',  'Vũ Khúc',    'Thái Âm',     'Thiên Đồng'],
-  'Tân':  ['Cự Môn',     'Thái Dương',  'Văn Khúc',    'Văn Xương'],
-  'Nhâm': ['Thiên Lương', 'Tử Vi',      'Tả Phù',      'Vũ Khúc'],
-  'Quý':  ['Phá Quân',   'Cự Môn',     'Thái Âm',     'Tham Lang'],
-};
+import { TU_HOA_TABLE } from './StarConstants';
 
 const SIHUA_TYPES: SihuaType[] = ['Lộc', 'Quyền', 'Khoa', 'Kỵ'];
 

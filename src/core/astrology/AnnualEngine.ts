@@ -3,7 +3,7 @@
  * Source: .agents/skills/ziwei-algorithm/SKILL.md §9 & Phase 4
  */
 
-import type { ZiweiChart, AnnualPalace, AnnualChart, Star, TenCan, TwoelveChi } from '../types/ZiweiTypes';
+import type { ZiweiChart, AnnualPalace, AnnualChart, Star, TenCan, TwoelveChi, SihuaTrigger } from '../types/ZiweiTypes';
 import { TEN_CAN, TWELVE_CHI } from '../types/ZiweiTypes';
 import { getYearCanChi } from '../calendar/LunarConverter';
 import { getStarNguHanh } from './NguHanhEngine';
@@ -19,36 +19,15 @@ const TIEU_VAN_START_BY_YEAR_CHI: Record<number, number> = {
   11: 1, 3: 1, 7: 1,     // Hợi, Mão, Mùi -> Sửu (index 1)
 };
 
-const LOC_TON_BY_CAN: Record<TenCan, number> = {
-  'Giáp': 2,
-  'Ất': 3,
-  'Bính': 5,
-  'Đinh': 6,
-  'Mậu': 5,
-  'Kỷ': 6,
-  'Canh': 8,
-  'Tân': 9,
-  'Nhâm': 11,
-  'Quý': 0,
-};
-
-const THIEN_MA_BY_YEAR_CHI: Record<number, number> = {
-  0: 2, 1: 11, 2: 8, 3: 5, 4: 2, 5: 11,
-  6: 8, 7: 5, 8: 2, 9: 11, 10: 8, 11: 5,
-};
-
-const TU_HOA_TABLE: Record<TenCan, [string, string, string, string]> = {
-  'Giáp': ['Liêm Trinh',   'Phá Quân',    'Vũ Khúc',     'Thái Dương'],
-  'Ất':   ['Thiên Cơ',    'Thiên Lương',  'Tử Vi',       'Thái Âm'],
-  'Bính': ['Thiên Đồng',  'Thiên Cơ',    'Văn Xương',   'Liêm Trinh'],
-  'Đinh': ['Thái Âm',    'Thiên Đồng',  'Thiên Cơ',    'Cự Môn'],
-  'Mậu':  ['Tham Lang',   'Thái Âm',     'Hữu Bật',     'Thiên Cơ'],
-  'Kỷ':   ['Vũ Khúc',    'Tham Lang',   'Thiên Lương',  'Văn Khúc'],
-  'Canh': ['Thái Dương',  'Vũ Khúc',    'Thái Âm',     'Thiên Đồng'],
-  'Tân':  ['Cự Môn',     'Thái Dương',  'Văn Khúc',    'Văn Xương'],
-  'Nhâm': ['Thiên Lương', 'Tử Vi',      'Tả Phù',      'Vũ Khúc'],
-  'Quý':  ['Phá Quân',   'Cự Môn',     'Thái Âm',     'Tham Lang'],
-};
+import {
+  LOC_TON_BY_CAN,
+  THIEN_MA_BY_YEAR_CHI,
+  DAO_HOA_BY_YEAR_CHI,
+  THIEN_KHOI_BY_CAN,
+  THIEN_VIET_BY_CAN,
+  HOA_LINH_START_BY_YEAR_CHI,
+  TU_HOA_TABLE
+} from './StarConstants';
 
 const SIHUA_TYPES: ('Lộc' | 'Quyền' | 'Khoa' | 'Kỵ')[] = ['Lộc', 'Quyền', 'Khoa', 'Kỵ'];
 
@@ -132,6 +111,49 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
   const luuThienHuIdx = (6 + luuChiIndex) % 12;
   annualStars.push(createAnnualStar('Lưu Thiên Hư', luuThienHuIdx));
 
+  // - Lưu Hồng Loan
+  const luuHongLoanIdx = (3 - luuChiIndex + 12) % 12;
+  annualStars.push(createAnnualStar('Lưu Hồng Loan', luuHongLoanIdx));
+
+  // - Lưu Thiên Hỷ
+  const luuThienHyIdx = (luuHongLoanIdx + 6) % 12;
+  annualStars.push(createAnnualStar('Lưu Thiên Hỷ', luuThienHyIdx));
+
+  // - Lưu Tang Môn
+  const luuTangMonIdx = (luuThaiTueIdx + 2) % 12;
+  annualStars.push(createAnnualStar('Lưu Tang Môn', luuTangMonIdx));
+
+  // - Lưu Bạch Hổ
+  const luuBachHoIdx = (luuThaiTueIdx + 8) % 12;
+  annualStars.push(createAnnualStar('Lưu Bạch Hổ', luuBachHoIdx));
+
+  // - Lưu Quan Phù
+  const luuQuanPhuIdx = (luuThaiTueIdx + 4) % 12;
+  annualStars.push(createAnnualStar('Lưu Quan Phù', luuQuanPhuIdx));
+
+  // - Lưu Đào Hoa
+  const luuDaoHoaIdx = DAO_HOA_BY_YEAR_CHI[luuChiIndex] ?? 3;
+  annualStars.push(createAnnualStar('Lưu Đào Hoa', luuDaoHoaIdx));
+
+  // - Lưu Thiên Khôi
+  const luuThienKhoiIdx = THIEN_KHOI_BY_CAN[luuCan] ?? 1;
+  annualStars.push(createAnnualStar('Lưu Thiên Khôi', luuThienKhoiIdx));
+
+  // - Lưu Thiên Việt
+  const luuThienVietIdx = THIEN_VIET_BY_CAN[luuCan] ?? 7;
+  annualStars.push(createAnnualStar('Lưu Thiên Việt', luuThienVietIdx));
+
+  // - Lưu Hỏa Tinh
+  const hourChiIdx = chart.lunarDate.hourChiIndex;
+  const luuHoaStart = HOA_LINH_START_BY_YEAR_CHI[luuChiIndex]?.hoa ?? 2;
+  const luuHoaTinhIdx = (luuHoaStart + hourChiIdx) % 12;
+  annualStars.push(createAnnualStar('Lưu Hỏa Tinh', luuHoaTinhIdx));
+
+  // - Lưu Linh Tinh
+  const luuLinhStart = HOA_LINH_START_BY_YEAR_CHI[luuChiIndex]?.linh ?? 10;
+  const luuLinhTinhIdx = (luuLinhStart + hourChiIdx) % 12;
+  annualStars.push(createAnnualStar('Lưu Linh Tinh', luuLinhTinhIdx));
+
   // 5. Tính toán Lưu Tứ Hóa và gắn vào các chính tinh / phụ tinh gốc
   const sihuaStars = TU_HOA_TABLE[luuCan];
 
@@ -147,6 +169,8 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
     const copiedMainStars = p.mainStars.map(s => ({ ...s }));
     const copiedAuxStars = p.auxStars.map(s => ({ ...s }));
 
+    const annualSihuaInPalace: SihuaTrigger[] = [];
+
     // Áp dụng Lưu Tứ Hóa vào các sao gốc trong cung
     if (sihuaStars) {
       for (let i = 0; i < 4; i++) {
@@ -154,10 +178,11 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
         const sihuaType = SIHUA_TYPES[i]!;
 
         // Check chính tinh
+        let found = false;
         for (const s of copiedMainStars) {
           if (s.name === starName) {
-            // Chúng ta lưu Tứ Hóa Lưu vào một property mới để tránh ghi đè lên Tứ Hóa Gốc
             s.sihua = sihuaType; 
+            found = true;
           }
         }
 
@@ -165,7 +190,16 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
         for (const s of copiedAuxStars) {
           if (s.name === starName) {
             s.sihua = sihuaType;
+            found = true;
           }
+        }
+
+        if (found) {
+          annualSihuaInPalace.push({
+            starName,
+            type: sihuaType,
+            fromYear: false,
+          });
         }
       }
     }
@@ -181,6 +215,7 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
       annualStars: starsInPalace,
       mainStars: copiedMainStars,
       auxStars: copiedAuxStars,
+      annualSihua: annualSihuaInPalace,
     };
   });
 

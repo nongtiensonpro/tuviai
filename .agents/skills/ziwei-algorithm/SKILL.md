@@ -618,3 +618,52 @@ App hỗ trợ hiệu chỉnh giờ mặt trời thực (True Solar Time) theo k
 - 63 tỉnh thành Việt Nam được lưu trẵn sẵn trong `AstronomicalData.ts`
 
 Bật/tắt qua `SolarDate.isTrueSolarTimeApplied`.
+
+---
+
+## 21. Đẩu Quân (Nguyệt Tướng)
+
+Đẩu Quân đại diện cho tháng Giêng cá nhân của năm xem hạn, dùng để xác định khởi điểm tính Nguyệt Hạn.
+- **Công thức**: Khởi Thái Tuế tại cung Chi năm sinh, đếm nghịch đến tháng sinh, coi đó là giờ Tý, đếm thuận đến giờ sinh.
+- **TypeScript**:
+```typescript
+const dauQuanIdx = (yearChiIdx - month + 1 + hourChiIdx + 24) % 12;
+```
+
+---
+
+## 22. Tạp Diệu Bổ Sung (Thiên Vu, Thiên Riêu)
+
+- **Thiên Vu**: Sao chủ về tâm linh, tín ngưỡng, di sản thừa kế.
+  - **Công thức**: Khởi tại Thân (8) cho năm Tý, đếm thuận theo Địa Chi năm.
+  - **TypeScript**: `const thienVuIdx = (8 + yearChiIdx) % 12;`
+- **Thiên Riêu (Thiên Diêu)**: Sao chủ về sự đào hoa, phong lưu, quyến rũ.
+  - **Công thức**: Khởi tại Sửu (1) đếm thuận theo tháng sinh.
+  - **TypeScript**: `const thienRieuIdx = (1 + month - 1) % 12;`
+
+---
+
+## 23. Hệ Thống Lưu Niên Sao Mở Rộng
+
+Các sao lưu niên di động theo năm xem hạn (Lưu Can và Lưu Chi):
+- **Lưu Hồng Loan**: `(3 - luuChiIdx + 12) % 12`
+- **Lưu Thiên Hỷ**: `(luuHongLoanIdx + 6) % 12`
+- **Lưu Tang Môn**: `(luuThaiTueIdx + 2) % 12`
+- **Lưu Bạch Hổ**: `(luuThaiTueIdx + 8) % 12`
+- **Lưu Quan Phù**: `(luuThaiTueIdx + 4) % 12`
+- **Lưu Đào Hoa**: Tra bảng theo Chi năm xem hạn.
+- **Lưu Thiên Khôi / Lưu Thiên Việt**: Tra bảng theo Can năm xem hạn.
+- **Lưu Hỏa Tinh / Lưu Linh Tinh**: Khởi theo Chi năm xem hạn, đếm thuận đến giờ sinh gốc.
+
+---
+
+## 24. Nguyệt Hạn (Hạn Tháng)
+
+Vận hạn chi tiết 12 tháng âm lịch trong năm xem hạn.
+- **Nguyên lý**: Cung chứa Lưu Đẩu Quân của năm hạn là tháng Giêng (tháng 1).
+- **Chiều đi**: Luôn đi thuận chiều kim đồng hồ từ cung tháng Giêng.
+- **TypeScript**:
+```typescript
+const monthlyPalaceIndex = (luuDauQuanIdx + targetMonth - 1) % 12;
+```
+

@@ -5,6 +5,7 @@
 
 import type { Palace, Star } from '../types/ZiweiTypes';
 import { getStarNguHanh } from './NguHanhEngine';
+import { DAO_HOA_BY_YEAR_CHI, THIEN_MA_BY_YEAR_CHI } from './StarConstants';
 
 function createMinorStar(name: string, palaceIndex: number, category: Star['category'] = 'fixed'): Star {
   return {
@@ -33,11 +34,6 @@ const SAN_HE: Record<number, number[]> = {
   11: [11, 3, 7], 3: [11, 3, 7], 7: [11, 3, 7],
 };
 
-const DAO_HOA_BY_YEAR_CHI: Record<number, number> = {
-  0: 9, 1: 6, 2: 3, 3: 0, 4: 9, 5: 6,
-  6: 3, 7: 0, 8: 9, 9: 6, 10: 3, 11: 0,
-};
-
 const CO_THAN_BY_YEAR_CHI: Record<number, number> = {
   0: 2, 1: 2, 2: 5, 3: 5, 4: 5, 5: 8,
   6: 8, 7: 8, 8: 11, 9: 11, 10: 11, 11: 2,
@@ -61,11 +57,6 @@ const HOA_CAI_BY_YEAR_CHI: Record<number, number> = {
 const PHA_TOAI_BY_YEAR_CHI: Record<number, number> = {
   0: 5, 1: 1, 2: 9, 3: 5, 4: 1, 5: 9,
   6: 5, 7: 1, 8: 9, 9: 5, 10: 1, 11: 9,
-};
-
-const THIEN_MA_BY_YEAR_CHI: Record<number, number> = {
-  0: 2, 1: 11, 2: 8, 3: 5, 4: 2, 5: 11,
-  6: 8, 7: 5, 8: 2, 9: 11, 10: 8, 11: 5,
 };
 
 /**
@@ -234,6 +225,18 @@ function placeTapDieu(
   const locTonIdx = locTonPalace ? locTonPalace.chiIndex : 2;
   placeStar(palaces, 'Quốc Ấn', locTonIdx + 8, 'cat');
   placeStar(palaces, 'Đường Phù', locTonIdx - 7 + 12, 'cat');
+
+  // Đẩu Quân (Nguyệt Tướng): khởi Thái Tuế nghịch tháng sinh thuận giờ sinh
+  const dauQuanIdx = (yearChiIdx - month + 1 + hourChiIdx + 24) % 12;
+  placeStar(palaces, 'Đẩu Quân', dauQuanIdx, 'sha');
+
+  // Thiên Vu: Khởi tại Thân(8) cho năm Tý, đếm thuận theo năm
+  const thienVuIdx = (8 + yearChiIdx) % 12;
+  placeStar(palaces, 'Thiên Vu', thienVuIdx, 'sha');
+
+  // Thiên Riêu: Khởi tại Sửu(1) đếm thuận theo tháng
+  const thienRieuIdx = (1 + month - 1) % 12;
+  placeStar(palaces, 'Thiên Riêu', thienRieuIdx, 'sha');
 }
 
 /**

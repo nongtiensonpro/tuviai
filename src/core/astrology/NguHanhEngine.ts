@@ -53,6 +53,7 @@ const AUX_STARS_NGU_HANH: Record<string, NguHanh> = {
   'Phá Toái': 'Hỏa', 'Long Trì': 'Thủy', 'Phượng Các': 'Mộc', 'Thiên Tài': 'Mộc',
   'Thiên Thọ': 'Thổ', 'Thiên Khốc': 'Thủy', 'Thiên Hư': 'Thủy', 'Thiên Mã': 'Hỏa',
   'Thiên Quan': 'Hỏa', 'Thiên Phúc': 'Thổ', 'Lưu Hà': 'Thủy', 'Thiên Trù': 'Thổ',
+  'Đẩu Quân': 'Hỏa', 'Thiên Vu': 'Thủy', 'Thiên Riêu': 'Thủy',
   'Thiên La': 'Thổ', 'Địa Võng': 'Thổ', 'Thiên Thương': 'Thủy', 'Thiên Sứ': 'Thủy',
   'Thiên Đức': 'Hỏa', 'Nguyệt Đức': 'Hỏa', 'Quốc Ấn': 'Thổ', 'Đường Phù': 'Mộc',
 

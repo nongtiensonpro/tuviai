@@ -12,95 +12,17 @@
 
 import type { Palace, Star, TenCan } from '../types/ZiweiTypes';
 import { getStarNguHanh } from './NguHanhEngine';
+import {
+  THIEN_KHOI_BY_CAN,
+  THIEN_VIET_BY_CAN,
+  LOC_TON_BY_CAN,
+  KINH_DUONG_BY_CAN,
+  HOA_LINH_START_BY_YEAR_CHI
+} from './StarConstants';
 
 // ============================================================
 // BẢNG TRA CỨU PHỤ TINH
 // ============================================================
-
-/**
- * Thiên Khôi theo Thiên Can năm sinh
- * Source: SKILL.md §9 Lục Cát
- */
-const THIEN_KHOI_BY_CAN: Record<TenCan, number> = {
-  'Giáp': 1, 'Mậu': 1,        // Sửu (index 1)
-  'Ất': 0, 'Kỷ': 0,           // Tý (index 0)
-  'Bính': 11, 'Đinh': 11,     // Hợi (index 11)
-  'Canh': 6, 'Tân': 6,        // Ngọ (index 6)
-  'Nhâm': 3, 'Quý': 3,        // Mão (index 3)
-};
-
-/**
- * Thiên Việt theo Thiên Can năm sinh
- * Source: SKILL.md §9 Lục Cát
- */
-const THIEN_VIET_BY_CAN: Record<TenCan, number> = {
-  'Giáp': 7, 'Mậu': 7,        // Mùi (index 7)
-  'Ất': 8, 'Kỷ': 8,           // Thân (index 8)
-  'Bính': 9, 'Đinh': 9,       // Dậu (index 9)
-  'Canh': 2, 'Tân': 2,        // Dần (index 2)
-  'Nhâm': 5, 'Quý': 5,        // Tỵ (index 5)
-};
-
-/**
- * Lộc Tồn theo Thiên Can năm sinh
- * Giáp→Dần, Ất→Mão, Bính/Mậu→Tỵ, Đinh/Kỷ→Ngọ,
- * Canh→Thân, Tân→Dậu, Nhâm→Hợi, Quý→Tý
- */
-const LOC_TON_BY_CAN: Record<TenCan, number> = {
-  'Giáp': 2,
-  'Ất': 3,
-  'Bính': 5,
-  'Đinh': 6,
-  'Mậu': 5,
-  'Kỷ': 6,
-  'Canh': 8,
-  'Tân': 9,
-  'Nhâm': 11,
-  'Quý': 0,
-};
-
-/**
- * Kình Dương theo Thiên Can năm sinh
- * Source: SKILL.md §9 Lục Sát
- */
-const KINH_DUONG_BY_CAN: Record<TenCan, number> = {
-  'Giáp': 3,
-  'Ất': 4,
-  'Bính': 6,
-  'Mậu': 6,
-  'Đinh': 7,
-  'Kỷ': 7,
-  'Canh': 9,
-  'Tân': 10,
-  'Nhâm': 0,
-  'Quý': 1,
-};
-
-/**
- * Hỏa Tinh / Linh Tinh theo chi năm sinh.
- * Mỗi nhóm tam hợp có 2 cung khởi giờ Tý, sau đó đều đếm thuận đến giờ sinh.
- *
- * Theo khẩu quyết Nam Tông (đã xác minh qua nhiều lá số và chuyên gia):
- * - Thân Tý Thìn: Hỏa khởi Dần(2),  Linh khởi Tuất(10)
- * - Dần Ngọ Tuất: Hỏa khởi Sửu(1),  Linh khởi Mão(3)
- * - Tỵ Dậu Sửu:  Hỏa khởi Mão(3),  Linh khởi Tuất(10)
- * - Hợi Mão Mùi: Hỏa khởi Dậu(9),  Linh khởi Tuất(10)
- *
- * Xác minh nhóm Hợi Mão Mùi (hoa=9 ĐÃ XÁC NHẬN bởi chuyên gia + 2 lá số):
- * - Tân Mùi 1991 (chi=7), giờ Sửu(1): Hỏa=(9+1)%12=10=Tuất  ✅ xemtuvi.vn
- * - Đinh Hợi 2007 (chi=11), giờ Tỵ(5): Hỏa=(9+5)%12=2=Dần  ✅ xemtuvi.vn
- * - Kỷ Mão 1999 (chi=3): khởi Dậu(9) xác nhận              ✅ chuyên gia
- */
-const HOA_LINH_START_BY_YEAR_CHI: Record<number, { hoa: number; linh: number }> = {
-  // Nhóm Thân Tý Thìn → Hỏa khởi Dần(2), Linh khởi Tuất(10)
-  0: { hoa: 2, linh: 10 }, 4: { hoa: 2, linh: 10 }, 8: { hoa: 2, linh: 10 },
-  // Nhóm Dần Ngọ Tuất → Hỏa khởi Sửu(1), Linh khởi Mão(3)
-  2: { hoa: 1, linh: 3 }, 6: { hoa: 1, linh: 3 }, 10: { hoa: 1, linh: 3 },
-  // Nhóm Tỵ Dậu Sửu → Hỏa khởi Mão(3), Linh khởi Tuất(10)
-  1: { hoa: 3, linh: 10 }, 5: { hoa: 3, linh: 10 }, 9: { hoa: 3, linh: 10 },
-  // Nhóm Hợi Mão Mùi → Hỏa khởi Dậu(9), Linh khởi Tuất(10) [đã xác nhận: chuyên gia + 3 lá số]
-  3: { hoa: 9, linh: 10 }, 7: { hoa: 9, linh: 10 }, 11: { hoa: 9, linh: 10 },
-};
 
 const YEAR_CAN_ORDER: TenCan[] = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'];
 

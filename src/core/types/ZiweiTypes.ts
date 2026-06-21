@@ -661,6 +661,7 @@ export interface AnnualPalace {
   annualStars: Star[];
   mainStars: Star[];
   auxStars: Star[];
+  annualSihua?: SihuaTrigger[];
 }
 
 export interface AnnualChart {
@@ -670,3 +671,27 @@ export interface AnnualChart {
   luuThaiTuePalaceIndex: number;
   palaces: AnnualPalace[];
 }
+
+export interface MonthlyPalace {
+  chiIndex: number;
+  chi: TwoelveChi;
+  palaceName: PalaceName;
+  daiHan: number;
+  tieuVanAge?: number;
+  isTieuVan: boolean;
+  isLuuThaiTue: boolean;
+  isMonthlyPalace: boolean;
+  annualStars: Star[];
+  monthlyStars: Star[];
+  mainStars: Star[];
+  auxStars: Star[];
+  annualSihua?: SihuaTrigger[];
+}
+
+export interface MonthlyChart {
+  targetYear: number;
+  targetMonth: number;
+  monthlyPalaceIndex: number;
+  palaces: MonthlyPalace[];
+}
+
