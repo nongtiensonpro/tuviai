@@ -3,6 +3,7 @@
  * Dùng để hiển thị màu sắc khoa học trên lá số.
  */
 import type { NguHanh, StarBrightness } from '../types/ZiweiTypes';
+import { isKnownStarName } from './StarCatalog';
 
 // Từ điển Ngũ Hành của các Chính Tinh
 const MAIN_STARS_NGU_HANH: Record<string, NguHanh> = {
@@ -30,7 +31,7 @@ const AUX_STARS_NGU_HANH: Record<string, NguHanh> = {
   'Đà La': 'Kim', 'Hỏa Tinh': 'Hỏa', 'Linh Tinh': 'Hỏa', 'Địa Không': 'Hỏa', 'Địa Kiếp': 'Hỏa',
   
   // --- Vòng Thái Tuế (12 sao) ---
-  'Thái Tuế': 'Hỏa', 'Thiếu Dương': 'Hỏa', 'Tang Môn': 'Mộc', 'Thiếu Âm': 'Thủy',
+  'Thái Tuế': 'Hỏa', 'Thiếu Dương': 'Hỏa', 'Thiên Không': 'Hỏa', 'Tang Môn': 'Mộc', 'Thiếu Âm': 'Thủy',
   'Quan Phù': 'Hỏa', 'Tử Phù': 'Kim', 'Tuế Phá': 'Hỏa', 'Long Đức': 'Thủy',
   'Bạch Hổ': 'Kim', 'Phúc Đức': 'Thổ', 'Điếu Khách': 'Hỏa', 'Trực Phù': 'Kim',
 
@@ -57,15 +58,28 @@ const AUX_STARS_NGU_HANH: Record<string, NguHanh> = {
   'Thiên La': 'Thổ', 'Địa Võng': 'Thổ', 'Thiên Thương': 'Thủy', 'Thiên Sứ': 'Thủy',
   'Thiên Đức': 'Hỏa', 'Nguyệt Đức': 'Hỏa', 'Quốc Ấn': 'Thổ', 'Đường Phù': 'Mộc',
 
+  // --- 15 Sao Mới (Milestone 3) ---
+  'Tướng Tinh': 'Mộc', 'Phan An': 'Mộc', 'Tức Thần': 'Thổ', 'Tai Sát': 'Hỏa',
+  'Thiên Sát': 'Hỏa', 'Chỉ Bối': 'Thủy', 'Nguyệt Sát': 'Hỏa', 'Vong Thần': 'Thủy',
+  'Lưu Niên Văn Tinh': 'Hỏa', 'Thiên Khố': 'Thổ',
+  'Nguyệt Giải': 'Hỏa', 'Âm Sát': 'Thủy', 'Thiên Nguyệt': 'Thủy', 'Nguyệt Yếm': 'Hỏa',
+  'Nguyệt Hình': 'Hỏa',
+
   // --- Tuần Triệt ---
   'Tuần Không': 'Hỏa', 'Triệt Không': 'Kim', 'Triệt': 'Kim', 'Tuần': 'Hỏa',
 };
 
-/**
- * Láy Ngũ Hành của một vì sao dựa theo tên
- */
 export function getStarNguHanh(starName: string): NguHanh {
-  return MAIN_STARS_NGU_HANH[starName] || AUX_STARS_NGU_HANH[starName] || 'Thổ'; // Mặc định Thổ nếu thiếu
+  const normalizedName = isKnownStarName(starName)
+    ? starName
+    : starName.replace(/^Lưu\s+/, '');
+  const nguHanh = MAIN_STARS_NGU_HANH[normalizedName] || AUX_STARS_NGU_HANH[normalizedName];
+
+  if (!nguHanh || (!isKnownStarName(starName) && !isKnownStarName(normalizedName))) {
+    throw new Error(`Unknown star ngu hanh: ${starName}`);
+  }
+
+  return nguHanh;
 }
 
 /**

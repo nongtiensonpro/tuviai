@@ -71,4 +71,60 @@ describe('MinorStarVerification - Phase 1', () => {
     const { completedPalaces: pCanh } = buildCompletedPalaces(1990, 4, 15, 5, 'Nam');
     expect(pCanh[8]?.auxStars.some(s => s.name === 'Lưu Hà')).toBe(true);
   });
+
+  describe('Milestone 3 - New Natal Stars (15 stars)', () => {
+    it('verify Vòng Tướng Tinh cho tuổi Ất Hợi 1995 (khởi tại Mão)', () => {
+      // Ất Hợi 1995: Chi Hợi (11) -> tam hợp Hợi Mão Mùi -> Tướng Tinh khởi tại Mão (3)
+      const { completedPalaces } = buildCompletedPalaces(1995, 4, 15, 5, 'Nam');
+      
+      expect(completedPalaces[3]?.auxStars.some(s => s.name === 'Tướng Tinh')).toBe(true);
+      expect(completedPalaces[4]?.auxStars.some(s => s.name === 'Phan An')).toBe(true);
+      expect(completedPalaces[6]?.auxStars.some(s => s.name === 'Tức Thần')).toBe(true);
+      expect(completedPalaces[9]?.auxStars.some(s => s.name === 'Tai Sát')).toBe(true);
+      expect(completedPalaces[10]?.auxStars.some(s => s.name === 'Thiên Sát')).toBe(true);
+      expect(completedPalaces[11]?.auxStars.some(s => s.name === 'Chỉ Bối')).toBe(true);
+      expect(completedPalaces[1]?.auxStars.some(s => s.name === 'Nguyệt Sát')).toBe(true);
+      expect(completedPalaces[2]?.auxStars.some(s => s.name === 'Vong Thần')).toBe(true);
+    });
+
+    it('verify Lưu Niên Văn Tinh và Thiên Khố theo Can năm', () => {
+      // Can Ất (1) -> Văn Tinh ở Ngọ (6), Thiên Khố ở Ngọ (6)
+      const { completedPalaces: p1995 } = buildCompletedPalaces(1995, 4, 15, 5, 'Nam');
+      expect(p1995[6]?.auxStars.some(s => s.name === 'Lưu Niên Văn Tinh')).toBe(true);
+      expect(p1995[6]?.auxStars.some(s => s.name === 'Thiên Khố')).toBe(true);
+
+      // Can Kỷ (5) -> Văn Tinh ở Dậu (9), Thiên Khố ở Ngọ (6)
+      const { completedPalaces: p1999 } = buildCompletedPalaces(1999, 8, 15, 3, 'Nam');
+      expect(p1999[9]?.auxStars.some(s => s.name === 'Lưu Niên Văn Tinh')).toBe(true);
+      expect(p1999[6]?.auxStars.some(s => s.name === 'Thiên Khố')).toBe(true);
+    });
+
+    it('verify các sao an theo Tháng sinh âm lịch', () => {
+      // Tháng 4 âm lịch (tuổi Ất Hợi)
+      // Nguyệt Giải ở Dậu (9)
+      // Âm Sát ở Thân (8)
+      // Thiên Nguyệt ở Dần (2)
+      // Nguyệt Yếm ở Mùi (7)
+      // Nguyệt Hình ở Hợi (11)
+      const { completedPalaces: p1995 } = buildCompletedPalaces(1995, 4, 15, 5, 'Nam');
+      expect(p1995[9]?.auxStars.some(s => s.name === 'Nguyệt Giải')).toBe(true);
+      expect(p1995[8]?.auxStars.some(s => s.name === 'Âm Sát')).toBe(true);
+      expect(p1995[2]?.auxStars.some(s => s.name === 'Thiên Nguyệt')).toBe(true);
+      expect(p1995[7]?.auxStars.some(s => s.name === 'Nguyệt Yếm')).toBe(true);
+      expect(p1995[11]?.auxStars.some(s => s.name === 'Nguyệt Hình')).toBe(true);
+
+      // Tháng 8 âm lịch (tuổi Kỷ Mão)
+      // Nguyệt Giải ở Hợi (11)
+      // Âm Sát ở Tý (0)
+      // Thiên Nguyệt ở Mùi (7)
+      // Nguyệt Yếm ở Mão (3)
+      // Nguyệt Hình ở Hợi (11)
+      const { completedPalaces: p1999 } = buildCompletedPalaces(1999, 8, 15, 3, 'Nam');
+      expect(p1999[11]?.auxStars.some(s => s.name === 'Nguyệt Giải')).toBe(true);
+      expect(p1999[0]?.auxStars.some(s => s.name === 'Âm Sát')).toBe(true);
+      expect(p1999[7]?.auxStars.some(s => s.name === 'Thiên Nguyệt')).toBe(true);
+      expect(p1999[3]?.auxStars.some(s => s.name === 'Nguyệt Yếm')).toBe(true);
+      expect(p1999[11]?.auxStars.some(s => s.name === 'Nguyệt Hình')).toBe(true);
+    });
+  });
 });

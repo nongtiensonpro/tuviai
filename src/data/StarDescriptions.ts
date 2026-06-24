@@ -63,6 +63,7 @@ export const STAR_DESC: Record<string, string> = {
   // ==========================================
   'Thái Tuế': 'Vua của một năm (Hỏa). Tư chất chính nhân, quang minh chính đại, thích nói lý và tranh biện. Đi tốt thì có uy danh, đi xấu dễ vướng pháp lý, khẩu thiệt và va chạm với quyền thế.',
   'Thiếu Dương': 'Tri thức mở, sự rạng rỡ, tốt bụng, thông tuệ, đôi lúc hơi thiếu đề phòng vì ánh sáng chói lọi.',
+  'Thiên Không': 'Sao hung tinh thuộc vòng Thái Tuế, chủ về sự trống rỗng, ảo tưởng, dễ đưa tới thất bại bất ngờ nếu tự đắc quá sớm; nhưng rất cát lợi cho nghiên cứu tâm linh, ngộ đạo và tu tập.',
   'Tang Môn': 'Sự u sầu, tiếng thở dài. Gắn với huyết quang, bệnh tật hoặc tâm hồn chuyên mang ưu tư tang tóc.',
   'Thiếu Âm': 'Khúc chiết, nhẹ nhàng, nhưng dễ bị lợi dụng do bản tính khờ dại, tin người thái quá.',
   'Quan Phù': 'Liên quan đến kiện tụng, thủ tục hành chính, giấy tờ và rắc rối pháp luật.',
@@ -128,6 +129,20 @@ export const STAR_DESC: Record<string, string> = {
   'Tuần': 'Cách gọi rút gọn của Tuần Không. Chủ sự trì hoãn, hụt hẫng, làm suy bớt lực cát hung và buộc sự việc phải qua thử thách ban đầu.',
   'Triệt Không': 'Triệt Lộ Không Vong. Tính chất là chặn ngang, cắt mạnh, phá đà và buộc đổi hướng đột ngột; có thể bẻ gãy cả cát lẫn hung của cung bị án. Thường ứng rõ ở giai đoạn đầu đời và lúc lập nghiệp.',
   'Triệt': 'Cách gọi rút gọn của Triệt Không. Chủ sự cắt đứt, bẻ hướng, chặn lối và làm sự việc khó đi theo quỹ đạo ban đầu.',
+
+  // CÁC SAO MỚI BỔ SUNG (Milestone 5)
+  'Tướng Tinh': 'Sao chủ tinh của vòng Tướng Tinh, đại diện cho quyền lực, uy phong, năng lực lãnh đạo xuất sắc và chí khí mạnh mẽ.',
+  'Phan An': 'Sao chủ về văn chương, thanh nhã, diện mạo khôi ngô tuấn tú, có duyên thu hút người khác và may mắn khoa bảng.',
+  'Tức Thần': 'Sao chủ về sự ngưng trệ, trì hoãn, cản trở, làm giảm sinh khí và giảm nhiệt huyết hành động.',
+  'Chỉ Bối': 'Sao chủ về thị phi, bị người khác gièm pha, nói xấu sau lưng hoặc bị phản bội ngầm.',
+  'Nguyệt Sát': 'Sao hung tinh chủ về những cản trở, lo âu, tai ách nhỏ lẻ hoặc áp lực tâm lý từ bên ngoài.',
+  'Vong Thần': 'Sao hung tinh chủ về sự thất thoát, tiêu tán, dễ bị quên lãng hoặc gặp khó khăn về tài lộc, giấy tờ.',
+  'Lưu Niên Văn Tinh': 'Sao cát tinh chủ về sự thông tuệ, học vấn, văn chương nghệ thuật phát đạt và cơ hội thi cử đỗ đạt.',
+  'Thiên Khố': 'Sao cát tinh chủ về kho tiền tài tích trữ, điền trạch vững chắc và tài lộc dư dật bền lâu.',
+  'Nguyệt Giải': 'Phúc tinh giải ách cứu nạn theo tháng, giúp làm nhẹ hung tính, tiêu trừ tai họa và mang lại sự an lành.',
+  'Thiên Nguyệt': 'Sao hung tinh chủ về bệnh tật âm ỷ, sức khỏe suy giảm nhẹ hoặc những lo lắng triền miên về mặt tinh thần.',
+  'Nguyệt Yếm': 'Sao hung tinh chủ về áp lực tinh thần, cản trở tâm lý, sự bất hòa hoặc mâu thuẫn trong các mối quan hệ.',
+  'Nguyệt Hình': 'Sao hung tinh chủ về hình phạt, tổn thương ngoài da, tranh chấp hoặc cản trở đột ngột trong công việc.',
 
   // VÒNG TRÀNG SINH
   'Trường Sinh': 'Khởi nguồn vạn vật. Sức sống mãnh liệt, khỏe mạnh thọ trường, sự nghiệp thăng tiến dài lâu.',

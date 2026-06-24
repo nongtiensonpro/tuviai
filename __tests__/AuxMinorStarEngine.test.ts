@@ -204,9 +204,19 @@ describe('ChartBuilder star integration', () => {
     );
     const tuanCount = chart.palaces.filter(palace => palace.hasTuanKhong).length;
     const trietCount = chart.palaces.filter(palace => palace.hasTrietKhong).length;
+    const tuanMarkerCount = chart.palaces.reduce(
+      (count, palace) => count + palace.auxStars.filter(star => star.name === 'Tuần Không').length,
+      0,
+    );
+    const trietMarkerCount = chart.palaces.reduce(
+      (count, palace) => count + palace.auxStars.filter(star => star.name === 'Triệt Không').length,
+      0,
+    );
 
     expect(locTonCount).toBe(1);
     expect(tuanCount).toBe(2);
     expect(trietCount).toBe(2);
+    expect(tuanMarkerCount).toBe(2);
+    expect(trietMarkerCount).toBe(2);
   });
 });

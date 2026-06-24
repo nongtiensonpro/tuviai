@@ -72,6 +72,13 @@ function placeAux(palaces: Palace[], starName: string, chiIndex: number, categor
   palaces[idx]!.auxStars.push(createAuxStar(starName, idx, category));
 }
 
+function placeAuxOnce(palaces: Palace[], starName: string, chiIndex: number, category: Star['category']): void {
+  const idx = ((chiIndex % 12) + 12) % 12;
+  if (!palaces[idx]!.auxStars.some(star => star.name === starName)) {
+    placeAux(palaces, starName, idx, category);
+  }
+}
+
 function resolveSexagenaryIndex(yearCanIndex: number, yearChiIndex: number): number {
   for (let sexagenaryIndex = 0; sexagenaryIndex < 60; sexagenaryIndex += 1) {
     if (sexagenaryIndex % 10 === yearCanIndex && sexagenaryIndex % 12 === yearChiIndex) {
@@ -218,7 +225,7 @@ export function calcTuanTrietKhong(
   yearCanIndex: number,
   yearChiIndex: number,
 ): Palace[] {
-  const result = palaces.map(p => ({ ...p }));
+  const result = palaces.map(p => ({ ...p, auxStars: [...p.auxStars] }));
 
   const sexagenaryIndex = resolveSexagenaryIndex(yearCanIndex, yearChiIndex);
   const xunIndex = Math.floor(sexagenaryIndex / 10);
@@ -230,6 +237,10 @@ export function calcTuanTrietKhong(
   if (result[tuan2]) result[tuan2]!.hasTuanKhong = true;
   if (result[triet1]) result[triet1]!.hasTrietKhong = true;
   if (result[triet2]) result[triet2]!.hasTrietKhong = true;
+  placeAuxOnce(result, 'Tuần Không', tuan1, 'fixed');
+  placeAuxOnce(result, 'Tuần Không', tuan2, 'fixed');
+  placeAuxOnce(result, 'Triệt Không', triet1, 'fixed');
+  placeAuxOnce(result, 'Triệt Không', triet2, 'fixed');
 
   return result;
 }

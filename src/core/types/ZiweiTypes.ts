@@ -61,6 +61,35 @@ export type StarCategory =
   | 'support' // Tả Phù, Hữu Bật
   | 'other';  // Các loại khác
 
+export type StarScope = 'natal' | 'annual' | 'monthly' | 'marker';
+
+export type StarGroup =
+  | 'main'
+  | 'luc-cat'
+  | 'luc-sat'
+  | 'fixed'
+  | 'thai-tue-cycle'
+  | 'loc-ton-cycle'
+  | 'trang-sinh-cycle'
+  | 'month-day-hour'
+  | 'year-branch'
+  | 'annual'
+  | 'marker'
+  | 'other';
+
+export type StarVerificationStatus = 'verified' | 'candidate' | 'legacy';
+
+export interface StarDefinition {
+  name: string;
+  aliases?: string[];
+  category: StarCategory;
+  group: StarGroup;
+  scope: StarScope;
+  nguHanh?: NguHanh;
+  verificationStatus: StarVerificationStatus;
+  source: string;
+}
+
 // ============================================================
 // 2. NGÀY THÁNG VÀ GIỜ SINH
 // ============================================================

@@ -90,7 +90,7 @@ export const PalaceCell: React.FC<PalaceCellProps> = ({
 
   const tuanTriet: string[] = [];
   if (palace.hasTuanKhong) tuanTriet.push('Tuần');
-  if (palace.hasTrinhKhong) tuanTriet.push('Triệt');
+  if (palace.hasTrietKhong) tuanTriet.push('Triệt');
 
   const glossarySelection = (name: string): InsightTermSelection => ({
     name,

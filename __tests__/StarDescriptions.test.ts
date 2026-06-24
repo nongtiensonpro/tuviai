@@ -1,7 +1,7 @@
 import { buildZiweiChart } from '../src/core/astrology/ChartBuilder';
 import { getStarDescription } from '../src/data/StarDescriptions';
 
-const UNKNOWN_DESCRIPTION_MARKER = 'Chưa có mô tả chi tiết cho sao';
+const UNKNOWN_DESCRIPTION_MARKER = 'Tạm thời chưa có hồ sơ';
 
 function collectKnownStarNames(): string[] {
   const samples = [

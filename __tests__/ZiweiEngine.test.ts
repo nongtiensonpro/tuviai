@@ -49,6 +49,28 @@ describe('LunarConverter', () => {
       expect(result.hourChi).toBe('Tý');
     });
 
+    it('phân biệt Tý sớm next_day mặc định và same_day', () => {
+      const sameDay = solarToLunar({
+        day: 12,
+        month: 6,
+        year: 2000,
+        hour: 23,
+        earlyZiMode: 'same_day',
+      });
+      const nextDay = solarToLunar({
+        day: 12,
+        month: 6,
+        year: 2000,
+        hour: 23,
+      });
+
+      expect(sameDay.isEarlyZiAdjusted).toBe(false);
+      expect(nextDay.isEarlyZiAdjusted).toBe(true);
+      expect(nextDay.hourChiIndex).toBe(0);
+      expect(nextDay.hourChi).toBe('Tý');
+      expect(nextDay.day).not.toBe(sameDay.day);
+    });
+
     it('giờ Ngọ (11:xx) = chi index 6', () => {
       const result = solarToLunar({ day: 1, month: 1, year: 2000, hour: 11 });
       expect(result.hourChiIndex).toBe(6);

@@ -1,4 +1,4 @@
-import { placeLucCatTinh, placeLucSatTinh } from '../src/core/astrology/AuxStarEngine';
+import { calcTuanTrietKhong, placeLucCatTinh, placeLucSatTinh } from '../src/core/astrology/AuxStarEngine';
 import { buildPalaces } from '../src/core/astrology/PalaceCalculator';
 import { getNamCanChi } from '../src/core/calendar/LunarConverter';
 import type { Palace, TenCan } from '../src/core/types/ZiweiTypes';
@@ -105,6 +105,51 @@ describe('Exhaustive Auxiliary Stars Verification', () => {
         expect(hasHoa).toBe(true);
         expect(hasLinh).toBe(true);
       }
+    }
+  });
+
+  it('khớp 100% Tuần Không & Triệt Không cho đủ 60 hoa giáp', () => {
+    const TUAN_BY_XUN_INDEX: Array<[number, number]> = [
+      [10, 11],
+      [8, 9],
+      [6, 7],
+      [4, 5],
+      [2, 3],
+      [0, 1],
+    ];
+    const TRIET_BY_CAN_INDEX: Record<number, [number, number]> = {
+      0: [8, 9],
+      5: [8, 9],
+      1: [6, 7],
+      6: [6, 7],
+      2: [4, 5],
+      7: [4, 5],
+      3: [2, 3],
+      8: [2, 3],
+      4: [0, 1],
+      9: [0, 1],
+    };
+
+    for (let sexagenaryIndex = 0; sexagenaryIndex < 60; sexagenaryIndex++) {
+      const yearCanIndex = sexagenaryIndex % 10;
+      const yearChiIndex = sexagenaryIndex % 12;
+      const result = calcTuanTrietKhong(createCleanPalaces(), yearCanIndex, yearChiIndex);
+
+      const expectedTuan = TUAN_BY_XUN_INDEX[Math.floor(sexagenaryIndex / 10)]!;
+      const expectedTriet = TRIET_BY_CAN_INDEX[yearCanIndex]!;
+      const actualTuan = result.filter(palace => palace.hasTuanKhong).map(palace => palace.chiIndex);
+      const actualTriet = result.filter(palace => palace.hasTrietKhong).map(palace => palace.chiIndex);
+      const actualTuanMarkers = result
+        .filter(palace => palace.auxStars.some(star => star.name === 'Tuần Không'))
+        .map(palace => palace.chiIndex);
+      const actualTrietMarkers = result
+        .filter(palace => palace.auxStars.some(star => star.name === 'Triệt Không'))
+        .map(palace => palace.chiIndex);
+
+      expect(actualTuan).toEqual(expectedTuan);
+      expect(actualTriet).toEqual(expectedTriet);
+      expect(actualTuanMarkers).toEqual(expectedTuan);
+      expect(actualTrietMarkers).toEqual(expectedTriet);
     }
   });
 });

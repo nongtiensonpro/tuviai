@@ -73,7 +73,9 @@ function buildPalaceSnapshot(palace: Palace): AiPalaceSnapshot {
     diaChi: palace.chi,
     nguHanh: getChiNguHanh(palace.chi),
     mainStars: palace.mainStars.map(formatMainStar),
-    auxStars: palace.auxStars.map(formatAuxStar),
+    auxStars: palace.auxStars
+      .filter(star => !['Tuần Không', 'Triệt Không', 'Tuần', 'Triệt'].includes(star.name))
+      .map(formatAuxStar),
     borrowedMainStars: palace.borrowedStars.map(star => {
       const formatted = formatMainStar(star);
       return `${formatted} (mượn từ cung xung chiếu)`;

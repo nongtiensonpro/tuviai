@@ -172,11 +172,13 @@ NGUYÊN TẮC BẮT BUỘC:
         mapStr += `   - Chính tinh mượn (xung chiếu): ${borrowedText.join(', ')}\n`;
       }
       
-      const auxText = palace.auxStars.map(star => {
-        const starEl = getStarNguHanh(star.name);
-        const si = star.sihua ? ` [Hóa ${star.sihua}]` : '';
-        return `${star.name} (${starEl})${si}`;
-      });
+      const auxText = palace.auxStars
+        .filter(star => !['Tuần Không', 'Triệt Không', 'Tuần', 'Triệt'].includes(star.name))
+        .map(star => {
+          const starEl = getStarNguHanh(star.name);
+          const si = star.sihua ? ` [Hóa ${star.sihua}]` : '';
+          return `${star.name} (${starEl})${si}`;
+        });
       mapStr += `   - Phụ tinh & Tạp diệu: ${auxText.length > 0 ? auxText.join(', ') : 'Không có'}\n`;
       
       // Sihua summary
