@@ -1,5 +1,14 @@
 import type { TenCan } from '../types/ZiweiTypes';
 
+/**
+ * Chuẩn hóa chỉ số cung về [0, 11] — dùng chung cho mọi phép an sao vòng.
+ * Khác với `% 12` của JS (trả số âm), mod12 luôn trả index hợp lệ.
+ */
+export function mod12(value: number): number {
+  return ((value % 12) + 12) % 12;
+}
+
+
 export const LOC_TON_BY_CAN: Record<TenCan, number> = {
   'Giáp': 2,
   'Ất': 3,

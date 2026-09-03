@@ -181,6 +181,9 @@ const ZIWEI_CYCLE_ONE: Record<NguHanhCuc, number[]> = {
   6: [9, 6, 11, 4, 1, 2], // Hỏa Lục: Dậu, Ngọ, Hợi, Thìn, Sửu, Dần
 };
 
+// Tương đương thuật toán cổ điển "Chẵn Tiến Lẻ Lùi" (đã đối chứng 150/150):
+//   X = số nhỏ nhất ≥ 0 để (ngày + X) chia hết Cục; Q = (ngày + X)/Cục;
+//   mốc = Dần + Q - 1; X chẵn → mốc + X; X lẻ → mốc - X.
 function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
   const quotient = Math.floor(ngayAm / cuc);
   const remainder = ngayAm % cuc;
@@ -202,14 +205,28 @@ function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
 
 ### Chòm Tử Vi (Z = vị trí sao Tử Vi):
 
+Đếm NGHỊCH từ Tử Vi, có cung bỏ trống (theo đúng quyết cổ bản — Wikipedia 紫微斗數 安主星:
+"逆時針一宮安天機，跳隔一宮安太陽，逆一宮安武曲，逆一宮安天同，跳隔兩宮安廉貞"):
+
 ```
 Tử Vi     : Z
-Thiên Cơ  : (Z - 1 + 12) % 12
-Thái Dương : (Z - 3 + 12) % 12
-Vũ Khúc   : (Z - 4 + 12) % 12
-Thiên Đồng : (Z - 5 + 12) % 12
-Liêm Trinh : (Z - 8 + 12) % 12
+Thiên Cơ  : (Z - 1) mod 12        ← liền kề nghịch
+Thái Dương : (Z - 3) mod 12        ← nhảy 1 cung trống (Sửu bỏ trống khi Z=Tý)
+Vũ Khúc   : (Z - 4) mod 12
+Thiên Đồng : (Z - 5) mod 12
+Liêm Trinh : (Z - 8) mod 12        ← nhảy 2 cung trống
 ```
+BẤT BIẾN KIỂM CHỨNG (9 cặp sao kinh điển — xác minh 2026-09 qua công thức đối chứng độc lập):
+- Tử Vi–Thiên Phủ đồng cung: Dần/Thân (紫府同宫寅申)
+- Thiên Đồng–Thái Âm: Tý/Ngọ (同阴子午)
+- Thiên Đồng–Cự Môn: Sửu/Mùi (同巨丑未)
+- Thiên Đồng–Thiên Lương: Dần/Thân (同梁寅申)
+- Vũ Khúc–Tham Lang: Sửu/Mùi (武贪丑未)
+- Thiên Cơ–Thiên Lương: Thìn/Tuất (机梁辰戌)
+- Liêm Trinh–Thiên Phủ: Thìn/Tuất (廉府辰戌)
+- Liêm Trinh–Thiên Tướng: Tý/Ngọ (廉相子午)
+- Thái Dương–Thái Âm: Sửu/Mùi (日月丑未)
+Lá số vi phạm bất kỳ cặp nào trên là công thức an chính tinh SAI.
 
 ### Chòm Thiên Phủ (đối xứng Dần-Thân với Tử Vi):
 

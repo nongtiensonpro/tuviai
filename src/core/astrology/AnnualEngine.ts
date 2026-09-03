@@ -7,6 +7,7 @@ import type { ZiweiChart, AnnualPalace, AnnualChart, Star, TenCan, TwoelveChi, S
 import { TEN_CAN, TWELVE_CHI } from '../types/ZiweiTypes';
 import { getYearCanChi } from '../calendar/LunarConverter';
 import { getStarNguHanh } from './NguHanhEngine';
+import { mod12 } from './StarConstants';
 
 // ============================================================
 // BẢNG TRA CỨU
@@ -97,14 +98,14 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
   annualStars.push(createAnnualStar('Lưu Kình Dương', luuLocTonIdx + 1));
 
   // - Lưu Đà La (trước Lưu Lộc Tồn 1 cung)
-  annualStars.push(createAnnualStar('Lưu Đà La', luuLocTonIdx - 1 + 12));
+  annualStars.push(createAnnualStar('Lưu Đà La', mod12(luuLocTonIdx - 1)));
 
   // - Lưu Thiên Mã
   const luuThienMaIdx = THIEN_MA_BY_YEAR_CHI[luuChiIndex] ?? 8;
   annualStars.push(createAnnualStar('Lưu Thiên Mã', luuThienMaIdx));
 
   // - Lưu Thiên Khốc
-  const luuThienKhocIdx = (6 - luuChiIndex + 12) % 12;
+  const luuThienKhocIdx = mod12(6 - luuChiIndex);
   annualStars.push(createAnnualStar('Lưu Thiên Khốc', luuThienKhocIdx));
 
   // - Lưu Thiên Hư
@@ -112,7 +113,7 @@ export function buildAnnualChart(chart: ZiweiChart, targetYear: number): AnnualC
   annualStars.push(createAnnualStar('Lưu Thiên Hư', luuThienHuIdx));
 
   // - Lưu Hồng Loan
-  const luuHongLoanIdx = (3 - luuChiIndex + 12) % 12;
+  const luuHongLoanIdx = mod12(3 - luuChiIndex);
   annualStars.push(createAnnualStar('Lưu Hồng Loan', luuHongLoanIdx));
 
   // - Lưu Thiên Hỷ

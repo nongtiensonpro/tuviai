@@ -5,7 +5,7 @@
 
 import type { SolarDate, ZiweiChart, NguHanhCuc, Palace, Star } from '../types/ZiweiTypes';
 import { CUC_NAME, TWELVE_CHI } from '../types/ZiweiTypes';
-import { solarToLunar, getNamCanChi, getYearCanChi } from '../calendar/LunarConverter';
+import { solarToLunar, getNamCanChi, getYearCanChi, getCungMenhCan } from '../calendar/LunarConverter';
 import {
   calcMenhChiIndex,
   calcThanChiIndex,
@@ -63,7 +63,7 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
 
   // Step 5: Ngũ Hành Nạp Âm Cục của Cung Mệnh
   // Can của Cung Mệnh
-  const { can: menhCan } = getMenhCanChi(menhChiIndex, yearCanChi.canIndex);
+  const { can: menhCan } = getCungMenhCan(menhChiIndex, yearCanChi.canIndex);
   const nguHanhCuc = calcNguHanhCuc(menhCan, menhChi);
   const tenCuc = CUC_NAME[nguHanhCuc];
   const napAmInfo = getNapAmInfo(namCanChi.can, namCanChi.chi);
@@ -153,27 +153,6 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   };
 }
 
-/**
- * Helper nội bộ: Lấy Can của Cung Mệnh
- * Dựa trên Can Dần theo năm + offset từ Dần đến menhChiIndex
- */
-function getMenhCanChi(
-  menhChiIndex: number,
-  yearCanIndex: number,
-): { can: import('../types/ZiweiTypes').TenCan; canIndex: number } {
-  const TEN_CAN = ['Giáp','Ất','Bính','Đinh','Mậu','Kỷ','Canh','Tân','Nhâm','Quý'] as const;
-  const DAN_CAN_START: Record<number, number> = {
-    0: 2, 1: 4, 2: 6, 3: 8, 4: 0,
-    5: 2, 6: 4, 7: 6, 8: 8, 9: 0,
-  };
-  const danStart = DAN_CAN_START[yearCanIndex] ?? 0;
-  const offset = (menhChiIndex - 2 + 12) % 12;
-  const canIndex = (danStart + offset) % 10;
-  return {
-    can: TEN_CAN[canIndex] as import('../types/ZiweiTypes').TenCan,
-    canIndex,
-  };
-}
 
 /**
  * Serialize ZiweiChart thành JSON để gửi cho Gemini AI

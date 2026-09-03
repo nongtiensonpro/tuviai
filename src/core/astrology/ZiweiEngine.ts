@@ -15,19 +15,11 @@ import { getStarNguHanh } from './NguHanhEngine';
 const DAN_CHI_INDEX = 2;
 
 /**
- * Vị trí sao Tử Vi ở chu kỳ đầu tiên của từng Cục.
+ * Thuật toán tìm vị trí sao Tử Vi theo ngày âm × Cục.
  *
- * Quy tắc cổ điển:
- * - Lấy ngày âm chia cho số cục
- * - Nếu còn dư, dùng vị trí của "ngày dư" trong chu kỳ đầu rồi tiến thêm số chu kỳ
- * - Nếu chia hết, lấy cung Dần làm mốc và tiến thêm (số chu kỳ - 1)
- *
- * Bảng chu kỳ đầu:
- * - Thủy Nhị: Sửu, Dần
- * - Mộc Tam: Thìn, Sửu, Dần
- * - Kim Tứ: Hợi, Ngọ, Sửu, Dần
- * - Thổ Ngũ: Ngọ, Hợi, Thìn, Sửu, Dần
- * - Hỏa Lục: Dậu, Ngọ, Hợi, Thìn, Sửu, Dần
+ * Bản "chu kỳ đầu" (ZIWEI_CYCLE_ONE) đã được verify 100% với lasotuvi.com và
+ * khớp 150/150 với thuật toán cổ điển "Chẵn Tiến Lẻ Lùi" trong
+ * __tests__/ZiweiPositionExhaustive.test.ts — GIỮ NGUYÊN, không đổi.
  */
 const ZIWEI_CYCLE_ONE: Record<NguHanhCuc, number[]> = {
   2: [1, 2],
@@ -140,7 +132,12 @@ export function placeMainStars(palaces: Palace[], ziweiPos: number): Palace[] {
     result[idx]!.mainStars.push(star);
   }
 
-  // --- Chòm Tử Vi (NGƯỢC chiều kim đồng hồ từ Tử Vi) ---
+  // --- Chòm Tử Vi (NGƯỢC chiều kim đồng hồ từ Tử Vi, có cung trống) ---
+  // Quyết cổ bản (紫微斗數全書 安主星): Thiên Cơ nghịch 1 cung; CÁCH 1 cung trống
+  // an Thái Dương; Vũ Khúc, Thiên Đồng mỗi sao nghịch tiếp 1 cung; CÁCH 2 cung
+  // trống an Liêm Trinh → offset cố định -1, -3, -4, -5, -8.
+  // Đối chứng 9 cặp sao kinh điển (xem __tests__/EngineInvariants.test.ts):
+  // 紫府=寅申, 同阴=子午, 同巨=丑未, 同梁=寅申, 武贪=丑未, 机梁=辰戌, 廉府=辰戌, 廉相=子午, 日月=丑未.
   const Z = ziweiPos;
   place('紫微', Z);
   place('天機', (Z - 1 + 12) % 12);

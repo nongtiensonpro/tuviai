@@ -86,7 +86,11 @@ function resolveSexagenaryIndex(yearCanIndex: number, yearChiIndex: number): num
     }
   }
 
-  return 0;
+  // Can/Chi không cùng parity (vd Giáp-Sửu) là dữ liệu vô hiệu — fail-fast thay vì
+  // âm thầm trả Giáp Tý (0) khiến Tuần Không an sai cung.
+  throw new Error(
+    `resolveSexagenaryIndex: invalid Can/Chi pair (canIndex=${yearCanIndex}, chiIndex=${yearChiIndex})`,
+  );
 }
 
 // ============================================================

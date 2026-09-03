@@ -1,5 +1,6 @@
 import type { ZiweiChart, MonthlyChart, MonthlyPalace } from '../types/ZiweiTypes';
 import { buildAnnualChart } from './AnnualEngine';
+import { mod12 } from './StarConstants';
 
 /**
  * Lập lá số hạn tháng (Nguyệt Hạn) dựa trên sao Đẩu Quân (Lưu Đẩu Quân) làm điểm khởi đầu.
@@ -21,10 +22,10 @@ export function buildMonthlyChart(chart: ZiweiChart, targetYear: number, targetM
   // 2. Tính vị trí tháng Giêng (Lưu Đẩu Quân): khởi Lưu Thái Tuế nghịch tháng sinh thuận giờ sinh
   const birthMonth = chart.lunarDate.month;
   const birthHourChiIdx = chart.lunarDate.hourChiIndex;
-  const luuDauQuanIdx = (luuThaiTueIdx - birthMonth + 1 + birthHourChiIdx + 24) % 12;
+  const luuDauQuanIdx = mod12(luuThaiTueIdx - birthMonth + 1 + birthHourChiIdx);
 
   // 3. Tính vị trí cung hạn tháng cần xem (đi thuận từ tháng Giêng)
-  const monthlyPalaceIndex = (luuDauQuanIdx + targetMonth - 1) % 12;
+  const monthlyPalaceIndex = mod12(luuDauQuanIdx + targetMonth - 1);
 
   // 4. Map 12 cung hạn năm sang hạn tháng
   const palaces: MonthlyPalace[] = annualChart.palaces.map(p => {

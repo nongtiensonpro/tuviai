@@ -6,7 +6,7 @@
 
 import type { Palace, Star } from '../types/ZiweiTypes';
 import { getStarNguHanh } from './NguHanhEngine';
-import { DAO_HOA_BY_YEAR_CHI, THIEN_MA_BY_YEAR_CHI } from './StarConstants';
+import { DAO_HOA_BY_YEAR_CHI, THIEN_MA_BY_YEAR_CHI, mod12 } from './StarConstants';
 
 // ============================================================
 // BẢNG TRA CỨU TĨNH HỌC THUẬT (Nam Phái Tam Hợp)
@@ -88,10 +88,10 @@ function placeStarByCan(
   palaces: Palace[],
   starName: string,
   yearCanIdx: number,
-  map: number[] | Record<number, number>,
+  map: readonly number[] | Record<number, number>,
   category: Star['category'] = 'fixed'
 ): void {
-  const idx = (map as any)[yearCanIdx];
+  const idx = Array.isArray(map) ? map[yearCanIdx] : map[yearCanIdx];
   if (idx !== undefined) {
     placeStar(palaces, starName, idx, category);
   }
@@ -104,18 +104,22 @@ function placeStarByChi(
   palaces: Palace[],
   starName: string,
   yearChiIdx: number,
-  formulaOrMap: number | ((chi: number) => number) | Record<number, number> | number[],
+  formulaOrMap: number | ((chi: number) => number) | Readonly<Record<number, number>> | readonly number[],
   category: Star['category'] = 'fixed'
 ): void {
-  let idx: number;
+  let idx: number | undefined;
   if (typeof formulaOrMap === 'function') {
     idx = formulaOrMap(yearChiIdx);
-  } else if (Array.isArray(formulaOrMap) || typeof formulaOrMap === 'object') {
-    idx = (formulaOrMap as any)[yearChiIdx];
-  } else {
+  } else if (typeof formulaOrMap === 'number') {
     idx = formulaOrMap;
+  } else {
+    idx = Array.isArray(formulaOrMap)
+      ? (formulaOrMap as readonly number[])[yearChiIdx]
+      : (formulaOrMap as Readonly<Record<number, number>>)[yearChiIdx];
   }
-  placeStar(palaces, starName, idx, category);
+  if (idx !== undefined) {
+    placeStar(palaces, starName, idx, category);
+  }
 }
 
 /**
@@ -125,18 +129,20 @@ function placeStarByMonth(
   palaces: Palace[],
   starName: string,
   month: number,
-  formulaOrMap: ((m: number) => number) | Record<number, number> | number[],
+  formulaOrMap: ((m: number) => number) | Readonly<Record<number, number>> | readonly number[],
   category: Star['category'] = 'fixed'
 ): void {
-  let idx: number;
+  let idx: number | undefined;
   if (typeof formulaOrMap === 'function') {
     idx = formulaOrMap(month);
-  } else if (Array.isArray(formulaOrMap) || typeof formulaOrMap === 'object') {
-    idx = (formulaOrMap as any)[month];
   } else {
-    idx = formulaOrMap;
+    idx = Array.isArray(formulaOrMap)
+      ? (formulaOrMap as readonly number[])[month]
+      : (formulaOrMap as Readonly<Record<number, number>>)[month];
   }
-  placeStar(palaces, starName, idx, category);
+  if (idx !== undefined) {
+    placeStar(palaces, starName, idx, category);
+  }
 }
 
 // ============================================================
@@ -232,20 +238,20 @@ function placeTapDieu(
 
   // === 3.2. An theo Ngày sinh ===
   const taPhuIdx = (4 + month - 1) % 12;
-  placeStar(palaces, 'Tam Thai', taPhuIdx + day - 1, 'cat');
+  placeStar(palaces, 'Tam Thai', mod12(taPhuIdx + day - 1), 'cat');
 
   const huuBatIdx = (10 - month + 1 + 12) % 12;
-  placeStar(palaces, 'Bát Tọa', huuBatIdx - day + 1 + 12, 'cat');
+  placeStar(palaces, 'Bát Tọa', mod12(huuBatIdx - day + 1), 'cat');
 
   const vanXuongIdx = (10 - hourChiIdx + 12) % 12;
-  placeStar(palaces, 'Ân Quang', vanXuongIdx + day - 2 + 12, 'cat');
+  placeStar(palaces, 'Ân Quang', mod12(vanXuongIdx + day - 2), 'cat');
 
   const vanKhucIdx = (4 + hourChiIdx) % 12;
-  placeStar(palaces, 'Thiên Quý', vanKhucIdx - (day - 1) - 1 + 24, 'cat');
+  placeStar(palaces, 'Thiên Quý', mod12(vanKhucIdx - (day - 1) - 1), 'cat');
 
   // === 3.3. An theo Giờ sinh ===
-  placeStar(palaces, 'Thai Phụ', vanKhucIdx + 2, 'cat');
-  placeStar(palaces, 'Phong Cáo', vanKhucIdx - 2 + 12, 'cat');
+  placeStar(palaces, 'Thai Phụ', mod12(vanKhucIdx + 2), 'cat');
+  placeStar(palaces, 'Phong Cáo', mod12(vanKhucIdx - 2), 'cat');
   
   // === 3.4. An theo Địa Chi năm sinh ===
   placeStarByChi(palaces, 'Đào Hoa', yearChiIdx, DAO_HOA_BY_YEAR_CHI, 'cat');
@@ -267,13 +273,13 @@ function placeTapDieu(
   placeStarByChi(palaces, 'Thiên Vu', yearChiIdx, chi => (8 + chi) % 12, 'sha');
 
   // Đẩu Quân (Nguyệt Tướng): khởi Thái Tuế nghịch tháng sinh thuận giờ sinh
-  placeStarByChi(palaces, 'Đẩu Quân', yearChiIdx, chi => (chi - month + 1 + hourChiIdx + 24) % 12, 'sha');
+  placeStarByChi(palaces, 'Đẩu Quân', yearChiIdx, chi => mod12(chi - month + 1 + hourChiIdx), 'sha');
 
   // Quốc Ấn, Đường Phù (Khởi từ Lộc Tồn)
   const locTonPalace = palaces.find(p => p.auxStars.some(s => s.name === 'Lộc Tồn'));
   const locTonIdx = locTonPalace ? locTonPalace.chiIndex : 2;
-  placeStar(palaces, 'Quốc Ấn', locTonIdx + 8, 'cat');
-  placeStar(palaces, 'Đường Phù', locTonIdx - 7 + 12, 'cat');
+  placeStar(palaces, 'Quốc Ấn', mod12(locTonIdx + 8), 'cat');
+  placeStar(palaces, 'Đường Phù', mod12(locTonIdx - 7), 'cat');
 
   // === 3.5. An theo Thiên Can năm sinh ===
   placeStarByCan(palaces, 'Thiên Quan', yearCanIdx, [7, 4, 5, 2, 3, 9, 11, 9, 10, 6], 'cat');
@@ -340,10 +346,10 @@ export function placeAllMinorStars(
   const menhPalace = result.find(p => p.palaceName === 'Mệnh');
   const thanPalace = result.find(p => p.isThanPalace);
   if (menhPalace) {
-    placeStar(result, 'Thiên Tài', menhPalace.chiIndex + yearChiIdx, 'cat');
+    placeStar(result, 'Thiên Tài', mod12(menhPalace.chiIndex + yearChiIdx), 'cat');
   }
   if (thanPalace) {
-    placeStar(result, 'Thiên Thọ', thanPalace.chiIndex + yearChiIdx, 'cat');
+    placeStar(result, 'Thiên Thọ', mod12(thanPalace.chiIndex + yearChiIdx), 'cat');
   }
 
   return result;
