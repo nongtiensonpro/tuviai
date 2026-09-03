@@ -17,6 +17,8 @@ export interface BirthInfo {
   exactMinute?: number;
   birthPlace: string;
   customLongitude?: number;
+  /** Quy tắc an sao tháng nhuận — mặc định 'first_half' (nửa đầu→tháng trước) */
+  leapMonthMode?: 'first_half' | 'prev' | 'next';
 }
 
 interface BirthFormProps {
@@ -59,6 +61,8 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
   
   // Trạng thái cấu hình Nơi sinh
   const [birthPlace, setBirthPlace] = useState<string>('Hà Nội');
+  // Quy tắc an sao tháng nhuận (Giai đoạn 2)
+  const [leapMonthMode, setLeapMonthMode] = useState<'first_half' | 'prev' | 'next'>('first_half');
   const [customLongitude, setCustomLongitude] = useState<string>('105.0');
   
   const [gender, setGender] = useState<'male' | 'female'>('male');
@@ -116,6 +120,7 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
       exactMinute: hourMode === 'exact' ? min : undefined,
       birthPlace,
       customLongitude: birthPlace === 'manual' ? longitudeVal : undefined,
+      leapMonthMode,
     });
   };
 
@@ -274,6 +279,27 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
                     />
                   </div>
                 )}
+
+                {/* Quy tắc an sao tháng nhuận (Giai đoạn 2) */}
+                <div className="animate-fade-down">
+                  <label className="label animate-fade" htmlFor="select-leap-month-mode">
+                    Quy tắc an sao tháng nhuận
+                  </label>
+                  <select
+                    id="select-leap-month-mode"
+                    className="input"
+                    value={leapMonthMode}
+                    onChange={e => setLeapMonthMode(e.target.value as 'first_half' | 'prev' | 'next')}
+                  >
+                    <option value="first_half">Chuẩn phổ biến: ngày 1–15 nhuận → tháng trước, ngày 16+ → tháng sau</option>
+                    <option value="prev">Cả tháng nhuận → tháng trước</option>
+                    <option value="next">Cả tháng nhuận → tháng sau</option>
+                  </select>
+                  <p className="text-xs text-white/40 mt-1">
+                    Chỉ áp dụng khi sinh vào tháng nhuận âm lịch. Lá số hiển thị tháng nhuận thật;
+                    quy tắc này quyết định tháng dùng để an sao.
+                  </p>
+                </div>
 
                 {/* Hộp giải thích học thuật */}
                 <div className="relative rounded-lg border border-gold/12 bg-gold/[0.03] p-4 pl-5.5 text-xs text-white/60 space-y-2 leading-relaxed overflow-hidden">

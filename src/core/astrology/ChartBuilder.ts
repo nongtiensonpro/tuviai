@@ -53,12 +53,12 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   const namCanChi = getNamCanChi(lunar.year);
   const yearCanChi = getYearCanChi(lunar.year);
 
-  // Step 3: Vị trí Cung Mệnh
-  const menhChiIndex = calcMenhChiIndex(lunar.month, lunar.hourChiIndex);
+  // Step 3: Vị trí Cung Mệnh — dùng tháng đã quy đổi nhuận (monthForStarring)
+  const menhChiIndex = calcMenhChiIndex(lunar.monthForStarring, lunar.hourChiIndex);
   const menhChi = TWELVE_CHI[menhChiIndex]!;
 
-  // Step 4: Vị trí Cung Thân
-  const thanChiIndex = calcThanChiIndex(lunar.month, lunar.hourChiIndex);
+  // Step 4: Vị trí Cung Thân — cùng tháng an sao
+  const thanChiIndex = calcThanChiIndex(lunar.monthForStarring, lunar.hourChiIndex);
   const thanChi = TWELVE_CHI[thanChiIndex]!;
 
   // Step 5: Ngũ Hành Nạp Âm Cục của Cung Mệnh
@@ -91,10 +91,10 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   // Step 8: An 14 chính tinh
   palaces = placeMainStars(palaces, ziweiPos);
 
-  // Step 9: An Lục Cát Tinh
+  // Step 9: An Lục Cát Tinh (Tả Phù/Hữu Bật theo tháng an sao)
   palaces = placeLucCatTinh(
     palaces,
-    lunar.month,
+    lunar.monthForStarring,
     yearCanChi.canIndex,
     lunar.hourChiIndex,
   );
@@ -113,12 +113,12 @@ export function buildZiweiChart(solar: SolarDate, gender: 'male' | 'female'): Zi
   // Step 12: Tuần Không / Triệt Không
   palaces = calcTuanTrietKhong(palaces, yearCanChi.canIndex, yearCanChi.chiIndex);
 
-  // Step 12.5: An toàn bộ 70+ Bàng tinh Tạp diệu
+  // Step 12.5: An toàn bộ 70+ Bàng tinh Tạp diệu (tháng an sao đã quy đổi nhuận)
   palaces = placeAllMinorStars(
     palaces,
     yearCanChi.canIndex,
     yearCanChi.chiIndex,
-    lunar.month,
+    lunar.monthForStarring,
     lunar.day,
     lunar.hourChiIndex,
     gender === 'male' ? 'Nam' : 'Nữ',
@@ -168,6 +168,9 @@ export function chartToPromptContext(chart: ZiweiChart): string {
       nguHanhCuc: chart.tenCuc,
       cungMenh: chart.cungMenhChi,
       cungThan: chart.cungThanChi,
+      thangNhuan: chart.lunarDate.isLeap
+        ? `Sinh tháng ${chart.lunarDate.month} NHUẬN (âm lịch), an sao theo tháng ${chart.lunarDate.monthForStarring} (quy tắc ${chart.solarDate.leapMonthMode ?? 'first_half'})`
+        : undefined,
     },
     cungBan: chart.palaces.map(p => ({
       diaChi: p.chi,

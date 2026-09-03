@@ -116,12 +116,22 @@ export interface SolarDate {
   
   // Option xử lý giờ Tý sớm (23:00 - 23:59)
   earlyZiMode?: 'next_day' | 'same_day';
+
+  // Option xử lý THÁNG NHUẬN khi an sao (Giai đoạn 2 — chuẩn Nam phái phổ biến nhất VN):
+  // - 'first_half' (MẶC ĐỊNH): ngày 1–15 tháng nhuận an theo tháng TRƯỚC, ngày 16+ an theo tháng SAU
+  // - 'prev': cả tháng nhuận an theo tháng trước (quy tắc "coi như tháng trước")
+  // - 'next': cả tháng nhuận an theo tháng sau (quy tắc "lùi 1 bước" biến thể)
+  // Chỉ ảnh hưởng tháng dùng để AN SAO; tháng hiển thị trên lá số vẫn là tháng nhuận thật.
+  leapMonthMode?: LeapMonthMode;
 }
+
+/** Quy tắc an sao cho người sinh tháng nhuận */
+export type LeapMonthMode = 'first_half' | 'prev' | 'next';
 
 /** Ngày sinh đã chuyển sang Âm lịch */
 export interface LunarDate {
   day: number;         // 1-30
-  month: number;       // 1-12
+  month: number;       // 1-12 (tháng thật — gồm tháng nhuận)
   year: number;
   isLeap: boolean;     // Tháng nhuận
   hourChi: TwoelveChi; // Địa Chi giờ sinh
@@ -129,6 +139,12 @@ export interface LunarDate {
   
   // Flag đánh dấu đã tự động điều chỉnh tăng 1 ngày do sinh giờ Tý sớm
   isEarlyZiAdjusted?: boolean;
+
+  // Tháng dùng để AN SAO sau khi áp dụng leapMonthMode (Giai đoạn 2).
+  // - Không sinh tháng nhuận (hoặc mode mặc định giữ nguyên): bằng `month`.
+  // - Sinh tháng nhuận: có thể lệch 1 so với `month` tùy quy tắc.
+  // Mọi engine an sao theo tháng phải đọc trường này, KHÔNG đọc `month` trực tiếp.
+  monthForStarring: number;
 }
 
 /** Thiên Can + Địa Chi của một mốc thời gian */
@@ -514,6 +530,7 @@ export type AiErrorCode =
   | 'empty_response'
   | 'invalid_json'
   | 'user_cancelled'
+  | 'content_blocked'
   | 'unknown';
 
 /** Payload lỗi AI đã chuẩn hóa để service và UI giao tiếp cùng một ngôn ngữ */
@@ -577,6 +594,9 @@ export interface ChartWorkerInput {
   // Thông tin địa lý sinh
   birthPlace: string;        // Tên tỉnh thành hoặc "manual" hoặc "none"
   customLongitude?: number;  // Kinh độ tự nhập nếu chọn "manual"
+
+  // Quy tắc an sao tháng nhuận (Giai đoạn 2) — mặc định 'first_half'
+  leapMonthMode?: LeapMonthMode;
 }
 
 /** Message gửi vào worker lập mệnh bàn */

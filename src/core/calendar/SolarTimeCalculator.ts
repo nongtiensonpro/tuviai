@@ -4,7 +4,7 @@
  */
 
 import { VIETNAM_CITIES, getVietnamHistoricalTimezone } from './AstronomicalData';
-import type { SolarDate } from '../types/ZiweiTypes';
+import type { LeapMonthMode, SolarDate } from '../types/ZiweiTypes';
 
 /**
  * Tính số thứ tự ngày trong năm (1 - 366)
@@ -144,6 +144,7 @@ export function calibrateSolarDate(params: {
   birthPlace: string; // Tên tỉnh thành hoặc "manual" hoặc "none"
   customLongitude?: number;
   earlyZiMode?: 'next_day' | 'same_day';
+  leapMonthMode?: LeapMonthMode;
 }): SolarDate {
   const { year, month, day, hourMode, hourIndex, exactHour, exactMinute, birthPlace, customLongitude } = params;
 
@@ -197,7 +198,8 @@ export function calibrateSolarDate(params: {
       trueSolarMinute: adminMinute,
       isHistoricalTimezoneApplied: false,
       isTrueSolarTimeApplied: false,
-      earlyZiMode: params.earlyZiMode
+      earlyZiMode: params.earlyZiMode,
+      leapMonthMode: params.leapMonthMode
     };
   }
 
@@ -264,6 +266,7 @@ export function calibrateSolarDate(params: {
     trueSolarMinute: trueSolarResult.minute,
     isHistoricalTimezoneApplied,
     isTrueSolarTimeApplied: true,
-    earlyZiMode: params.earlyZiMode
+    earlyZiMode: params.earlyZiMode,
+    leapMonthMode: params.leapMonthMode
   };
 }

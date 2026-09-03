@@ -201,6 +201,7 @@ export function createMockChart(): ZiweiChart {
       isLeap: false,
       hourChi: 'Ngọ',
       hourChiIndex: 6,
+      monthForStarring: 7, // tháng thường → starring = month
     },
     gender: 'male',
     namCanChi: {

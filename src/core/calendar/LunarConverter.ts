@@ -8,7 +8,7 @@
 import { getLunarDate } from '@dqcai/vn-lunar';
 import type {
   SolarDate, LunarDate, CanChi, NamCanChi,
-  TenCan, TwoelveChi
+  TenCan, TwoelveChi, LeapMonthMode
 } from '../types/ZiweiTypes';
 import { TEN_CAN, TWELVE_CHI } from '../types/ZiweiTypes';
 
@@ -85,7 +85,40 @@ export function solarToLunar(solar: SolarDate): LunarDate {
     hourChi,
     hourChiIndex,
     isEarlyZiAdjusted,
+    // Tháng dùng để an sao — quy đổi tháng nhuận theo leapMonthMode (Giai đoạn 2).
+    // Xem resolveMonthForStarring; người sinh tháng thường → luôn bằng month.
+    monthForStarring: resolveMonthForStarring(lunar.month, lunar.leap, lunar.day, solar.leapMonthMode),
   };
+}
+
+/**
+ * Quy đổi tháng an sao cho người sinh tháng nhuận theo quy tắc trường phái.
+ * Chuẩn Nam phái phổ biến nhất tại VN (lyso.vn và nhiều sách đồng thuận):
+ *   'first_half' (mặc định): ngày 1–15 nhuận → tháng TRƯỚC; ngày 16 trở đi → tháng SAU.
+ *   'prev':  cả tháng nhuận → tháng trước.
+ *   'next':  cả tháng nhuận → tháng sau.
+ * Người sinh tháng thường → trả nguyên tháng (mọi mode).
+ */
+export function resolveMonthForStarring(
+  lunarMonth: number,
+  isLeap: boolean,
+  lunarDay: number,
+  mode: LeapMonthMode = 'first_half',
+): number {
+  if (!isLeap) return lunarMonth;
+
+  switch (mode) {
+    case 'prev':
+      return lunarMonth === 1 ? 12 : lunarMonth - 1;
+    case 'next':
+      return lunarMonth === 12 ? 1 : lunarMonth + 1;
+    case 'first_half':
+    default:
+      // Rằm (15) thuộc nửa đầu; từ 16 là nửa sau
+      return lunarDay <= 15
+        ? (lunarMonth === 1 ? 12 : lunarMonth - 1)
+        : (lunarMonth === 12 ? 1 : lunarMonth + 1);
+  }
 }
 
 /**

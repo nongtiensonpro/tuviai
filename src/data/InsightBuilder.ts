@@ -1285,7 +1285,7 @@ export function buildTermInsightPayload(chart: ZiweiChart, selection: InsightTer
     kind === 'state-marker' ? 'Chỉ dấu lá số' : '',
     palace?.isThanPalace && kind === 'palace' ? 'Thân cư cung này' : '',
     palace?.hasTuanKhong && normalizedName === 'Tuần' ? `Tác động tại ${palace.palaceName}` : '',
-    palace?.hasTrietKhong && normalizedName === 'Triệt' ? `Tác động tại ${palace.palaceName}` : '',,
+    palace?.hasTrietKhong && normalizedName === 'Triệt' ? `Tác động tại ${palace.palaceName}` : '',
     palace?.trangSinh === normalizedName ? `Hiện diện tại ${palace.palaceName}` : '',
     palace ? `${palace.can}.${palace.chi}` : '',
     ...familyInsight.tags,

@@ -20,7 +20,8 @@ export function buildMonthlyChart(chart: ZiweiChart, targetYear: number, targetM
   const luuThaiTueIdx = annualChart.luuThaiTuePalaceIndex;
 
   // 2. Tính vị trí tháng Giêng (Lưu Đẩu Quân): khởi Lưu Thái Tuế nghịch tháng sinh thuận giờ sinh
-  const birthMonth = chart.lunarDate.month;
+  // Tháng sinh để an Đẩu Quân — dùng tháng đã quy đổi nhuận cho nhất quán với natal chart
+  const birthMonth = chart.lunarDate.monthForStarring;
   const birthHourChiIdx = chart.lunarDate.hourChiIndex;
   const luuDauQuanIdx = mod12(luuThaiTueIdx - birthMonth + 1 + birthHourChiIdx);
 

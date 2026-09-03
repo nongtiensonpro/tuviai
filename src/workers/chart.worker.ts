@@ -24,6 +24,7 @@ workerScope.addEventListener('message', (event: MessageEvent<ChartWorkerRequest>
       exactMinute: input.exactMinute,
       birthPlace: input.birthPlace,
       customLongitude: input.customLongitude,
+      leapMonthMode: input.leapMonthMode,
     });
 
     const chart = buildZiweiChart(calibratedSolar, input.gender);

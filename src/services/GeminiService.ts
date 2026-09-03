@@ -235,6 +235,11 @@ function createGeminiServiceError(
       retryable: true,
       suggestedAction: 'Kiểm tra lại mạng của bạn rồi thử lại. Hệ thống cũng sẽ tự thử lại nếu lỗi chỉ là tạm thời.',
     },
+    content_blocked: {
+      message: 'Nội dung phân tích bị bộ lọc an toàn của Gemini chặn lại.',
+      retryable: false,
+      suggestedAction: 'Hãy diễn đạt lại câu hỏi theo hướng khác hoặc đơn giản hóa yêu cầu phân tích.',
+    },
     request_timeout: {
       message: 'Gemini phản hồi quá chậm nên yêu cầu đã hết thời gian chờ.',
       retryable: true,

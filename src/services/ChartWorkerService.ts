@@ -87,6 +87,7 @@ export class ChartWorkerService {
       exactMinute: input.exactMinute,
       birthPlace: input.birthPlace,
       customLongitude: input.customLongitude,
+      leapMonthMode: input.leapMonthMode,
     });
 
     return buildZiweiChart(calibratedSolar, input.gender);
