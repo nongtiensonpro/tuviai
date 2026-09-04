@@ -122,7 +122,29 @@
   Đào Hoa/Hồng Loan/Thiên Hỷ/Cô Thần/Quả Tú, Tứ Hóa, Tuần/Triệt Không,
   Cung Mệnh/Thân, Nạp Âm Cục (ngũ hổ遁 + bảng 60 can-chi), Đại Hạn (offset 10 tuổi).
 - 11/11 test xanh — engine khớp công thức chuẩn 720/720 lá số.
-- Còn lại GĐ4: fixture tháng nhuận từ nguồn công khai (lasotuvi/xemtuvi), tùy chọn yearBoundary tiết khí.
+
+### ✅ GIAI ĐOẠN 4 (phần 2) — ĐIỀU TRA LASOTUVI + MODE 'none' (2026-09-03)
+- Clone backend lasotuvi.com (quytttb/lasotuvi — mã nguồn mở): đường hiện đại chạy py_iztro,
+  đường cũ (chart_builder.py) truyền thẳng tháng nhuận — CẢ HAI đều an sao theo chính
+  số tháng nhuận (không phải quy tắc 1-15→tháng trước).
+- Runtime iztro 2.6 verify: sinh 25/07/2025 giờ Thìn (mùng 1/6 nhuận) → lasotuvi/iztro
+  Mệnh tại Mão (Thái Dương + Thiên Lương); first_half của ta → Mệnh Dần (Vũ Khúc + Thiên Tướng).
+- USER QUYẾT ĐỊNH: giữ first_half làm mặc định (chuẩn sách VN truyền thống); thêm mode
+  'none' (chuẩn lasotuvi) vào LeapMonthMode + UI để user chọn khi đối chiếu lasotuvi.
+- Test khóa: LeapMonthEngine verify mode none sinh đúng Mệnh Mão + Đồng/ Lương = iztro.
+- Chi tiết: tailieu/DIEU-TRA-THANG-NHUAN.md.
+
+### TỔNG KẾT TOÀN KẾ HOẠCH (2026-09-03)
+| Chỉ số | Trước | Sau |
+|---|---|---|
+| Test suites / tests | 22 / 167 | **26 / 215** |
+| Bộ khóa cấu trúc | 0 | 9 cặp cổ bản + 168 ô độ sáng + 720 lá số coverage + 14 leap |
+| Lỗi hệ thống đã sửa | — | Tháng nhuận (L1), Lưu Hà strip (L6), 2 lỗi TS tồn đọng |
+| Tài liệu điều tra | 0 | 3 file: kế hoạch + độ sáng 4 nguồn + tháng nhuận |
+| Commits | 89cae39 | f47261a → 9a362de → e8dd5dd → 81791b8 → (GĐ4.2) |
+
+**Còn mở (không chặn)**: L4 tùy chọn yearBoundary tiết khí (mặc định mùng 1 Tết đã tài liệu hóa —
+đa số app VN dùng chuẩn này); fixture 2023 nhuận từ lasotuvi khi có lá số công khai cụ thể.
 1. Ma trận fixture: phủ 10 can × 12 chi (chọn 12–16 lá số), 12 giờ sinh, Tý sớm/muộn, tháng nhuận, biên Lập xuân, VCD mượn sao, Tuần/Triệt đồng cung.
 2. Test tách theo nhóm công thức (lịch / Mệnh-Thân / Cục / Tử Vi / chính tinh / Tứ Hóa / phụ tinh / đại hạn-tiểu vận) để fail chỉ đúng module.
 3. (Tùy chọn, cần user duyệt) cờ `yearBoundary:'lichun'` + bảng tiết khí; audit chéo 100 lá số ngẫu nhiên với engine开源 iztro bằng script offline (chỉ lúc kiểm tra, không đưa vào app).

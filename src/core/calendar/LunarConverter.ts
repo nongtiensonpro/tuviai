@@ -93,8 +93,13 @@ export function solarToLunar(solar: SolarDate): LunarDate {
 
 /**
  * Quy đổi tháng an sao cho người sinh tháng nhuận theo quy tắc trường phái.
- * Chuẩn Nam phái phổ biến nhất tại VN (lyso.vn và nhiều sách đồng thuận):
- *   'first_half' (mặc định): ngày 1–15 nhuận → tháng TRƯỚC; ngày 16 trở đi → tháng SAU.
+ * Hai trường phái chính (điều tra GĐ4, xem tailieu/DIEU-TRA-THANG-NHUAN.md):
+ *   'first_half' (MẶC ĐỊNH — chuẩn sách VN truyền thống, lyso.vn):
+ *     ngày 1–15 nhuận → tháng TRƯỚC; ngày 16 trở đi → tháng SAU.
+ *   'none' (chuẩn lasotuvi.com + iztro 2.6 / py_iztro — app hiện đại):
+ *     tháng nhuận an theo CHÍNH số tháng đó. Xác minh runtime: sinh 25/07/2025
+ *     (mùng 1 tháng 6 nhuận Ất Tỵ) giờ Thìn → lasotuvi/iztro cho Mệnh tại Mão
+ *     (an theo tháng 6), first_half cho Mệnh tại Dần (an theo tháng 5).
  *   'prev':  cả tháng nhuận → tháng trước.
  *   'next':  cả tháng nhuận → tháng sau.
  * Người sinh tháng thường → trả nguyên tháng (mọi mode).
@@ -108,6 +113,8 @@ export function resolveMonthForStarring(
   if (!isLeap) return lunarMonth;
 
   switch (mode) {
+    case 'none':
+      return lunarMonth;
     case 'prev':
       return lunarMonth === 1 ? 12 : lunarMonth - 1;
     case 'next':

@@ -17,8 +17,8 @@ export interface BirthInfo {
   exactMinute?: number;
   birthPlace: string;
   customLongitude?: number;
-  /** Quy tắc an sao tháng nhuận — mặc định 'first_half' (nửa đầu→tháng trước) */
-  leapMonthMode?: 'first_half' | 'prev' | 'next';
+  /** Quy tắc an sao tháng nhuận — mặc định 'first_half' (sách VN truyền thống) */
+  leapMonthMode?: 'first_half' | 'prev' | 'next' | 'none';
 }
 
 interface BirthFormProps {
@@ -62,7 +62,7 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
   // Trạng thái cấu hình Nơi sinh
   const [birthPlace, setBirthPlace] = useState<string>('Hà Nội');
   // Quy tắc an sao tháng nhuận (Giai đoạn 2)
-  const [leapMonthMode, setLeapMonthMode] = useState<'first_half' | 'prev' | 'next'>('first_half');
+  const [leapMonthMode, setLeapMonthMode] = useState<'first_half' | 'prev' | 'next' | 'none'>('first_half');
   const [customLongitude, setCustomLongitude] = useState<string>('105.0');
   
   const [gender, setGender] = useState<'male' | 'female'>('male');
@@ -289,9 +289,10 @@ export const BirthForm: React.FC<BirthFormProps> = ({ onSubmit, isLoading }) => 
                     id="select-leap-month-mode"
                     className="input"
                     value={leapMonthMode}
-                    onChange={e => setLeapMonthMode(e.target.value as 'first_half' | 'prev' | 'next')}
+                    onChange={e => setLeapMonthMode(e.target.value as 'first_half' | 'prev' | 'next' | 'none')}
                   >
-                    <option value="first_half">Chuẩn phổ biến: ngày 1–15 nhuận → tháng trước, ngày 16+ → tháng sau</option>
+                    <option value="first_half">Sách truyền thống VN: ngày 1–15 nhuận → tháng trước, ngày 16+ → tháng sau</option>
+                    <option value="none">Lasotuvi/iztro (hiện đại): tháng nhuận an theo chính số tháng đó</option>
                     <option value="prev">Cả tháng nhuận → tháng trước</option>
                     <option value="next">Cả tháng nhuận → tháng sau</option>
                   </select>

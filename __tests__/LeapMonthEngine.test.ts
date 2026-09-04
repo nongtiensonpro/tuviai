@@ -134,4 +134,18 @@ describe('Lá số tháng nhuận — fixture hành vi mặc định', () => {
     expect(l.day).toBe(1);
     expect(l.monthForStarring).toBe(5);
   });
+
+  it('mode none (chuẩn lasotuvi/iztro): tháng nhuận an theo chính số tháng đó', () => {
+    // Xác minh runtime iztro 2.6 + py_iztro (backend lasotuvi.com):
+    // sinh 25/07/2025 giờ Thìn (mùng 1/6 nhuận) → Mệnh tại MÃO (an theo tháng 6)
+    const l = solarToLunar({ day: 25, month: 7, year: 2025, hour: 8, leapMonthMode: 'none' });
+    expect(l.isLeap).toBe(true);
+    expect(l.monthForStarring).toBe(6);
+    const chart = buildZiweiChart({ day: 25, month: 7, year: 2025, hour: 8, leapMonthMode: 'none' }, 'male');
+    expect(chart.cungMenhChi).toBe('Mão'); // = iztro/lasotuvi (Thái Dương + Thiên Lương cư Mệnh)
+    const menhStars = chart.palaces.find(p => p.palaceName === 'Mệnh')!.mainStars.map(s => s.name);
+    expect(menhStars.length).toBe(2);
+    expect(menhStars).toContain('Thái Dương');
+    expect(menhStars).toContain('Thiên Lương');
+  });
 });

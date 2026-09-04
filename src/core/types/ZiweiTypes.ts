@@ -117,16 +117,19 @@ export interface SolarDate {
   // Option xử lý giờ Tý sớm (23:00 - 23:59)
   earlyZiMode?: 'next_day' | 'same_day';
 
-  // Option xử lý THÁNG NHUẬN khi an sao (Giai đoạn 2 — chuẩn Nam phái phổ biến nhất VN):
-  // - 'first_half' (MẶC ĐỊNH): ngày 1–15 tháng nhuận an theo tháng TRƯỚC, ngày 16+ an theo tháng SAU
-  // - 'prev': cả tháng nhuận an theo tháng trước (quy tắc "coi như tháng trước")
-  // - 'next': cả tháng nhuận an theo tháng sau (quy tắc "lùi 1 bước" biến thể)
+  // Option xử lý THÁNG NHUẬN khi an sao (điều tra GĐ4 — 2 trường phái chính):
+  // - 'first_half' (MẶC ĐỊNH — chuẩn sách VN truyền thống, lyso.vn):
+  //     ngày 1–15 tháng nhuận an theo tháng TRƯỚC, ngày 16+ an theo tháng SAU
+  // - 'none' (chuẩn lasotuvi.com + iztro/py_iztro — app hiện đại):
+  //     tháng nhuận an theo CHÍNH số tháng đó (isLeap chỉ là metadata)
+  // - 'prev': cả tháng nhuận an theo tháng trước
+  // - 'next': cả tháng nhuận an theo tháng sau
   // Chỉ ảnh hưởng tháng dùng để AN SAO; tháng hiển thị trên lá số vẫn là tháng nhuận thật.
   leapMonthMode?: LeapMonthMode;
 }
 
 /** Quy tắc an sao cho người sinh tháng nhuận */
-export type LeapMonthMode = 'first_half' | 'prev' | 'next';
+export type LeapMonthMode = 'first_half' | 'prev' | 'next' | 'none';
 
 /** Ngày sinh đã chuyển sang Âm lịch */
 export interface LunarDate {
