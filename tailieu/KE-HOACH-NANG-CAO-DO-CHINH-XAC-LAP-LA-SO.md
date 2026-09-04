@@ -115,7 +115,14 @@
 2. L5: verify Đẩu Quân bằng nguồn tham chiếu, thống nhất code ↔ SKILL.md.
 3. L6: ngũ hành tường minh 17 sao annual + test quét catalog.
 
-### GIAI ĐOẠN 4 — Bộ lá số chuẩn phủ rộng & phòng thủ dài hạn (1–2 ngày)
+### ✅ GIAI ĐOẠN 4 (phần 1) — MA TRẬN PHỦ RỘNG HOÀN THÀNH (2026-09-03)
+- CoverageMatrix.test.ts: corpus 720 lá số (60 hoa giáp × 12 giờ, năm 1949–2008).
+- Mỗi nhóm an sao kiểm bằng BẢNG CÔNG THỨC ĐỘC LẬP viết tay từ SKILL.md (không import engine):
+  Lộc Tồn/Kình/Đà, Khôi/Việt, Hỏa/Linh (144 tổ hợp), Tả/Hữu/Xương/Khúc,
+  Đào Hoa/Hồng Loan/Thiên Hỷ/Cô Thần/Quả Tú, Tứ Hóa, Tuần/Triệt Không,
+  Cung Mệnh/Thân, Nạp Âm Cục (ngũ hổ遁 + bảng 60 can-chi), Đại Hạn (offset 10 tuổi).
+- 11/11 test xanh — engine khớp công thức chuẩn 720/720 lá số.
+- Còn lại GĐ4: fixture tháng nhuận từ nguồn công khai (lasotuvi/xemtuvi), tùy chọn yearBoundary tiết khí.
 1. Ma trận fixture: phủ 10 can × 12 chi (chọn 12–16 lá số), 12 giờ sinh, Tý sớm/muộn, tháng nhuận, biên Lập xuân, VCD mượn sao, Tuần/Triệt đồng cung.
 2. Test tách theo nhóm công thức (lịch / Mệnh-Thân / Cục / Tử Vi / chính tinh / Tứ Hóa / phụ tinh / đại hạn-tiểu vận) để fail chỉ đúng module.
 3. (Tùy chọn, cần user duyệt) cờ `yearBoundary:'lichun'` + bảng tiết khí; audit chéo 100 lá số ngẫu nhiên với engine开源 iztro bằng script offline (chỉ lúc kiểm tra, không đưa vào app).
