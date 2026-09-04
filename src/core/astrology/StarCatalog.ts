@@ -1,4 +1,4 @@
-import type { StarCategory, StarDefinition, StarGroup, StarScope } from '../types/ZiweiTypes';
+import type { NguHanh, StarCategory, StarDefinition, StarGroup, StarScope } from '../types/ZiweiTypes';
 
 function defineStars(
   names: string[],
@@ -86,13 +86,34 @@ const NEW_MONTH_SHA_STARS = defineStars([
   'Âm Sát', 'Thiên Nguyệt', 'Nguyệt Yếm', 'Nguyệt Hình',
 ], 'month-day-hour', 'sha');
 
-const ANNUAL_STARS = defineStars([
+// Ngũ hành sao lưu niên kế thừa từ sao gốc (Lưu Kình Dương = Kình Dương = Kim...).
+// Gán tường minh để getStarNguHanh không còn phụ thuộc cơ chế strip tiền tố "Lưu ".
+const ANNUAL_STAR_NGU_HANH: Record<string, NguHanh> = {
+  'Lưu Thái Tuế': 'Hỏa', 'Lưu Lộc Tồn': 'Thổ', 'Lưu Kình Dương': 'Kim',
+  'Lưu Đà La': 'Kim', 'Lưu Thiên Mã': 'Hỏa', 'Lưu Thiên Khốc': 'Thủy',
+  'Lưu Thiên Hư': 'Thủy', 'Lưu Hồng Loan': 'Thủy', 'Lưu Thiên Hỷ': 'Thủy',
+  'Lưu Tang Môn': 'Mộc', 'Lưu Bạch Hổ': 'Kim', 'Lưu Quan Phù': 'Hỏa',
+  'Lưu Đào Hoa': 'Mộc', 'Lưu Thiên Khôi': 'Hỏa', 'Lưu Thiên Việt': 'Hỏa',
+  'Lưu Hỏa Tinh': 'Hỏa', 'Lưu Linh Tinh': 'Hỏa',
+};
+
+const ANNUAL_STAR_NAMES = [
   'Lưu Thái Tuế', 'Lưu Lộc Tồn', 'Lưu Kình Dương', 'Lưu Đà La',
   'Lưu Thiên Mã', 'Lưu Thiên Khốc', 'Lưu Thiên Hư', 'Lưu Hồng Loan',
   'Lưu Thiên Hỷ', 'Lưu Tang Môn', 'Lưu Bạch Hổ', 'Lưu Quan Phù',
   'Lưu Đào Hoa', 'Lưu Thiên Khôi', 'Lưu Thiên Việt', 'Lưu Hỏa Tinh',
   'Lưu Linh Tinh',
-], 'annual', 'other', 'annual', '.agents/skills/ziwei-algorithm/SKILL.md#23');
+] as const;
+
+const ANNUAL_STARS: StarDefinition[] = ANNUAL_STAR_NAMES.map(name => ({
+  name,
+  category: 'other',
+  group: 'annual',
+  scope: 'annual',
+  nguHanh: ANNUAL_STAR_NGU_HANH[name],
+  verificationStatus: 'verified',
+  source: '.agents/skills/ziwei-algorithm/SKILL.md#23',
+}));
 
 const MARKER_STARS = defineStars([
   'Tuần Không', 'Triệt Không', 'Tuần', 'Triệt',

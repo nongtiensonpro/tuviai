@@ -54,23 +54,31 @@
 - Bài học kỷ luật: KHÔNG kết luận "engine sai" khi chưa chạy đối chứng độc lập; kỳ vọng tự chế
   trong probe không phải bằng chứng.
 
-### 🟠 L3 — Bảng độ sáng (miếu/vượng/đắc/bình/hãm) cần đối chiếu độc lập
-- Bảng trong `ZiweiEngine.ts` hiện chỉ theo MỘT nguồn (Học viện Lý số Hà Nội); một số ô nhạy cảm (Thiên Phủ Sửu, Cự Môn Tý, Liêm Trinh Thìn...) khác biệt giữa sách.
-- **Fix**: đối chiếu 2–3 nguồn công khai, diff từng ô; ô nào chọn theo nguồn nào ghi chú rõ; test khóa nguyên bảng 14×12.
+### ✅ L3 — ĐÃ GIẢI QUYẾT (2026-09-03, Giai đoạn 3) — GIỮ BẢNG, KHÔNG ĐỔI
+- Điều tra 4 nguồn (tuviai/Lý số HN, iztro 2.6.0 runtime, mangekj.com, horos.vn):
+  4 bảng KHÁC NHAU, ngay cả iztro vs mangekj (2 nguồn TQ) còn lệch 49/66 ô.
+- Kết luận: bảng độ sáng là QUY ƯỚC TRƯỜNG PHÁI (hiện tượng《全书》vs《全集》), không có bảng "đúng" tuyệt đối.
+- Hành động: giữ bảng Lý số HN (nhất quán fixtures + 131 case đã verify); tách ra StarConstants.ts
+  với comment nguồn + tranh chấp; test khóa 168 ô (BrightnessTable.test.ts).
+- Chi tiết đầy đủ: tailieu/DIEU-TRA-BANG-DO-SANG-14-CHINH-TINH.md
 
 ### 🟠 L4 — Ranh giới Lập xuân vs mùng 1 Tết chưa tài liệu hóa
 - Can chi năm tính theo **năm âm lịch (mùng 1 Tết)** qua `getYearCanChi(lunar.year)` — hợp lệ theo đa số phần mềm VN, nhưng trường phái tiết khí đổi can chi tại **Lập xuân**; lá số sinh 01→04/02 hàng năm có thể lệch giữa hai trường phái.
 - **Fix (nhỏ)**: KHÔNG đổi mặc định; tài liệu hóa quy ước vào SKILL.md + README; (tùy chọn giai đoạn 2) cờ `yearBoundary: 'tet' | 'lichun'` với bảng 24 tiết khí tính bằng công thức thiên văn rút gọn, vẫn TS thuần.
 - **Test**: fixture case 04/02/2024 (trước Lập xuân) khóa hành vi hiện tại để sau này đổi có chủ đích.
 
-### 🟡 L5 — Đẩu Quân: code khác công thức ghi trong SKILL.md §21
-- SKILL.md: "khởi Thái Tuế, **đếm NGHỊCH đến tháng sinh**, coi đó là giờ Tý, đếm THUẬN đến giờ sinh".
-- Code: `(chi - month + 1 + hourChiIdx + 24) % 12` — hai diễn giải có thể lệch nhau; fixture mới chỉ xác nhận Đẩu Quân CÓ MẶT ở Mệnh chứ chưa xác nhận ĐÚNG VỊ TRÍ.
-- **Fix**: verify bằng lá số tham chiếu hiển thị Đẩu Quân; sửa code HOẶC sửa SKILL.md cho khớp; test vị trí tường minh.
+### ✅ L5 — ĐÃ GIẢI QUYẾT (2026-09-03, Giai đoạn 3): KHÔNG phải bug
+- Đối chiếu tuvi.cohoc.net + tuvisonkhiem.vn: "Thái Tuế coi là tháng 1, tính NGƯỢC đến tháng sinh,
+  đặt giờ Tý chạy THUẬN đến giờ sinh" → `(yearChi - month + 1 + hourChi) mod 12`.
+- Code hiện tại = ĐÚNG CHUẨN. Nghi ngờ ban đầu do diễn giải chữ "đếm nghịch tháng sinh"
+  (nghịch (month-1) bước, không phải -month). SKILL.md đã diễn đạt đúng, giữ nguyên.
 
-### 🟡 L6 — Ngũ hành sao lưu niên resolve nhờ cơ chế strip "Lưu "
-- Probe: cả 17 sao `scope:'annual'` throw nếu gọi `getStarNguHanh` trực tiếp — chỉ an toàn vì strip prefix "Lưu ". Implicit coupling dễ vỡ khi thêm sao lưu niên mới.
-- **Fix**: thêm `nguHanh` tường minh cho 17 sao annual; test quét toàn catalog không strip.
+### ✅ L6 — ĐÃ GIẢI QUYẾT (2026-09-03, Giai đoạn 3) + bắt được bug thật
+- Đã thêm `nguHanh` tường minh cho 17 sao annual trong StarCatalog.
+- getStarNguHanh chuyển sang catalog-first, 3-step lookup.
+- BUG THẬT bị test bắt ngay: sao natal "Lưu Hà" (Sông Chảy) bị cơ chế strip "Lưu " phá tên
+  thành "Hà" → throw. Đã sửa: tra tên gốc TRƯỚC, chỉ strip khi không khớp.
+- Test: 17 sao annual resolve không strip; ngũ hành Lưu X = ngũ hành X; Lưu Hà OK; fail-fast tên lạ.
 
 ### 🟡 L7 — Giờ Tý muộn 00:00–00:59 chưa có lựa chọn tách riêng
 - `hourToChiIndex(0)=0` đúng lịch; quy ước "Tý muộn thuộc ngày hôm trước" của một số thầy chưa có cấu hình. Ghi nhận là **tùy chọn**, không phải bug.

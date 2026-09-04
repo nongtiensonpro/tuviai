@@ -3,7 +3,7 @@
  * Dùng để hiển thị màu sắc khoa học trên lá số.
  */
 import type { NguHanh, StarBrightness } from '../types/ZiweiTypes';
-import { isKnownStarName } from './StarCatalog';
+import { getStarDefinition, isKnownStarName } from './StarCatalog';
 
 // Từ điển Ngũ Hành của các Chính Tinh
 const MAIN_STARS_NGU_HANH: Record<string, NguHanh> = {
@@ -70,16 +70,27 @@ const AUX_STARS_NGU_HANH: Record<string, NguHanh> = {
 };
 
 export function getStarNguHanh(starName: string): NguHanh {
-  const normalizedName = isKnownStarName(starName)
-    ? starName
-    : starName.replace(/^Lưu\s+/, '');
-  const nguHanh = MAIN_STARS_NGU_HANH[normalizedName] || AUX_STARS_NGU_HANH[normalizedName];
+  // 1) Ưu tiên ngũ hành tường minh từ StarCatalog (sao lưu niên đã gán explicit)
+  const definition = getStarDefinition(starName);
+  if (definition?.nguHanh) {
+    return definition.nguHanh;
+  }
 
-  if (!nguHanh || (!isKnownStarName(starName) && !isKnownStarName(normalizedName))) {
+  // 2) Tra bảng nội bộ với TÊN GỐC trước — quan trọng vì có sao natal
+  //    tên "Lưu Hà" (Sông Chảy) sẽ bị strip oan thành "Hà" nếu strip sớm.
+  const direct = MAIN_STARS_NGU_HANH[starName] || AUX_STARS_NGU_HANH[starName];
+  if (direct) {
+    return direct;
+  }
+
+  // 3) Chỉ strip tiền tố "Lưu " khi tên gốc không khớp (sao lưu niên chưa có catalog)
+  const stripped = starName.replace(/^Lưu\s+/, '');
+  const fallback = MAIN_STARS_NGU_HANH[stripped] || AUX_STARS_NGU_HANH[stripped];
+  if (!fallback || (!isKnownStarName(starName) && !isKnownStarName(stripped))) {
     throw new Error(`Unknown star ngu hanh: ${starName}`);
   }
 
-  return nguHanh;
+  return fallback;
 }
 
 /**

@@ -7,6 +7,7 @@
 
 import type { Palace, Star, NguHanhCuc, StarBrightness } from '../types/ZiweiTypes';
 import { getStarNguHanh } from './NguHanhEngine';
+import { BRIGHTNESS } from './StarConstants';
 
 // ============================================================
 // AN SAO TỬ VI (BƯỚC 1)
@@ -58,24 +59,6 @@ export function findZiweiPosition(ngayAm: number, cuc: NguHanhCuc): number {
  * chiIndex: 0=Tý, 1=Sửu, 2=Dần, 3=Mão, 4=Thìn, 5=Tỵ
  *           6=Ngọ, 7=Mùi, 8=Thân, 9=Dậu, 10=Tuất, 11=Hợi
  */
-const BRIGHTNESS: Record<string, StarBrightness[]> = {
-  // [Tý, Sửu, Dần, Mão, Thìn, Tỵ, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi]
-  '紫微': ['Đ', 'Đ', 'Đ', 'Đ', 'Đ', 'M', 'M', 'V', 'Đ', 'H', 'V', 'Đ'],
-  '天機': ['B', 'Đ', 'H', 'M', 'H', 'Đ', 'B', 'B', 'H', 'M', 'H', 'V'],
-  '太陽': ['H', 'H', 'V', 'V', 'M', 'M', 'M', 'V', 'Đ', 'H', 'H', 'H'],
-  '武曲': ['M', 'Đ', 'Đ', 'H', 'Đ', 'M', 'H', 'Đ', 'M', 'V', 'Đ', 'H'],
-  '天同': ['V', 'H', 'V', 'V', 'H', 'H', 'H', 'M', 'M', 'H', 'H', 'M'],
-  '廉貞': ['H', 'M', 'M', 'H', 'B', 'H', 'V', 'H', 'Đ', 'H', 'V', 'H'],
-  '天府': ['M', 'M', 'Đ', 'Đ', 'M', 'Đ', 'M', 'M', 'Đ', 'V', 'M', 'Đ'],
-  '太陰': ['M', 'V', 'H', 'H', 'H', 'H', 'H', 'H', 'V', 'M', 'Đ', 'V'],
-  '貪狼': ['V', 'Đ', 'M', 'V', 'Đ', 'H', 'B', 'B', 'V', 'M', 'H', 'M'],
-  '巨門': ['B', 'M', 'H', 'H', 'H', 'V', 'B', 'V', 'H', 'H', 'M', 'H'],
-  '天相': ['M', 'Đ', 'V', 'Đ', 'M', 'Đ', 'M', 'Đ', 'V', 'Đ', 'M', 'Đ'],
-  '天梁': ['M', 'V', 'V', 'H', 'M', 'H', 'V', 'V', 'H', 'H', 'M', 'H'],
-  '七殺': ['M', 'H', 'V', 'H', 'H', 'M', 'M', 'H', 'V', 'H', 'H', 'M'],
-  '破軍': ['V', 'H', 'H', 'V', 'M', 'V', 'H', 'V', 'V', 'V', 'V', 'H'],
-};
-
 /** Map tên Hán sang tên Việt cho 14 chính tinh */
 const STAR_HAN_TO_VIET: Record<string, string> = {
   '紫微': 'Tử Vi',
