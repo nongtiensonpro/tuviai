@@ -11,8 +11,11 @@ import type {
 } from '../core/types/ZiweiTypes';
 import { AiTelemetryService } from '../services/AiTelemetryService';
 import type { GeminiChatSession } from '../services/GeminiService';
+import type { AgentRouterChatSession } from '../services/AgentRouterService';
 import type { StructuredAiResponse } from '../services/PromptBuilder';
 import { AnalysisThreadService } from '../services/AnalysisThreadService';
+
+export type AiProvider = 'gemini' | 'agentrouter';
 
 type AnalysisStreamPhase = 'idle' | 'requesting' | 'receiving' | 'retrying';
 
@@ -55,10 +58,11 @@ interface UseAnalysisAiStateResult {
   apiKey: string;
   selectedModel: string;
   activeModel: string;
+  aiProvider: AiProvider;
   isLoading: boolean;
   analysisResult: StructuredAiResponse | null;
   currentThread: AnalysisThread | null;
-  currentChatSession: GeminiChatSession | null;
+  currentChatSession: GeminiChatSession | AgentRouterChatSession | null;
   errorState: UiErrorState | null;
   fallbackState: ModelFallbackState | null;
   suggestedRecoveryModel: string | null;
@@ -88,7 +92,7 @@ interface UseAnalysisAiStateResult {
   cancelActiveChatRequest: () => void;
   retryLastMessage: () => Promise<void>;
   retryLastMessageWithSuggestedModel: () => Promise<void>;
-  handleKeyReady: (key: string, model: string) => void;
+  handleKeyReady: (key: string, model: string, provider?: AiProvider) => void;
   handleLockKey: () => void;
 }
 
@@ -114,14 +118,28 @@ const FALLBACK_MODEL_ORDER = [
   'gemini-3.1-pro-preview',
 ] as const;
 
+const AGENTROUTER_FALLBACK_MODEL_ORDER = [
+  'openai/gpt-4o-mini',
+  'deepseek/deepseek-chat',
+  'anthropic/claude-3-5-sonnet',
+  'openai/gpt-4o',
+];
+
 let geminiServiceModulePromise: Promise<typeof import('../services/GeminiService')> | null = null;
+let agentRouterServiceModulePromise: Promise<typeof import('../services/AgentRouterService')> | null = null;
 
 function loadGeminiServiceModule(): Promise<typeof import('../services/GeminiService')> {
   if (!geminiServiceModulePromise) {
     geminiServiceModulePromise = import('../services/GeminiService');
   }
-
   return geminiServiceModulePromise;
+}
+
+function loadAgentRouterServiceModule(): Promise<typeof import('../services/AgentRouterService')> {
+  if (!agentRouterServiceModulePromise) {
+    agentRouterServiceModulePromise = import('../services/AgentRouterService');
+  }
+  return agentRouterServiceModulePromise;
 }
 
 function formatFocusAreaLabel(focusArea: AnalysisFocusArea): string {
@@ -137,7 +155,7 @@ function formatStreamSize(receivedChars: number): string {
 }
 
 function isThinkingHeavyModel(modelName: string): boolean {
-  return modelName.includes('2.5');
+  return modelName.includes('2.5') || modelName.includes('reasoner') || modelName.includes('opus');
 }
 
 function isAiServiceErrorDetails(value: unknown): value is AiServiceErrorDetails {
@@ -163,6 +181,7 @@ function toUiErrorState(error: unknown, fallbackMessage: string): UiErrorState {
       rate_limited: 'AI đang tạm giới hạn nhịp gửi yêu cầu trong ít giây.',
       quota_exceeded: 'API Key hiện tại đã chạm hạn mức sử dụng.',
       invalid_api_key: 'API Key hiện tại chưa dùng được cho yêu cầu này.',
+      content_blocked: 'Yêu cầu bị chặn do chính sách nội dung hoặc giới hạn tài khoản của AgentRouter.',
     };
 
     const friendlySuggestionByCode: Partial<Record<AiErrorCode, string>> = {
@@ -174,10 +193,17 @@ function toUiErrorState(error: unknown, fallbackMessage: string): UiErrorState {
       rate_limited: 'Bạn có thể đợi ít giây rồi thử lại, hoặc tạm đổi model nếu đang cần phản hồi ngay.',
       quota_exceeded: 'Hãy dùng API Key khác hoặc chờ hạn mức được làm mới rồi thử lại.',
       invalid_api_key: 'Hãy kiểm tra lại API Key hoặc mở khóa lại bằng key khác.',
+      content_blocked: 'Vui lòng kiểm tra lại số dư/gói tài khoản trên AgentRouter Console, hoặc thử chuyển sang mô hình khác như DeepSeek Chat hay GPT-4o Mini.',
     };
 
+    const baseFriendlyMessage = friendlyMessageByCode[error.code] ?? error.message;
+    const isDetailed = error.message && error.message !== friendlyMessageByCode[error.code];
+    const finalMessage = isDetailed 
+      ? `${baseFriendlyMessage} (Chi tiết: ${error.message})`
+      : baseFriendlyMessage;
+
     return {
-      message: friendlyMessageByCode[error.code] ?? error.message,
+      message: finalMessage,
       suggestion: friendlySuggestionByCode[error.code] ?? error.suggestedAction,
       retryable: error.retryable,
       code: error.code,
@@ -214,8 +240,9 @@ function shouldTryFallbackModel(code: AiErrorCode): boolean {
     || code === 'rate_limited';
 }
 
-function getFallbackModels(preferredModel: string, currentModel: string): string[] {
-  const candidates = [preferredModel, currentModel, ...FALLBACK_MODEL_ORDER]
+function getFallbackModels(preferredModel: string, currentModel: string, provider: AiProvider): string[] {
+  const order = provider === 'gemini' ? FALLBACK_MODEL_ORDER : AGENTROUTER_FALLBACK_MODEL_ORDER;
+  const candidates = [preferredModel, currentModel, ...order]
     .filter((model, index, items): model is string => Boolean(model) && items.indexOf(model) === index)
     .filter(model => model !== currentModel);
 
@@ -245,10 +272,11 @@ export function useAnalysisAiState({
   const [apiKey, setApiKey] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-pro-preview');
   const [activeModel, setActiveModel] = useState<string>('gemini-3.1-pro-preview');
+  const [aiProvider, setAiProvider] = useState<AiProvider>('gemini');
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<StructuredAiResponse | null>(null);
   const [currentThread, setCurrentThread] = useState<AnalysisThread | null>(null);
-  const [currentChatSession, setCurrentChatSession] = useState<GeminiChatSession | null>(null);
+  const [currentChatSession, setCurrentChatSession] = useState<GeminiChatSession | AgentRouterChatSession | null>(null);
   const [errorState, setErrorState] = useState<UiErrorState | null>(null);
   const [fallbackState, setFallbackState] = useState<ModelFallbackState | null>(null);
   const [suggestedRecoveryModel, setSuggestedRecoveryModel] = useState<string | null>(null);
@@ -365,24 +393,38 @@ export function useAnalysisAiState({
     let cancelled = false;
     setCurrentChatSession(null);
 
-    void loadGeminiServiceModule()
-      .then(({ GeminiService }) => {
-        if (cancelled) {
-          return;
-        }
-
-        setCurrentChatSession(GeminiService.createChatSession(apiKey, activeModel));
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setCurrentChatSession(null);
-        }
-      });
+    if (aiProvider === 'gemini') {
+      void loadGeminiServiceModule()
+        .then(({ GeminiService }) => {
+          if (cancelled) {
+            return;
+          }
+          setCurrentChatSession(GeminiService.createChatSession(apiKey, activeModel));
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setCurrentChatSession(null);
+          }
+        });
+    } else {
+      void loadAgentRouterServiceModule()
+        .then(({ AgentRouterService }) => {
+          if (cancelled) {
+            return;
+          }
+          setCurrentChatSession(AgentRouterService.createChatSession(apiKey, activeModel));
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setCurrentChatSession(null);
+          }
+        });
+    }
 
     return () => {
       cancelled = true;
     };
-  }, [apiKey, activeModel, hasAnalysisResult]);
+  }, [apiKey, activeModel, hasAnalysisResult, aiProvider]);
 
   useEffect(() => () => {
     analyzeRequestIdRef.current += 1;
@@ -440,56 +482,111 @@ export function useAnalysisAiState({
     activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
 
     try {
-      const { GeminiService } = await loadGeminiServiceModule();
-      activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
+      let response;
       const startedAt = Date.now();
-      const response = await GeminiService.analyzeChartJSON(
-        apiKey,
-        chart,
-        specificPalace,
-        undefined,
-        modelName,
-        bridgeContext,
-        {
-          abortSignal: abortController.signal,
-          onStreamEvent: (event) => {
-            if (analyzeRequestIdRef.current !== requestId) {
-              return;
-            }
+      
+      if (aiProvider === 'gemini') {
+        const { GeminiService } = await loadGeminiServiceModule();
+        activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
+        response = await GeminiService.analyzeChartJSON(
+          apiKey,
+          chart,
+          specificPalace,
+          undefined,
+          modelName,
+          bridgeContext,
+          {
+            abortSignal: abortController.signal,
+            onStreamEvent: (event) => {
+              if (analyzeRequestIdRef.current !== requestId) {
+                return;
+              }
 
-            scheduleStreamStatus({
-              phase: 'receiving',
-              focusArea,
-              receivedChars: event.receivedChars,
-              receivedChunks: event.receivedChunks,
-              attemptNumber: activeAttemptRef.current.attemptNumber,
-              maxAttempts: activeAttemptRef.current.maxAttempts,
-              retryAfterMs: 0,
-              retryCode: null,
-            });
-          },
-          onRetryAttempt: (attempt: AiRetryAttempt) => {
-            if (analyzeRequestIdRef.current !== requestId) {
-              return;
-            }
+              scheduleStreamStatus({
+                phase: 'receiving',
+                focusArea,
+                receivedChars: event.receivedChars,
+                receivedChunks: event.receivedChunks,
+                attemptNumber: activeAttemptRef.current.attemptNumber,
+                maxAttempts: activeAttemptRef.current.maxAttempts,
+                retryAfterMs: 0,
+                retryCode: null,
+              });
+            },
+            onRetryAttempt: (attempt: AiRetryAttempt) => {
+              if (analyzeRequestIdRef.current !== requestId) {
+                return;
+              }
 
-            commitStreamStatus({
-              phase: 'retrying',
-              focusArea,
-              receivedChars: 0,
-              receivedChunks: 0,
-              attemptNumber: attempt.attemptNumber,
-              maxAttempts: attempt.maxAttempts,
-              retryAfterMs: attempt.retryAfterMs,
-              retryCode: attempt.code,
-            });
-            activeAttemptRef.current = {
-              attemptNumber: attempt.attemptNumber,
-              maxAttempts: attempt.maxAttempts,
-            };
+              commitStreamStatus({
+                phase: 'retrying',
+                focusArea,
+                receivedChars: 0,
+                receivedChunks: 0,
+                attemptNumber: attempt.attemptNumber,
+                maxAttempts: attempt.maxAttempts,
+                retryAfterMs: attempt.retryAfterMs,
+                retryCode: attempt.code,
+              });
+              activeAttemptRef.current = {
+                attemptNumber: attempt.attemptNumber,
+                maxAttempts: attempt.maxAttempts,
+              };
+            },
           },
-        },
-      );
+        );
+      } else {
+        const { AgentRouterService } = await loadAgentRouterServiceModule();
+        activeAttemptRef.current = { attemptNumber: 1, maxAttempts: 3 };
+        response = await AgentRouterService.analyzeChartJSON(
+          apiKey,
+          chart,
+          specificPalace,
+          undefined,
+          modelName,
+          bridgeContext,
+          {
+            abortSignal: abortController.signal,
+            onStreamEvent: (event) => {
+              if (analyzeRequestIdRef.current !== requestId) {
+                return;
+              }
+
+              scheduleStreamStatus({
+                phase: 'receiving',
+                focusArea,
+                receivedChars: event.receivedChars,
+                receivedChunks: event.receivedChunks,
+                attemptNumber: activeAttemptRef.current.attemptNumber,
+                maxAttempts: activeAttemptRef.current.maxAttempts,
+                retryAfterMs: 0,
+                retryCode: null,
+              });
+            },
+            onRetryAttempt: (attempt: AiRetryAttempt) => {
+              if (analyzeRequestIdRef.current !== requestId) {
+                return;
+              }
+
+              commitStreamStatus({
+                phase: 'retrying',
+                focusArea,
+                receivedChars: 0,
+                receivedChunks: 0,
+                attemptNumber: attempt.attemptNumber,
+                maxAttempts: attempt.maxAttempts,
+                retryAfterMs: attempt.retryAfterMs,
+                retryCode: attempt.code,
+              });
+              activeAttemptRef.current = {
+                attemptNumber: attempt.attemptNumber,
+                maxAttempts: attempt.maxAttempts,
+              };
+            },
+          },
+        );
+      }
+
       AiTelemetryService.recordSuccess(modelName, Date.now() - startedAt);
       const result: ModelAttemptResult = {
         response,
@@ -521,7 +618,7 @@ export function useAnalysisAiState({
 
       const nextError = toUiErrorState(err, 'Lỗi khi gọi AI.');
       const backupModel = shouldTryFallbackModel(nextError.code)
-        ? getFallbackModels(selectedModel, modelName)[0] ?? null
+        ? getFallbackModels(selectedModel, modelName, aiProvider)[0] ?? null
         : null;
       setSuggestedRecoveryModel(backupModel);
       setLastFailureScope('analysis');
@@ -584,7 +681,6 @@ export function useAnalysisAiState({
     }
 
     try {
-      const { GeminiService } = await loadGeminiServiceModule();
       const abortController = new AbortController();
       activeRequestAbortRef.current?.abort('user_cancelled');
       activeRequestAbortRef.current = abortController;
@@ -602,9 +698,19 @@ export function useAnalysisAiState({
         retryCode: null,
       });
 
-      const session = modelName === activeModel && currentChatSession
-        ? currentChatSession
-        : GeminiService.createChatSession(apiKey, modelName);
+      let session;
+      if (aiProvider === 'gemini') {
+        const { GeminiService } = await loadGeminiServiceModule();
+        session = modelName === activeModel && currentChatSession
+          ? currentChatSession
+          : GeminiService.createChatSession(apiKey, modelName);
+      } else {
+        const { AgentRouterService } = await loadAgentRouterServiceModule();
+        session = modelName === activeModel && currentChatSession
+          ? currentChatSession
+          : AgentRouterService.createChatSession(apiKey, modelName);
+      }
+      
       const startedAt = Date.now();
       const aiResponse = await session.sendMessage(currentThread, userMessage, {
         abortSignal: abortController.signal,
@@ -618,86 +724,75 @@ export function useAnalysisAiState({
       setQuestion('');
       lastFailedUserMessageRef.current = null;
       setPendingChatMessage(null);
-      setPendingChatStartedAt(null);
-      if (modelName !== activeModel) {
-        setFallbackState({
-          fromModel: activeModel,
-          toModel: modelName,
-          reasonCode: errorState?.code ?? 'unknown',
-        });
-      }
-      setActiveModel(modelName);
-      setActiveModelHealth(AiTelemetryService.getSnapshot(modelName));
-      setLastFailureScope(null);
-      setSuggestedRecoveryModel(null);
     } catch (err: unknown) {
-      const nextError = toUiErrorState(err, 'AI không thể trả lời câu hỏi lúc này.');
-      lastFailedUserMessageRef.current = userMessage;
+      const nextError = toUiErrorState(err, 'Lỗi khi gửi tin nhắn.');
       const backupModel = shouldTryFallbackModel(nextError.code)
-        ? getFallbackModels(selectedModel, modelName)[0] ?? null
+        ? getFallbackModels(selectedModel, modelName, aiProvider)[0] ?? null
         : null;
       setSuggestedRecoveryModel(backupModel);
       setLastFailureScope('chat');
+      lastFailedUserMessageRef.current = userMessage;
       setActiveModelHealth(AiTelemetryService.recordFailure(modelName, nextError.code));
-      setPendingChatStartedAt(null);
       if (nextError.code !== 'user_cancelled') {
         setErrorState(nextError);
-      } else {
-        setPendingChatMessage(null);
       }
+      setPendingChatMessage(null);
     } finally {
       activeRequestAbortRef.current = null;
       setIsLoading(false);
+      setPendingChatStartedAt(null);
       setStreamStatus(IDLE_STREAM_STATUS);
     }
   };
 
   const handleResetThread = () => {
-    if (!currentThread) {
-      return;
-    }
-
-    const resetThread = AnalysisThreadService.resetConversation(currentThread);
-    AnalysisThreadService.saveThread(resetThread);
-      syncThreadState(resetThread);
+    if (!currentThread) return;
+    if (confirm('Bạn có chắc muốn xóa lịch sử đàm thoại của cung vị này không?')) {
+      const reset = AnalysisThreadService.resetConversation(currentThread);
+      syncThreadState(reset);
       setErrorState(null);
       setLastFailureScope(null);
       setSuggestedRecoveryModel(null);
-      setPendingChatMessage(null);
-      setPendingChatStartedAt(null);
-      lastFailedUserMessageRef.current = null;
+      setQuestion('');
+    }
   };
 
   const handleNavigateFocus = (focusArea: AnalysisFocusArea) => {
-    if (focusArea === currentFocus && currentThread?.focusArea === focusArea) {
-      return;
-    }
-
-    onNavigateFocus?.(focusArea);
-
-    if (focusArea === 'overall') {
-      const savedOverallThread = AnalysisThreadService.loadThread(chart, 'overall');
-      if (savedOverallThread) {
-        syncThreadState(savedOverallThread);
-        setErrorState(null);
-        return;
-      }
-
-      void handleAnalyze(undefined);
+    cancelActiveAnalysis();
+    if (onNavigateFocus) {
+      onNavigateFocus(focusArea);
     }
   };
 
-  const loadingFocusArea = streamStatus.focusArea ?? currentFocus;
-  const loadingMessage = streamStatus.phase === 'receiving'
-    ? `AI đã bắt đầu trả lời cho ${formatFocusAreaLabel(loadingFocusArea)}. Hiện đã nhận ${streamStatus.receivedChunks} đợt dữ liệu, khoảng ${formatStreamSize(streamStatus.receivedChars)}.`
-    : streamStatus.phase === 'retrying'
-      ? `AI vừa khựng lại một chút nên hệ thống đang chuẩn bị thử lại lần ${streamStatus.attemptNumber}/${streamStatus.maxAttempts}.`
-      : `Đang gửi dữ kiện ${formatFocusAreaLabel(loadingFocusArea)} để AI bắt đầu luận giải.`;
-  const loadingHint = streamStatus.phase === 'retrying'
-    ? `Hệ thống sẽ thử lại sau khoảng ${formatRetryDelay(streamStatus.retryAfterMs)}. Bạn có thể chờ thêm, hoặc dừng lại để tự chọn cách xử lý khác.`
-    : streamStatus.phase === 'requesting' && isThinkingHeavyModel(selectedModel)
-      ? 'Model hiện tại đang suy luận kỹ hơn thường lệ, nên phản hồi đầu tiên có thể đến chậm hơn vài giây.'
-      : 'Khi AI bắt đầu trả dữ liệu, trạng thái này sẽ tự đổi sang chế độ đang phản hồi.';
+  const loadingFocusArea = isLoading
+    ? (streamStatus.focusArea ?? currentFocus)
+    : currentFocus;
+
+  const palaceLabel = formatFocusAreaLabel(loadingFocusArea);
+
+  const getLoadingMessage = () => {
+    if (streamStatus.phase === 'requesting') {
+      return `Mở cổng linh thức tới tinh cầu AI, đang kết nối để luận giải ${palaceLabel}...`;
+    }
+    if (streamStatus.phase === 'receiving') {
+      return `Tinh tú đang soi rọi... Đã nhận ${formatStreamSize(streamStatus.receivedChars)} dữ liệu luận cung...`;
+    }
+    if (streamStatus.phase === 'retrying') {
+      return `Mạng vũ trụ chập chờn (${streamStatus.retryCode ?? 'error'}). Đang chuẩn bị thử lại lần ${streamStatus.attemptNumber}/${streamStatus.maxAttempts} sau ${formatRetryDelay(streamStatus.retryAfterMs)}...`;
+    }
+    return '';
+  };
+
+  const getLoadingHint = () => {
+    if (isThinkingHeavyModel(activeModel)) {
+      return 'Các mô hình có tư duy chuyên sâu (Pro/Reasoner/Opus) cần khoảng 10-30 giây để phân tích các tổ hợp sao phức tạp.';
+    }
+    return 'Các mô hình Flash phản hồi rất nhanh, thường dưới 10 giây.';
+  };
+
+  const loadingMessage = getLoadingMessage();
+  const loadingHint = getLoadingHint();
+
   const activeModelHealthText = formatHealthLabel(activeModelHealth);
   const activeModelLatencyText = activeModelHealth.averageLatencyMs
     ? `Độ trễ gần đây khoảng ${(activeModelHealth.averageLatencyMs / 1000).toFixed(1)} giây.`
@@ -707,6 +802,7 @@ export function useAnalysisAiState({
     apiKey,
     selectedModel,
     activeModel,
+    aiProvider,
     isLoading,
     analysisResult,
     currentThread,
@@ -754,10 +850,11 @@ export function useAnalysisAiState({
         await sendMessageWithModel(lastFailedUserMessageRef.current, suggestedRecoveryModel);
       }
     },
-    handleKeyReady: (key: string, model: string) => {
+    handleKeyReady: (key: string, model: string, provider: AiProvider = 'gemini') => {
       setApiKey(key);
       setSelectedModel(model);
       setActiveModel(model);
+      setAiProvider(provider);
       setFallbackState(null);
       setIsShowingLastGoodResult(false);
       setLastFailureScope(null);

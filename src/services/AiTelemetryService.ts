@@ -12,6 +12,7 @@ const FAILURE_WEIGHTS: Record<AiErrorCode, number> = {
   empty_response: 2,
   invalid_json: 2,
   user_cancelled: 0,
+  content_blocked: 3,
   unknown: 3,
 };
 
